@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.egg-info/
+
+# Data: raw/interim/processed are never committed (size + licensing).
+# Manifests ARE committed: they document exactly what was used.
+data/raw/*
+data/interim/*
+data/processed/*
+!data/**/.gitkeep
+
+# Large run artefacts (tables, figures and run summaries are committed)
+results/runs/**/*.parquet
+results/runs/**/*.npz
+*.pt
+
+.DS_Store
+results/_synthetic/

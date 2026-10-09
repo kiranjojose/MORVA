@@ -1,0 +1,31 @@
+# Data configuration. PROVISIONAL until the Saturday dataset gate:
+# freeze the AOI and dates only after inspecting real files (see docs/05_protocol.md).
+
+source:
+  provider: Danish Maritime Authority
+  url: https://www.dma.dk/safety-at-sea/navigational-information/ais-data
+  timestamp_format: "%d/%m/%Y %H:%M:%S"   # DMA format; timestamps are UTC (verify on real file)
+  keep_mobile_types: ["Class A"]          # V1: Class A only (SOLAS vessels, denser reporting)
+
+# Area of interest: Great Belt / Oresund / southern Kattegat (provisional bounding box)
+aoi:
+  name: great_belt_oresund
+  lat_min: 54.8
+  lat_max: 56.2
+  lon_min: 10.4
+  lon_max: 13.0
+
+paths:
+  raw: data/raw
+  interim: data/interim
+  processed: data/processed
+  manifests: data/manifests
+
+quality:
+  max_implied_speed_kn: 50.0    # spike threshold for implied speed between consecutive fixes
+  max_plausible_sog_kn: 40.0    # reported SOG above this is flagged (sentinel 102.3 is nulled first)
+
+segmentation:
+  gap_s: 1200                   # sensitivity settings to test: 600 / 1200 / 1800
+  min_points: 20
+  min_duration_s: 1800

@@ -1,0 +1,8 @@
+key,citation,problem,dataset,sampling,features,model,baseline,split,metrics,reported_limitations,reproducibility,relevance,question_for_vesselmind
+R1,"Yang et al. 2024, TR-E 183:103426",AIS+ML review,,,,,,,,,,,
+R2,"Ribeiro et al. 2023, ESWA 231:120561",AIS anomaly review,,,,,,,,,,,
+R3,"Li, Jiao & Yang 2023, EAAI 126:107062",trajectory prediction review,,,,,,,,,,,
+R4,"Li, Jiao & Yang 2023, TR-E 175:103152",trajectory prediction benchmark,,,,,,,,,,,
+R5,"Zhang et al. 2023, Ocean Eng 288:116082",clustering + anomaly,,,,,,,,,,,
+R6,"JMSE 2022 10(1):112 (verify authors)",anomaly review,,,,,,,,,,,
+R7,"TRPRO 2023 73:220-226 (verify authors)",traffic ML overview,,,,,,,,,,,
