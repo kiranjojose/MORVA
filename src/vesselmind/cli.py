@@ -201,6 +201,19 @@ def cmd_plot_tracks(ws: Workspace, data_cfg, exp_cfg, args):
     print(f"wrote {out.relative_to(project_path('.'))}")
 
 
+def cmd_regime_eda(ws: Workspace, data_cfg, exp_cfg, args):
+    from vesselmind.viz.regime_eda import regime_eda
+
+    w = exp_cfg["windows"]
+    hist = np.load(ws.processed / "windows.npz")["hist"]
+    meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
+    runs = sorted((ws.results / "runs").glob("*_baselines_val"))
+    per_sample = pl.read_parquet(runs[-1] / "per_sample.parquet") if runs else None
+    summary = regime_eda(hist, meta, per_sample, w["step_s"], ws.results / "figures")
+    _write_json(summary, ws.results / "tables" / "regime_eda.json")
+    print(json.dumps(summary, indent=2, default=str))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="vesselmind")
     ap.add_argument("--synthetic", action="store_true", help="use the isolated synthetic workspace")
@@ -221,6 +234,7 @@ def main(argv=None):
     p.add_argument("--split", default="val", choices=["train", "val", "test"])
     p.add_argument("--confirm-test", action="store_true")
     sub.add_parser("plot-tracks", help="overview map of segmented tracks")
+    sub.add_parser("regime-eda", help="figures supporting the manoeuvring-regime definition (train+val only)")
 
     args = ap.parse_args(argv)
     data_cfg, exp_cfg = load_config(args.data_config), load_config(args.exp_config)
@@ -228,6 +242,7 @@ def main(argv=None):
     handlers = {
         "synth": cmd_synth, "manifest": cmd_manifest, "ingest": cmd_ingest, "clean": cmd_clean,
         "windows": cmd_windows, "baselines": cmd_baselines, "plot-tracks": cmd_plot_tracks,
+        "regime-eda": cmd_regime_eda,
     }
     handlers[args.cmd](ws, data_cfg, exp_cfg, args)
 

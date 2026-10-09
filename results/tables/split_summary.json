@@ -2,6 +2,10 @@
   "train_end_utc": "2026-10-01 00:00:00+00:00",
   "val_end_utc": "2026-10-04 00:00:00+00:00",
   "counts": {
+    "excluded": {
+      "windows": 858,
+      "vessels": 119
+    },
     "val": {
       "windows": 62982,
       "vessels": 692
@@ -13,10 +17,6 @@
     "test": {
       "windows": 57068,
       "vessels": 622
-    },
-    "excluded": {
-      "windows": 858,
-      "vessels": 119
     }
   },
   "vessel_overlap": {
