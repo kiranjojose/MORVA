@@ -99,7 +99,7 @@ CLEAN_COLUMNS = ["t", "mmsi", "lat", "lon", "sog", "cog", "heading", "nav_status
 
 
 def cmd_clean(ws: Workspace, data_cfg, exp_cfg, args):
-    from vesselmind.quality.checks import add_flags, normalize_sentinels, quality_report
+    from vesselmind.quality.checks import FLAG_COLS, HARD_FLAGS, add_flags, normalize_sentinels, quality_report
     from vesselmind.trajectories.segment import segment_tracks, vessel_table
 
     raw = pl.read_parquet(sorted(ws.interim.glob("*.parquet")), columns=CLEAN_COLUMNS)
@@ -107,6 +107,9 @@ def cmd_clean(ws: Workspace, data_cfg, exp_cfg, args):
     flagged = add_flags(normalize_sentinels(raw), q["max_implied_speed_kn"], q["max_plausible_sog_kn"])
     report = quality_report(raw, flagged)
 
+    ws.processed.mkdir(parents=True, exist_ok=True)
+    # Pre-segmentation clean points, kept so segmentation thresholds can be varied in `sensitivity`
+    flagged.filter(~pl.any_horizontal(HARD_FLAGS)).drop(FLAG_COLS).write_parquet(ws.processed / "points_clean.parquet")
     tracks = segment_tracks(flagged, s["gap_s"], s["min_points"], s["min_duration_s"])
     report["segmentation"] = {
         **s,
@@ -114,7 +117,6 @@ def cmd_clean(ws: Workspace, data_cfg, exp_cfg, args):
         "vessels_with_segments": tracks["mmsi"].n_unique(),
         "rows_in_segments": len(tracks),
     }
-    ws.processed.mkdir(parents=True, exist_ok=True)
     tracks.write_parquet(ws.processed / "tracks.parquet")
     vessel_table(tracks).write_parquet(ws.processed / "vessels.parquet")
     _write_json(report, ws.results / "tables" / "quality_report.json")
@@ -159,11 +161,24 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
     hist, fut, m = arrays["hist"][mask], arrays["fut"][mask], meta.filter(pl.col("split") == args.split)
     groups = m["mmsi"].to_numpy()
 
+    # Tune the damped-CTRV time constant on TRAIN windows only (never on the split being evaluated)
+    train_idx = np.flatnonzero((meta["split"] == "train").to_numpy())
+    rng = np.random.default_rng(ev["seed"])
+    train_idx = rng.choice(train_idx, size=min(len(train_idx), b["tuning_max_windows"]), replace=False)
+    h_tr, f_tr = arrays["hist"][train_idx], arrays["fut"][train_idx]
+    damped = lambda h, tau: baselines.ctrv_damped(  # noqa: E731
+        h, w["future_steps"], w["step_s"], tau, b["ctrv_turn_window_steps"], b["ctrv_max_turn_rate_deg_s"],
+        b["ctrv_min_sog_kn"])
+    tuning = {str(tau): float(step_errors_m(damped(h_tr, tau), f_tr).mean()) for tau in b["ctrv_damped_tau_grid_s"]}
+    best_tau = float(min(tuning, key=tuning.get))
+    print(f"damped CTRV tau tuned on {len(train_idx):,} train windows: ADE by tau {tuning} -> tau={best_tau:g}s")
+
     models = {
         "persistence": lambda h: baselines.persistence(h, w["future_steps"], w["step_s"]),
         "cv": lambda h: baselines.cv(h, w["future_steps"], w["step_s"]),
         "ctrv": lambda h: baselines.ctrv(h, w["future_steps"], w["step_s"], b["ctrv_turn_window_steps"],
                                          b["ctrv_max_turn_rate_deg_s"], b["ctrv_min_sog_kn"]),
+        "ctrv_damped": lambda h: damped(h, best_tau),
     }
     run_dir = ws.results / "runs" / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}_baselines_{args.split}"
     rows, summary, step_err = [], {}, {}
@@ -174,9 +189,18 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
         summary[name] = {k: summarize(v, groups, ev["n_bootstrap"], ev["seed"]) for k, v in per.items()}
         rows.append(pl.DataFrame({"sample_id": m["sample_id"], "model": name, **per}))
 
+    # Paired differences vs CV on identical windows (negative = better than CV), vessel-grouped bootstrap
+    by_model = {r["model"][0]: r for r in rows}
+    paired = {
+        name: {k: summarize(by_model[name][k].to_numpy() - by_model["cv"][k].to_numpy(), groups,
+                            ev["n_bootstrap"], ev["seed"]) for k in ("ade_m", "fde_m")}
+        for name in by_model if name != "cv"
+    }
+
     run_dir.mkdir(parents=True, exist_ok=True)
     pl.concat(rows).write_parquet(run_dir / "per_sample.parquet")
-    _write_json({"split": args.split, "git": _git_hash(), "config": exp_cfg, "metrics": summary},
+    _write_json({"split": args.split, "git": _git_hash(), "config": exp_cfg, "metrics": summary,
+                 "paired_vs_cv": paired, "ctrv_damped_tuning": {"ade_by_tau_train": tuning, "best_tau_s": best_tau}},
                 run_dir / "summary.json")
 
     lines = ["| model | metric | mean (95% CI, vessel bootstrap) | median | p90 | n |", "|---|---|---|---|---|---|"]
@@ -184,6 +208,13 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
         for k, s in mets.items():
             lines.append(f"| {name} | {k} | {s['mean']:.0f} ({s['ci95_lo']:.0f}–{s['ci95_hi']:.0f}) | "
                          f"{s['median']:.0f} | {s['p90']:.0f} | {s['n_samples']} / {s['n_vessels']} vessels |")
+    lines += ["", f"Paired difference vs CV on identical windows (model − CV, m; negative = better). "
+              f"Damped-CTRV tau = {best_tau:g} s, tuned on train.", "",
+              "| model | ΔADE (95% CI) | ΔFDE (95% CI) |", "|---|---|---|"]
+    for name, d in paired.items():
+        a, f = d["ade_m"], d["fde_m"]
+        lines.append(f"| {name} | {a['mean']:+.0f} ({a['ci95_lo']:+.0f} to {a['ci95_hi']:+.0f}) | "
+                     f"{f['mean']:+.0f} ({f['ci95_lo']:+.0f} to {f['ci95_hi']:+.0f}) |")
     table = ws.results / "tables" / f"baselines_{args.split}.md"
     table.write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
@@ -214,6 +245,28 @@ def cmd_regime_eda(ws: Workspace, data_cfg, exp_cfg, args):
     print(json.dumps(summary, indent=2, default=str))
 
 
+def cmd_sensitivity(ws: Workspace, data_cfg, exp_cfg, args):
+    """E0: how segmentation gap and window gap thresholds change retained data (counts only, no model fitting)."""
+    from vesselmind.features.windows import build_windows
+    from vesselmind.trajectories.segment import segment_tracks
+
+    s, w = data_cfg["segmentation"], exp_cfg["windows"]
+    points = pl.read_parquet(ws.processed / "points_clean.parquet")
+    rows = []
+    for gap_s in args.gap_s:
+        tracks = segment_tracks(points, gap_s, s["min_points"], s["min_duration_s"])
+        for max_gap in args.window_gap_s:
+            _, _, meta = build_windows(tracks, {**w, "max_gap_s": max_gap})
+            rows.append({"segment_gap_s": gap_s, "window_max_gap_s": max_gap,
+                         "segments": tracks["segment_id"].n_unique(), "vessels": tracks["mmsi"].n_unique(),
+                         "points_in_segments": len(tracks), "windows": len(meta),
+                         "window_vessels": meta["mmsi"].n_unique()})
+            print(rows[-1])
+    df = pl.DataFrame(rows)
+    df.write_csv(ws.results / "tables" / "sensitivity_gaps.csv")
+    print(f"wrote {(ws.results / 'tables' / 'sensitivity_gaps.csv').relative_to(project_path('.'))}")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="vesselmind")
     ap.add_argument("--synthetic", action="store_true", help="use the isolated synthetic workspace")
@@ -234,6 +287,9 @@ def main(argv=None):
     p.add_argument("--split", default="val", choices=["train", "val", "test"])
     p.add_argument("--confirm-test", action="store_true")
     sub.add_parser("plot-tracks", help="overview map of segmented tracks")
+    p = sub.add_parser("sensitivity", help="E0: retained data under different gap thresholds")
+    p.add_argument("--gap-s", type=int, nargs="+", default=[600, 1200, 1800])
+    p.add_argument("--window-gap-s", type=int, nargs="+", default=[120, 180, 300])
     sub.add_parser("regime-eda", help="figures supporting the manoeuvring-regime definition (train+val only)")
 
     args = ap.parse_args(argv)
@@ -242,7 +298,7 @@ def main(argv=None):
     handlers = {
         "synth": cmd_synth, "manifest": cmd_manifest, "ingest": cmd_ingest, "clean": cmd_clean,
         "windows": cmd_windows, "baselines": cmd_baselines, "plot-tracks": cmd_plot_tracks,
-        "regime-eda": cmd_regime_eda,
+        "regime-eda": cmd_regime_eda, "sensitivity": cmd_sensitivity,
     }
     handlers[args.cmd](ws, data_cfg, exp_cfg, args)
 

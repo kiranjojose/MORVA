@@ -125,3 +125,15 @@ def test_metrics_and_grouped_bootstrap():
     assert m["fde_m"][0] == 20 and m["err_5min_m"][0] == 5 and m["ade_m"][0] == pytest.approx(10.5)
     mean, lo, hi = grouped_bootstrap([1, 1, 3, 3], ["a", "a", "b", "b"], n_boot=500)
     assert mean == 2 and lo >= 1 and hi <= 3
+
+
+def test_ctrv_damped_limits():
+    from vesselmind.models.baselines import ctrv_damped
+
+    v, w = 12 * KNOT_MS, np.radians(0.3)
+    t = np.arange(-19, 1) * STEP
+    th = w * t
+    hist = _hist_from_xy(v / w * (1 - np.cos(th)), v / w * np.sin(th), 12, np.degrees(th) % 360)
+    near_cv = step_errors_m(ctrv_damped(hist, 20, STEP, tau_s=1e-3), cv(hist, 20, STEP)).max()
+    near_ctrv = step_errors_m(ctrv_damped(hist, 20, STEP, tau_s=1e7), ctrv(hist, 20, STEP)).max()
+    assert near_cv < 2.0 and near_ctrv < 5.0

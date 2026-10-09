@@ -36,3 +36,10 @@ Dated entries. Keep failed attempts.
 - **CTRV vs CV by past turn rate (val FDE@20 min):** nearly equal when straight (<0.5°/min: 1,226 vs 1,145 m); CTRV worst in moderate turns (2–5°/min: 3,380 vs 1,785 m, +1.6 km). Interpretation to test: turns in this area are short (bends), so extrapolating a turn for 20 min overshoots. Whether a turn *continues* depends on where the ship is, which motivates spatial/vessel context.
 - Speed distributions differ clearly by ship type (tankers narrow at 10–12 kn; passenger and pilot vessels wide; fishing slow), which supports ship type as a context feature.
 - Waiting on: Kiran's regime definition.
+
+## 2026-10-09 (Fri, night), baseline diagnosis + E0 sensitivity
+- **Damped CTRV** (turn rate decays as exp(−t/τ)), with τ tuned on 60k TRAIN windows over {30…600 s}: train ADE increases monotonically with τ, so the best τ is 30 s, i.e. essentially CV. Validation, paired vs CV: ΔADE +3 m (+1 to +5), ΔFDE +4 m (+1 to +7). Plain CTRV: ΔADE +197 m (+180 to +214), ΔFDE +468 m (+420 to +513).
+- **Is the turn estimate lagging?** Diagnostic on train (40k windows): estimating the turn rate from the last 1, 2 or 5 min, with τ 60 or 300 s. Best case is −15 m vs CV, only in the 1–2°/min bin; everything else is worse. A fresher estimate does not rescue turn extrapolation.
+- **Preliminary conclusion (validation):** in this manoeuvring-heavy area, turns rarely persist long enough for kinematic extrapolation to help. Past motion alone cannot tell whether a turn will continue, which motivates spatial context (where the bend ends) and vessel context. This becomes the motivation paragraph for the learned and context models.
+- **E0 sensitivity:** see `docs/03_data_card.md`. The retained data is robust to the gap thresholds (<0.1% change for the segmentation gap, ±2% for the window gap). Keeping 20 min / 180 s.
+- `clean` now also saves `points_clean.parquet` (pre-segmentation) for threshold experiments.

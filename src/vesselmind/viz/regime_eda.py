@@ -3,7 +3,8 @@
 Turn rate for a window = NET course change (sum of signed COG steps) over the last `lookback`
 steps of its history, in deg/min. The net form cancels COG jitter; mean |dCOG| was tried first and
 mostly measured sensor noise (median ~5 deg/min at 1-5 kn). Cross-checked against course derived
-from positions only (agreement 31% vs 34.5% of 10-15 kn windows above 1 deg/min). Figures use TRAIN + VAL windows only; the test split is never touched.
+from positions only (agreement 31% vs 34.5% of 10-15 kn windows above 1 deg/min).
+Figures use TRAIN + VAL windows only; the test split is never touched.
 """
 
 from pathlib import Path

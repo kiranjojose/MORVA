@@ -23,6 +23,8 @@ baselines:
   ctrv_turn_window_steps: 5      # steps of history used to estimate turn rate
   ctrv_max_turn_rate_deg_s: 3.0
   ctrv_min_sog_kn: 1.0           # below this, turn rate is treated as 0
+  ctrv_damped_tau_grid_s: [30, 60, 120, 180, 300, 600]   # turn-decay time constant, tuned on TRAIN only
+  tuning_max_windows: 60000      # random train subsample used for tuning
 
 evaluation:
   n_bootstrap: 1000

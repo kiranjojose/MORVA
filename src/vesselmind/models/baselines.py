@@ -65,3 +65,24 @@ def ctrv(hist, n_future, step_s, window_steps=5, max_rate_deg_s=3.0, min_sog_kn=
     y = np.where(straight, v * np.cos(th0) * tau, y_turn)
     lat, lon = from_local_xy(x, y, lat0[:, None], lon0[:, None])
     return np.stack([lat, lon], axis=-1)
+
+
+def ctrv_damped(hist, n_future, step_s, tau_s, window_steps=5, max_rate_deg_s=3.0, min_sog_kn=1.0, substeps=6):
+    """CTRV whose turn rate decays exponentially: w(t) = w0 * exp(-t / tau).
+
+    Heading theta(t) = theta0 + w0 * tau * (1 - exp(-t / tau)), so the total extra course change is bounded by
+    w0 * tau (a bend ends) instead of growing without limit. tau -> 0 recovers CV; tau -> inf recovers CTRV.
+    Position is integrated numerically at step_s / substeps with midpoint headings.
+    """
+    lat0, lon0 = hist[:, -1, 0], hist[:, -1, 1]
+    sog, cog = _speed_course(hist, step_s)
+    v = (sog * KNOT_MS)[:, None]
+    th0 = np.radians(cog)[:, None]
+    w0 = np.radians(estimate_turn_rate(hist, step_s, window_steps, max_rate_deg_s, min_sog_kn))[:, None]
+    dt = step_s / substeps
+    t_mid = (np.arange(n_future * substeps) + 0.5)[None, :] * dt
+    theta = th0 + w0 * tau_s * (1 - np.exp(-t_mid / tau_s))
+    x = np.cumsum(v * np.sin(theta) * dt, axis=1)[:, substeps - 1 :: substeps]
+    y = np.cumsum(v * np.cos(theta) * dt, axis=1)[:, substeps - 1 :: substeps]
+    lat, lon = from_local_xy(x, y, lat0[:, None], lon0[:, None])
+    return np.stack([lat, lon], axis=-1)

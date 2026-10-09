@@ -6,9 +6,10 @@ from vesselmind.quality.checks import HARD_FLAGS
 
 
 def segment_tracks(df: pl.DataFrame, gap_s: float, min_points: int, min_duration_s: float) -> pl.DataFrame:
-    """Drop hard-flagged points, start a new segment when the gap exceeds `gap_s`,
+    """Drop hard-flagged points (if flag columns are present), start a new segment when the gap exceeds `gap_s`,
     and keep segments with enough points and duration. Adds integer `segment_id`."""
-    clean = df.filter(~pl.any_horizontal(HARD_FLAGS)).sort(["mmsi", "t"])
+    flags = [c for c in HARD_FLAGS if c in df.columns]  # absent when given already-clean points
+    clean = (df.filter(~pl.any_horizontal(flags)) if flags else df).sort(["mmsi", "t"])
     clean = clean.with_columns(
         _new=(
             (pl.col("mmsi") != pl.col("mmsi").shift(1))
