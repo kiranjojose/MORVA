@@ -1,4 +1,4 @@
-.PHONY: test lint smoke pipeline clean-synthetic
+.PHONY: test lint smoke manifests pipeline clean-synthetic
 
 test:
 	uv run pytest -q
@@ -15,8 +15,12 @@ smoke:
 	uv run vesselmind --synthetic baselines --split val
 	uv run vesselmind --synthetic plot-tracks
 
+# Provenance record (checksum, size) for every raw file; existing manifests are kept
+manifests:
+	uv run vesselmind manifest data/raw/*.zip --notes "DMA daily file, study period 2026-09-19..2026-10-06"
+
 # Real data: validation split only. The test split is run once, manually, with --confirm-test.
-pipeline:
+pipeline: manifests
 	uv run vesselmind ingest
 	uv run vesselmind clean
 	uv run vesselmind windows

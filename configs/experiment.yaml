@@ -10,13 +10,14 @@ windows:
   min_mean_sog_kn: 1.0    # exclude moored / drifting windows from the prediction task
 
 split:
-  # Time-block split. Set explicit UTC boundaries once the data period is known, e.g.
-  #   train_end: "2025-03-06T00:00:00"
-  #   val_end:   "2025-03-08T00:00:00"
-  # Until then, `auto_fractions` derives provisional boundaries (rounded to the hour).
-  train_end: null
-  val_end: null
-  auto_fractions: [0.7, 0.15]   # train, val (test = remainder)
+  # Whole-day time blocks over DMA files 2026-09-19 .. 2026-10-06 (18 days, UTC):
+  #   train 19 Sep (Sat) - 30 Sep (Wed)  12 days, two weekends
+  #   val    1 Oct (Thu) -  3 Oct (Sat)   3 days, incl. a weekend day
+  #   test   4 Oct (Sun) -  6 Oct (Tue)   3 days, incl. a weekend day  (LOCKED)
+  # Set 2026-10-09. Do not change after the first model comparison.
+  train_end: "2026-10-01T00:00:00"
+  val_end: "2026-10-04T00:00:00"
+  auto_fractions: [0.7, 0.15]   # only used if the explicit boundaries above are null
 
 baselines:
   ctrv_turn_window_steps: 5      # steps of history used to estimate turn rate

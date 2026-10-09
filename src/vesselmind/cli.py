@@ -58,29 +58,51 @@ def cmd_manifest(ws: Workspace, data_cfg, exp_cfg, args):
     from vesselmind.ingestion.manifest import write_manifest
 
     src = data_cfg["source"]
-    out = write_manifest(Path(args.file), ws.manifests, src["provider"], src["url"], args.notes)
-    print(f"wrote {out.relative_to(project_path('.'))}")
+    for f in map(Path, args.files):
+        if (ws.manifests / f"{f.name}.json").exists() and not args.force:
+            print(f"{f.name}: manifest exists")
+            continue
+        out = write_manifest(f, ws.manifests, src["provider"], src["url"], args.notes)
+        print(f"wrote {out.relative_to(project_path('.'))}")
 
 
 def cmd_ingest(ws: Workspace, data_cfg, exp_cfg, args):
     from vesselmind.ingestion.dma import ingest_file
 
-    files = [Path(f) for f in args.files] or sorted(
-        p for p in ws.raw.iterdir() if p.suffix in (".zip", ".csv")
-    )
+    if args.files:
+        files = [Path(f) for f in args.files]
+    else:
+        # One file per day: if both aisdk-X.zip and its extracted aisdk-X.csv exist, read the CSV
+        by_stem: dict[str, Path] = {}
+        for p in sorted(ws.raw.iterdir()):
+            if p.suffix in (".zip", ".csv") and (p.stem not in by_stem or p.suffix == ".csv"):
+                by_stem[p.stem] = p
+        files = list(by_stem.values())
     if not files:
         sys.exit(f"no .zip/.csv files in {ws.raw}")
+    log_path = ws.results / "tables" / "ingest_log.json"
+    log = json.loads(log_path.read_text()) if log_path.exists() else {}
     for f in files:
-        out = ingest_file(f, ws.interim, data_cfg)
-        n = pl.scan_parquet(out).select(pl.len()).collect().item()
-        print(f"{f.name} -> {out.name}: {n:,} rows in AOI")
+        if (ws.interim / f"{f.name.split('.')[0]}.parquet").exists() and f.name in log and not args.force:
+            print(f"{f.name}: already ingested (use --force to redo)")
+            continue
+        rec = ingest_file(f, ws.interim, data_cfg)
+        log[f.name] = rec
+        print(f"{f.name}: {rec['rows_in_aoi']:,} rows in AOI, "
+              f"{rec['exact_duplicates_removed']:,} exact duplicates removed")
+    _write_json(dict(sorted(log.items())), log_path)
+
+
+# Columns used downstream; loading only these keeps multi-week runs within laptop memory
+CLEAN_COLUMNS = ["t", "mmsi", "lat", "lon", "sog", "cog", "heading", "nav_status",
+                 "ship_type", "length", "width", "draught"]
 
 
 def cmd_clean(ws: Workspace, data_cfg, exp_cfg, args):
     from vesselmind.quality.checks import add_flags, normalize_sentinels, quality_report
     from vesselmind.trajectories.segment import segment_tracks, vessel_table
 
-    raw = pl.read_parquet(sorted(ws.interim.glob("*.parquet")))
+    raw = pl.read_parquet(sorted(ws.interim.glob("*.parquet")), columns=CLEAN_COLUMNS)
     q, s = data_cfg["quality"], data_cfg["segmentation"]
     flagged = add_flags(normalize_sentinels(raw), q["max_implied_speed_kn"], q["max_plausible_sog_kn"])
     report = quality_report(raw, flagged)
@@ -186,11 +208,13 @@ def main(argv=None):
     ap.add_argument("--exp-config", default="configs/experiment.yaml")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("synth", help="generate synthetic DMA-format AIS (smoke tests only)")
-    p = sub.add_parser("manifest", help="record provenance + checksum of a raw file")
-    p.add_argument("file")
+    p = sub.add_parser("manifest", help="record provenance + checksum of raw files")
+    p.add_argument("files", nargs="+")
     p.add_argument("--notes", default="")
-    p = sub.add_parser("ingest", help="raw zip/csv -> AOI-filtered interim parquet")
+    p.add_argument("--force", action="store_true", help="overwrite existing manifests")
+    p = sub.add_parser("ingest", help="raw zip/csv -> AOI-filtered, de-duplicated interim parquet")
     p.add_argument("files", nargs="*")
+    p.add_argument("--force", action="store_true", help="re-ingest files already in the ingest log")
     sub.add_parser("clean", help="quality flags, report, segmentation")
     sub.add_parser("windows", help="build prediction windows and time-block split")
     p = sub.add_parser("baselines", help="evaluate persistence / CV / CTRV")

@@ -27,9 +27,11 @@ def vessel_table(df: pl.DataFrame) -> pl.DataFrame:
     """One row per MMSI with static attributes and a count of inconsistent ship-type reports."""
     agg = [pl.len().alias("n_points")]
     if "ship_type" in df.columns:
+        # DMA writes "Undefined" on rows where no static message was merged; it is missing, not a type
+        known = pl.col("ship_type").filter(pl.col("ship_type").is_not_null() & (pl.col("ship_type") != "Undefined"))
         agg += [
-            pl.col("ship_type").drop_nulls().mode().first().alias("ship_type"),
-            pl.col("ship_type").drop_nulls().n_unique().alias("n_ship_type_values"),
+            known.mode().first().alias("ship_type"),
+            known.n_unique().alias("n_ship_type_values"),
         ]
     for c in ("length", "width", "draught"):
         if c in df.columns:

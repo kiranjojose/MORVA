@@ -65,8 +65,13 @@ def filter_aoi(lf: pl.LazyFrame, aoi: dict, keep_mobile_types: list[str]) -> pl.
     )
 
 
-def ingest_file(src: Path, out_dir: Path, data_cfg: dict) -> Path:
-    """Convert one DMA zip/CSV to an AOI-filtered interim Parquet file. Returns its path."""
+def ingest_file(src: Path, out_dir: Path, data_cfg: dict) -> dict:
+    """Convert one DMA zip/CSV to an AOI-filtered interim Parquet file.
+
+    Exact full-row duplicates (identical in every column, ~half of DMA rows) carry no
+    information and are removed here; their count is returned for the ingest log.
+    Partial duplicates (same MMSI and time, different values) are kept for the quality stage.
+    """
     src_cfg, aoi = data_cfg["source"], data_cfg["aoi"]
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{src.name.split('.')[0]}.parquet"
@@ -84,5 +89,13 @@ def ingest_file(src: Path, out_dir: Path, data_cfg: dict) -> Path:
             csv_path = src
 
         lf = filter_aoi(scan_dma_csv(csv_path, src_cfg["timestamp_format"]), aoi, src_cfg["keep_mobile_types"])
-        lf.sink_parquet(out_path)
-    return out_path
+        df = lf.collect()
+    unique = df.unique(maintain_order=True)
+    unique.write_parquet(out_path)
+    return {
+        "source": src.name,
+        "interim": out_path.name,
+        "rows_in_aoi": len(df),
+        "exact_duplicates_removed": len(df) - len(unique),
+        "rows_written": len(unique),
+    }
