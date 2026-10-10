@@ -43,3 +43,12 @@ Dated entries. Keep failed attempts.
 - **Preliminary conclusion (validation):** in this manoeuvring-heavy area, turns rarely persist long enough for kinematic extrapolation to help. Past motion alone cannot tell whether a turn will continue, which motivates spatial context (where the bend ends) and vessel context. This becomes the motivation paragraph for the learned and context models.
 - **E0 sensitivity:** see `docs/03_data_card.md`. The retained data is robust to the gap thresholds (<0.1% change for the segmentation gap, ±2% for the window gap). Keeping 20 min / 180 s.
 - `clean` now also saves `points_clean.parquet` (pre-segmentation) for threshold experiments.
+
+## 2026-10-10 (Sat), E3/E4: residual GBM context ablation (VALIDATION, preliminary)
+- Model: CV forecast + HistGradientBoosting correction in the body frame (along/cross-track) at 5/10/15/20 min, linear interpolation in between, absolute-error loss, seed 0. Trained on all 238,830 train windows; about 50 s per feature set.
+- FDE@20 min on val (62,982 windows, 692 vessels): CV 1,574 → A motion 1,273 → B +vessel 1,131 → C +location 864 → D all 827 m (−47% vs CV).
+- Paired vs A_motion (vessel bootstrap): B −142 m (−175 to −106), C −409 (−446 to −370), D −446 (−486 to −402).
+- **Location helps even when the past turn rate is near zero** (0–0.5°/min: 1,051 → 660 m). It anticipates bends and stops that past motion cannot show, which is consistent with the turn-persistence diagnosis.
+- Largest absolute gains for passenger vessels (CV 2,573 → 944 m; ferries stopping and turning at terminals) and cargo/tanker on location (984 → 583, 1,233 → 690).
+- **Vessel novelty check (important caveat):** for the 244 val vessels NOT seen in training, location still helps (−391 m, CI −428 to −352), almost as much as for seen vessels (−417). So it is spatial knowledge, not identity. Vessel attributes help unseen vessels only a little (−25 m vs −189 for seen ones): length/beam/draught likely act partly as a vessel fingerprint. Motion-only gains are also much smaller for unseen vessels (−66 vs −396). Seen and unseen vessels are different populations (regular traffic vs occasional visitors), so this mixes novelty with traffic type.
+- TODO: vessel-held-out evaluation (exclude val vessels from training) to separate these effects; 3 seeds; regime breakdown with Kiran's definition.

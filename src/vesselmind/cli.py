@@ -329,14 +329,28 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     turn = past_turn_rate_deg_min(h_ev, step)
     group_names = {v: k for k, v in SHIP_GROUP_CODES.items()}
     sg, _ = build_features(h_ev, m_ev, step, ["vessel"])
+    turn_idx = np.digitize(np.nan_to_num(turn), TURN_BINS[1:-1])  # 0 .. len(TURN_BINS) - 2
     strata = pl.DataFrame({
-        "turn_bin": pl.Series(turn).cut(TURN_BINS[1:-1], left_closed=True).cast(pl.String),
+        "turn_bin": [f"{TURN_BINS[i]:g}–{TURN_BINS[i + 1]:g}" for i in turn_idx],
+        "_order": turn_idx,
         "ship_group": [group_names.get(c, "unknown") if not np.isnan(c) else "unknown" for c in sg[:, 0]],
         **{k: e[:, -1] for k, e in errs.items()},
     })
-    by_turn = strata.group_by("turn_bin").agg(n=pl.len(), **{k: pl.col(k).mean() for k in errs}).sort("turn_bin")
+    by_turn = (strata.group_by("turn_bin", "_order").agg(n=pl.len(), **{k: pl.col(k).mean() for k in errs})
+               .sort("_order").drop("_order"))
     by_group = strata.group_by("ship_group").agg(n=pl.len(), **{k: pl.col(k).mean() for k in errs}).sort("n",
                                                                                                     descending=True)
+    # Vessel novelty: are gains generalisation or recognition of vessels already seen in training?
+    seen = m_ev["mmsi"].is_in(m_tr["mmsi"].unique().implode()).to_numpy()
+    novelty = {}
+    for label, mask in (("unseen_vessels", ~seen), ("seen_vessels", seen)):
+        if mask.any():
+            novelty[label] = {"windows": int(mask.sum()), "vessels": int(len(np.unique(groups[mask]))),
+                              **{f"{n} - A_motion": summarize(per[n]["fde_m"][mask] - per["A_motion"]["fde_m"][mask],
+                                                              groups[mask], ev["n_bootstrap"], ev["seed"])
+                                 for n in names if n != "A_motion"},
+                              "A_motion - cv": summarize(per["A_motion"]["fde_m"][mask] - per["cv"]["fde_m"][mask],
+                                                         groups[mask], ev["n_bootstrap"], ev["seed"])}
     run_dir = ws.results / "runs" / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}_gbm_{args.split}"
     run_dir.mkdir(parents=True, exist_ok=True)
     per_sample = pl.DataFrame({"sample_id": m_ev["sample_id"], **{f"fde_{k}": e[:, -1] for k, e in errs.items()},
@@ -344,7 +358,7 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     per_sample.write_parquet(run_dir / "per_sample.parquet")
     _write_json({"split": args.split, "git": _git_hash(), "config": exp_cfg["gbm"], "fit": fit_info,
                  "metrics": summary, "paired": comparisons, "fde_by_turn_bin": by_turn.to_dicts(),
-                 "fde_by_ship_group": by_group.to_dicts()}, run_dir / "summary.json")
+                 "fde_by_ship_group": by_group.to_dicts(), "vessel_novelty": novelty}, run_dir / "summary.json")
 
     fmt = lambda s: f"{s['mean']:+.0f} ({s['ci95_lo']:+.0f} to {s['ci95_hi']:+.0f})"  # noqa: E731
     lines = [f"# Residual GBM context ablation ({args.split})", "",
@@ -361,6 +375,11 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
                   "|" + "---|" * len(tab.columns)]
         lines += ["| " + " | ".join(f"{v:.0f}" if isinstance(v, float) else str(v) for v in r) + " |"
                   for r in tab.iter_rows()]
+    lines += ["", "ΔFDE@20 min (m) for vessels NOT seen in training vs vessels seen in training:", "",
+              "| comparison | " + " | ".join(f"{k} ({v['vessels']} vessels)" for k, v in novelty.items()) + " |",
+              "|---|" + "---|" * len(novelty)]
+    comps = [c for c in next(iter(novelty.values())) if " - " in c]
+    lines += [f"| {c} | " + " | ".join(fmt(v[c]) for v in novelty.values()) + " |" for c in comps]
     out = ws.results / "tables" / f"gbm_ablation_{args.split}.md"
     out.write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
