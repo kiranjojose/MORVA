@@ -289,14 +289,22 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
     tr = (meta["split"] == "train").to_numpy()
     ev_mask = (meta["split"] == args.split).to_numpy()
-    h_tr, f_tr, m_tr = arrays["hist"][tr], arrays["fut"][tr], meta.filter(pl.col("split") == "train")
-    h_ev, f_ev, m_ev = arrays["hist"][ev_mask], arrays["fut"][ev_mask], meta.filter(pl.col("split") == args.split)
+    suffix = ""
+    if args.holdout_eval_vessels:  # train only on vessels that never appear in the evaluated split
+        ev_vessels = meta.filter(pl.col("split") == args.split)["mmsi"].unique().implode()
+        n_before = int(tr.sum())
+        tr &= ~meta["mmsi"].is_in(ev_vessels).to_numpy()
+        suffix = "_vesselheldout"
+        print(f"vessel-held-out: train windows {n_before:,} -> {int(tr.sum()):,}")
+    h_tr, f_tr, m_tr = arrays["hist"][tr], arrays["fut"][tr], meta.filter(pl.Series(tr))
+    h_ev, f_ev, m_ev = arrays["hist"][ev_mask], arrays["fut"][ev_mask], meta.filter(pl.Series(ev_mask))
     if not tr.any() or not ev_mask.any():
         sys.exit(f"empty split: {tr.sum()} train / {ev_mask.sum()} {args.split} windows; rerun `windows`")
     groups = m_ev["mmsi"].to_numpy()
 
     errs = {"cv": step_errors_m(baselines.cv(h_ev, n_fut, step), f_ev)}
-    fit_info = {}
+    fit_info, seed_fde = {}, {}
+    seeds = args.seeds or [g["seed"]]
     for name, sets in g["feature_sets"].items():
         X_tr, cols = build_features(h_tr, m_tr, step, sets)
         X_ev, _ = build_features(h_ev, m_ev, step, sets)
@@ -306,13 +314,18 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
         if dropped:
             print(f"{name}: dropped all-missing features {dropped}")
         cat = [c == "ship_group" for c in cols] if "ship_group" in cols else None
-        t0 = time.time()
-        model = ResidualGBM(knots, categorical=cat, seed=g["seed"]).fit(X_tr, h_tr, f_tr, step)
-        errs[name] = step_errors_m(model.predict(X_ev, h_ev, step, n_fut), f_ev)
-        fit_info[name] = {"features": cols, "dropped_all_missing": dropped,
-                          "fit_s": round(time.time() - t0, 1), "n_iter": model.n_iter()}
-        print(f"{name}: fitted in {fit_info[name]['fit_s']} s, {args.split} ADE {errs[name].mean():.0f} m, "
-              f"FDE {errs[name][:, -1].mean():.0f} m")
+        seed_fde[name] = {}
+        for seed in seeds:  # tables use the first seed; the spread across seeds is reported separately
+            t0 = time.time()
+            model = ResidualGBM(knots, categorical=cat, seed=seed).fit(X_tr, h_tr, f_tr, step)
+            e = step_errors_m(model.predict(X_ev, h_ev, step, n_fut), f_ev)
+            seed_fde[name][seed] = float(e[:, -1].mean())
+            if seed == seeds[0]:
+                errs[name] = e
+                fit_info[name] = {"features": cols, "dropped_all_missing": dropped,
+                                  "fit_s": round(time.time() - t0, 1), "n_iter": model.n_iter()}
+            print(f"{name} seed {seed}: fitted in {time.time() - t0:.0f} s, {args.split} ADE {e.mean():.0f} m, "
+                  f"FDE {e[:, -1].mean():.0f} m")
 
     per = {k: per_sample_metrics(e, step, w["horizons_min"]) for k, e in errs.items()}
     summary = {k: {mk: summarize(v, groups, ev["n_bootstrap"], ev["seed"]) for mk, v in p.items()}
@@ -351,17 +364,20 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
                                  for n in names if n != "A_motion"},
                               "A_motion - cv": summarize(per["A_motion"]["fde_m"][mask] - per["cv"]["fde_m"][mask],
                                                          groups[mask], ev["n_bootstrap"], ev["seed"])}
-    run_dir = ws.results / "runs" / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}_gbm_{args.split}"
+    run_dir = ws.results / "runs" / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}_gbm_{args.split}{suffix}"
     run_dir.mkdir(parents=True, exist_ok=True)
     per_sample = pl.DataFrame({"sample_id": m_ev["sample_id"], **{f"fde_{k}": e[:, -1] for k, e in errs.items()},
                                **{f"ade_{k}": e.mean(axis=1) for k, e in errs.items()}})
     per_sample.write_parquet(run_dir / "per_sample.parquet")
     _write_json({"split": args.split, "git": _git_hash(), "config": exp_cfg["gbm"], "fit": fit_info,
                  "metrics": summary, "paired": comparisons, "fde_by_turn_bin": by_turn.to_dicts(),
-                 "fde_by_ship_group": by_group.to_dicts(), "vessel_novelty": novelty}, run_dir / "summary.json")
+                 "fde_by_ship_group": by_group.to_dicts(), "vessel_novelty": novelty,
+                 "holdout_eval_vessels": bool(args.holdout_eval_vessels), "train_windows": int(tr.sum()),
+                 "seed_fde": seed_fde}, run_dir / "summary.json")
 
     fmt = lambda s: f"{s['mean']:+.0f} ({s['ci95_lo']:+.0f} to {s['ci95_hi']:+.0f})"  # noqa: E731
-    lines = [f"# Residual GBM context ablation ({args.split})", "",
+    title = f"{args.split}, vessel-held-out" if suffix else args.split
+    lines = [f"# Residual GBM context ablation ({title}; {int(tr.sum()):,} train windows)", "",
              "| model | ADE m (95% CI) | FDE@20 m (95% CI) | err@5 | err@10 |", "|---|---|---|---|---|"]
     for k, s in summary.items():
         lines.append(f"| {k} | {s['ade_m']['mean']:.0f} ({s['ade_m']['ci95_lo']:.0f}–{s['ade_m']['ci95_hi']:.0f}) | "
@@ -380,7 +396,13 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
               "|---|" + "---|" * len(novelty)]
     comps = [c for c in next(iter(novelty.values())) if " - " in c]
     lines += [f"| {c} | " + " | ".join(fmt(v[c]) for v in novelty.values()) + " |" for c in comps]
-    out = ws.results / "tables" / f"gbm_ablation_{args.split}.md"
+    if len(seeds) > 1:
+        lines += ["", f"FDE@20 min (m) across seeds {seeds}:", "",
+                  "| model | mean | sd | min | max |", "|---|---|---|---|---|"]
+        for n, d in seed_fde.items():
+            v = np.array(list(d.values()))
+            lines.append(f"| {n} | {v.mean():.0f} | {v.std(ddof=1):.1f} | {v.min():.0f} | {v.max():.0f} |")
+    out = ws.results / "tables" / f"gbm_ablation_{args.split}{suffix}.md"
     out.write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
 
@@ -408,6 +430,9 @@ def main(argv=None):
     p = sub.add_parser("gbm", help="E3/E4: residual GBM context ablation (train -> val)")
     p.add_argument("--split", default="val", choices=["val", "test"])
     p.add_argument("--confirm-test", action="store_true")
+    p.add_argument("--holdout-eval-vessels", action="store_true",
+                   help="exclude every vessel of the evaluated split from training")
+    p.add_argument("--seeds", type=int, nargs="+", help="seeds to train (default: config seed)")
     p = sub.add_parser("sensitivity", help="E0: retained data under different gap thresholds")
     p.add_argument("--gap-s", type=int, nargs="+", default=[600, 1200, 1800])
     p.add_argument("--window-gap-s", type=int, nargs="+", default=[120, 180, 300])
