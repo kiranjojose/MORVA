@@ -1,4 +1,4 @@
-# Residual GBM context ablation (val)
+# Residual GBM context ablation (val; 238,830 train windows)
 
 | model | ADE m (95% CI) | FDE@20 m (95% CI) | err@5 | err@10 |
 |---|---|---|---|---|
@@ -50,3 +50,12 @@ Mean FDE@20 min (m) by ship group:
 | C_location - A_motion | -391 (-428 to -352) | -417 (-463 to -364) |
 | D_all - A_motion | -394 (-434 to -354) | -467 (-518 to -407) |
 | A_motion - cv | -66 (-102 to -40) | -396 (-538 to -268) |
+
+FDE@20 min (m) across seeds [0, 1, 2]:
+
+| model | mean | sd | min | max |
+|---|---|---|---|---|
+| A_motion | 1272 | 1.9 | 1270 | 1273 |
+| B_vessel | 1130 | 1.7 | 1128 | 1131 |
+| C_location | 865 | 3.9 | 862 | 869 |
+| D_all | 823 | 5.3 | 817 | 827 |
