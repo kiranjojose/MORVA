@@ -137,3 +137,31 @@ def test_ctrv_damped_limits():
     near_cv = step_errors_m(ctrv_damped(hist, 20, STEP, tau_s=1e-3), cv(hist, 20, STEP)).max()
     near_ctrv = step_errors_m(ctrv_damped(hist, 20, STEP, tau_s=1e7), ctrv(hist, 20, STEP)).max()
     assert near_cv < 2.0 and near_ctrv < 5.0
+
+
+def test_body_frame_roundtrip_and_axes():
+    from vesselmind.features.motion import from_body, to_body
+
+    th = np.radians(90.0)  # heading east: east is 'along', south is starboard 'cross'
+    a, c = to_body(np.array([100.0, 0.0]), np.array([0.0, -50.0]), th)
+    assert a[0] == pytest.approx(100) and c[1] == pytest.approx(50)
+    x, y = from_body(*to_body(np.array([3.0]), np.array([-7.0]), 1.234), 1.234)
+    assert x[0] == pytest.approx(3) and y[0] == pytest.approx(-7)
+
+
+def test_residual_targets_zero_on_cv_path_and_invertible():
+    from vesselmind.models.gbm import residual_targets, residuals_to_positions
+
+    v = 10 * KNOT_MS
+    t = np.arange(-19, 1) * STEP
+    s, c = np.sin(np.radians(30)), np.cos(np.radians(30))
+    hist = _hist_from_xy(v * t * s, v * t * c, 10, np.full(20, 30.0))
+    tf = np.arange(1, 21) * STEP
+    fut = np.stack(from_local_xy(v * tf * s, v * tf * c, hist[0, -1, 0], hist[0, -1, 1]), axis=-1)[None]
+    ra, rc = residual_targets(hist, fut, STEP, [5, 10, 15, 20])
+    assert np.abs(ra).max() < 1.0 and np.abs(rc).max() < 1.0
+    # A known residual must be reproduced at the knots
+    pred = residuals_to_positions(hist, np.array([[10, 20, 30, 40.0]]), np.array([[-5, -10, -15, -20.0]]),
+                                  STEP, 20, [5, 10, 15, 20])
+    ra2, rc2 = residual_targets(hist, pred, STEP, [5, 10, 15, 20])
+    assert np.allclose(ra2, [[10, 20, 30, 40]], atol=0.5) and np.allclose(rc2, [[-5, -10, -15, -20]], atol=0.5)

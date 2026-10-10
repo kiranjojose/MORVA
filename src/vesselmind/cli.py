@@ -132,7 +132,10 @@ def cmd_windows(ws: Workspace, data_cfg, exp_cfg, args):
     w = exp_cfg["windows"]
     tracks = pl.read_parquet(ws.processed / "tracks.parquet")
     hist, fut, meta = build_windows(tracks, w)
-    train_end, val_end = resolve_boundaries(meta, exp_cfg["split"])
+    split_cfg = exp_cfg["split"]
+    if ws.synthetic:  # synthetic data has its own dates: always use proportional blocks
+        split_cfg = {**split_cfg, "train_end": None, "val_end": None}
+    train_end, val_end = resolve_boundaries(meta, split_cfg)
     meta = assign_split(meta, train_end, val_end, w["step_s"], w["obs_steps"], w["future_steps"])
     vessels = pl.read_parquet(ws.processed / "vessels.parquet").drop("n_points")
     meta = meta.join(vessels, on="mmsi", how="left", maintain_order="left")
@@ -140,7 +143,7 @@ def cmd_windows(ws: Workspace, data_cfg, exp_cfg, args):
     np.savez_compressed(ws.processed / "windows.npz", hist=hist, fut=fut, sample_id=meta["sample_id"].to_numpy())
     meta.write_parquet(ws.processed / "windows_meta.parquet")
     summary = split_summary(meta, train_end, val_end)
-    summary["boundaries_source"] = "explicit" if exp_cfg["split"].get("train_end") else "auto_fractions (PROVISIONAL)"
+    summary["boundaries_source"] = "explicit" if split_cfg.get("train_end") else "auto_fractions (PROVISIONAL)"
     _write_json(summary, ws.results / "tables" / "split_summary.json")
     print(json.dumps(summary["counts"], indent=2))
 
@@ -267,6 +270,102 @@ def cmd_sensitivity(ws: Workspace, data_cfg, exp_cfg, args):
     print(f"wrote {(ws.results / 'tables' / 'sensitivity_gaps.csv').relative_to(project_path('.'))}")
 
 
+def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
+    """E3/E4: residual GBM with feature-set ablation. Trains on train, evaluates on `--split` (val by default)."""
+    import time
+
+    from vesselmind.evaluation.metrics import per_sample_metrics, step_errors_m, summarize
+    from vesselmind.features.motion import SHIP_GROUP_CODES, build_features
+    from vesselmind.models import baselines
+    from vesselmind.models.gbm import ResidualGBM
+    from vesselmind.viz.regime_eda import TURN_BINS, past_turn_rate_deg_min
+
+    if args.split == "test" and not args.confirm_test:
+        sys.exit("Test split is locked. Freeze hypotheses first, then pass --confirm-test (one final run).")
+    w, g, ev = exp_cfg["windows"], exp_cfg["gbm"], exp_cfg["evaluation"]
+    step, n_fut = w["step_s"], w["future_steps"]
+    knots = [int(k * 60 / step) for k in g["knots_min"]]
+    arrays = np.load(ws.processed / "windows.npz")
+    meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
+    tr = (meta["split"] == "train").to_numpy()
+    ev_mask = (meta["split"] == args.split).to_numpy()
+    h_tr, f_tr, m_tr = arrays["hist"][tr], arrays["fut"][tr], meta.filter(pl.col("split") == "train")
+    h_ev, f_ev, m_ev = arrays["hist"][ev_mask], arrays["fut"][ev_mask], meta.filter(pl.col("split") == args.split)
+    if not tr.any() or not ev_mask.any():
+        sys.exit(f"empty split: {tr.sum()} train / {ev_mask.sum()} {args.split} windows; rerun `windows`")
+    groups = m_ev["mmsi"].to_numpy()
+
+    errs = {"cv": step_errors_m(baselines.cv(h_ev, n_fut, step), f_ev)}
+    fit_info = {}
+    for name, sets in g["feature_sets"].items():
+        X_tr, cols = build_features(h_tr, m_tr, step, sets)
+        X_ev, _ = build_features(h_ev, m_ev, step, sets)
+        keep = ~np.isnan(X_tr).all(axis=0)  # a feature with no training values cannot be used
+        dropped = [c for c, k in zip(cols, keep, strict=True) if not k]
+        X_tr, X_ev, cols = X_tr[:, keep], X_ev[:, keep], [c for c, k in zip(cols, keep, strict=True) if k]
+        if dropped:
+            print(f"{name}: dropped all-missing features {dropped}")
+        cat = [c == "ship_group" for c in cols] if "ship_group" in cols else None
+        t0 = time.time()
+        model = ResidualGBM(knots, categorical=cat, seed=g["seed"]).fit(X_tr, h_tr, f_tr, step)
+        errs[name] = step_errors_m(model.predict(X_ev, h_ev, step, n_fut), f_ev)
+        fit_info[name] = {"features": cols, "dropped_all_missing": dropped,
+                          "fit_s": round(time.time() - t0, 1), "n_iter": model.n_iter()}
+        print(f"{name}: fitted in {fit_info[name]['fit_s']} s, {args.split} ADE {errs[name].mean():.0f} m, "
+              f"FDE {errs[name][:, -1].mean():.0f} m")
+
+    per = {k: per_sample_metrics(e, step, w["horizons_min"]) for k, e in errs.items()}
+    summary = {k: {mk: summarize(v, groups, ev["n_bootstrap"], ev["seed"]) for mk, v in p.items()}
+               for k, p in per.items()}
+
+    def paired(a, b):
+        return {mk: summarize(per[b][mk] - per[a][mk], groups, ev["n_bootstrap"], ev["seed"])
+                for mk in ("ade_m", "fde_m")}
+
+    names = list(g["feature_sets"])
+    comparisons = {f"{n} - cv": paired("cv", n) for n in names}
+    comparisons.update({f"{n} - A_motion": paired("A_motion", n) for n in names if n != "A_motion"})
+
+    turn = past_turn_rate_deg_min(h_ev, step)
+    group_names = {v: k for k, v in SHIP_GROUP_CODES.items()}
+    sg, _ = build_features(h_ev, m_ev, step, ["vessel"])
+    strata = pl.DataFrame({
+        "turn_bin": pl.Series(turn).cut(TURN_BINS[1:-1], left_closed=True).cast(pl.String),
+        "ship_group": [group_names.get(c, "unknown") if not np.isnan(c) else "unknown" for c in sg[:, 0]],
+        **{k: e[:, -1] for k, e in errs.items()},
+    })
+    by_turn = strata.group_by("turn_bin").agg(n=pl.len(), **{k: pl.col(k).mean() for k in errs}).sort("turn_bin")
+    by_group = strata.group_by("ship_group").agg(n=pl.len(), **{k: pl.col(k).mean() for k in errs}).sort("n",
+                                                                                                    descending=True)
+    run_dir = ws.results / "runs" / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}_gbm_{args.split}"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    per_sample = pl.DataFrame({"sample_id": m_ev["sample_id"], **{f"fde_{k}": e[:, -1] for k, e in errs.items()},
+                               **{f"ade_{k}": e.mean(axis=1) for k, e in errs.items()}})
+    per_sample.write_parquet(run_dir / "per_sample.parquet")
+    _write_json({"split": args.split, "git": _git_hash(), "config": exp_cfg["gbm"], "fit": fit_info,
+                 "metrics": summary, "paired": comparisons, "fde_by_turn_bin": by_turn.to_dicts(),
+                 "fde_by_ship_group": by_group.to_dicts()}, run_dir / "summary.json")
+
+    fmt = lambda s: f"{s['mean']:+.0f} ({s['ci95_lo']:+.0f} to {s['ci95_hi']:+.0f})"  # noqa: E731
+    lines = [f"# Residual GBM context ablation ({args.split})", "",
+             "| model | ADE m (95% CI) | FDE@20 m (95% CI) | err@5 | err@10 |", "|---|---|---|---|---|"]
+    for k, s in summary.items():
+        lines.append(f"| {k} | {s['ade_m']['mean']:.0f} ({s['ade_m']['ci95_lo']:.0f}–{s['ade_m']['ci95_hi']:.0f}) | "
+                     f"{s['fde_m']['mean']:.0f} ({s['fde_m']['ci95_lo']:.0f}–{s['fde_m']['ci95_hi']:.0f}) | "
+                     f"{s['err_5min_m']['mean']:.0f} | {s['err_10min_m']['mean']:.0f} |")
+    lines += ["", "Paired differences on identical windows (m, negative = first model better), vessel bootstrap:", "",
+              "| comparison | ΔADE | ΔFDE |", "|---|---|---|"]
+    lines += [f"| {c} | {fmt(d['ade_m'])} | {fmt(d['fde_m'])} |" for c, d in comparisons.items()]
+    for title, tab in (("past turn rate (°/min)", by_turn), ("ship group", by_group)):
+        lines += ["", f"Mean FDE@20 min (m) by {title}:", "", "| " + " | ".join(tab.columns) + " |",
+                  "|" + "---|" * len(tab.columns)]
+        lines += ["| " + " | ".join(f"{v:.0f}" if isinstance(v, float) else str(v) for v in r) + " |"
+                  for r in tab.iter_rows()]
+    out = ws.results / "tables" / f"gbm_ablation_{args.split}.md"
+    out.write_text("\n".join(lines) + "\n")
+    print("\n".join(lines))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="vesselmind")
     ap.add_argument("--synthetic", action="store_true", help="use the isolated synthetic workspace")
@@ -287,6 +386,9 @@ def main(argv=None):
     p.add_argument("--split", default="val", choices=["train", "val", "test"])
     p.add_argument("--confirm-test", action="store_true")
     sub.add_parser("plot-tracks", help="overview map of segmented tracks")
+    p = sub.add_parser("gbm", help="E3/E4: residual GBM context ablation (train -> val)")
+    p.add_argument("--split", default="val", choices=["val", "test"])
+    p.add_argument("--confirm-test", action="store_true")
     p = sub.add_parser("sensitivity", help="E0: retained data under different gap thresholds")
     p.add_argument("--gap-s", type=int, nargs="+", default=[600, 1200, 1800])
     p.add_argument("--window-gap-s", type=int, nargs="+", default=[120, 180, 300])
@@ -298,7 +400,7 @@ def main(argv=None):
     handlers = {
         "synth": cmd_synth, "manifest": cmd_manifest, "ingest": cmd_ingest, "clean": cmd_clean,
         "windows": cmd_windows, "baselines": cmd_baselines, "plot-tracks": cmd_plot_tracks,
-        "regime-eda": cmd_regime_eda, "sensitivity": cmd_sensitivity,
+        "regime-eda": cmd_regime_eda, "sensitivity": cmd_sensitivity, "gbm": cmd_gbm,
     }
     handlers[args.cmd](ws, data_cfg, exp_cfg, args)
 

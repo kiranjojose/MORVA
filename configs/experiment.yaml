@@ -29,3 +29,13 @@ baselines:
 evaluation:
   n_bootstrap: 1000
   seed: 42
+
+gbm:
+  # Residual gradient boosting: CV forecast + learned body-frame correction at knot horizons.
+  knots_min: [5, 10, 15, 20]
+  seed: 0
+  feature_sets:                  # context ablation (E3/E4); every model is trained on TRAIN only
+    A_motion: [motion]
+    B_vessel: [motion, vessel]
+    C_location: [motion, location]
+    D_all: [motion, vessel, location]
