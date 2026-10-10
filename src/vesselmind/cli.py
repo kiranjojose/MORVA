@@ -296,6 +296,12 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
         tr &= ~meta["mmsi"].is_in(ev_vessels).to_numpy()
         suffix = "_vesselheldout"
         print(f"vessel-held-out: train windows {n_before:,} -> {int(tr.sum()):,}")
+    if args.train_subsample and args.train_subsample < tr.sum():  # size control for the held-out comparison
+        keep_idx = np.random.default_rng(ev["seed"]).choice(np.flatnonzero(tr), args.train_subsample, replace=False)
+        tr = np.zeros_like(tr)
+        tr[keep_idx] = True
+        suffix += f"_sub{args.train_subsample}"
+        print(f"random train subsample: {args.train_subsample:,} windows")
     h_tr, f_tr, m_tr = arrays["hist"][tr], arrays["fut"][tr], meta.filter(pl.Series(tr))
     h_ev, f_ev, m_ev = arrays["hist"][ev_mask], arrays["fut"][ev_mask], meta.filter(pl.Series(ev_mask))
     if not tr.any() or not ev_mask.any():
@@ -376,7 +382,8 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
                  "seed_fde": seed_fde}, run_dir / "summary.json")
 
     fmt = lambda s: f"{s['mean']:+.0f} ({s['ci95_lo']:+.0f} to {s['ci95_hi']:+.0f})"  # noqa: E731
-    title = f"{args.split}, vessel-held-out" if suffix else args.split
+    title = args.split + (", vessel-held-out" if args.holdout_eval_vessels else "") + (
+        f", random train subsample {args.train_subsample:,}" if args.train_subsample else "")
     lines = [f"# Residual GBM context ablation ({title}; {int(tr.sum()):,} train windows)", "",
              "| model | ADE m (95% CI) | FDE@20 m (95% CI) | err@5 | err@10 |", "|---|---|---|---|---|"]
     for k, s in summary.items():
@@ -433,6 +440,7 @@ def main(argv=None):
     p.add_argument("--holdout-eval-vessels", action="store_true",
                    help="exclude every vessel of the evaluated split from training")
     p.add_argument("--seeds", type=int, nargs="+", help="seeds to train (default: config seed)")
+    p.add_argument("--train-subsample", type=int, help="random subsample of training windows (size control)")
     p = sub.add_parser("sensitivity", help="E0: retained data under different gap thresholds")
     p.add_argument("--gap-s", type=int, nargs="+", default=[600, 1200, 1800])
     p.add_argument("--window-gap-s", type=int, nargs="+", default=[120, 180, 300])
