@@ -90,3 +90,8 @@ Dated entries. Keep failed attempts.
 ## 2026-10-11 (Sun, 20:24–20:25 UTC), test run started
 - First attempt (20:24:36) failed in argument parsing: the shell loop passed each command as one word (zsh does not word-split variables). The CLI exited before loading any data, so the test split was not accessed. Retried at 20:24:55 with explicit commands.
 - Test baselines completed (`results/tables/baselines_test.md`). GBM test runs in progress.
+
+## 2026-10-11 (Sun, 20:46 UTC), TEST RUN COMPLETE
+- All five steps ran once (baselines, GBM 3 seeds, vessel-held-out, spatially held-out, regime report). Validation and test agree within ~25 m on every headline number.
+- H1 supported; H2 supported in-area (turning clearly), weaker for unseen vessels (test −62 m, significant here unlike validation −17 m n.s.) and absent in unseen waters; H3 supported (C − B turning −295, combined −132); **H4 rejected** (spatial C − A +1,127 m); H4b supported.
+- The test split is now spent. Any further model development uses validation only and is reported as post-hoc.

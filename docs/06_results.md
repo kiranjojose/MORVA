@@ -74,3 +74,31 @@ Each validation window is predicted by a model trained without its longitude ban
 - **Motion-only learning transfers** (−97 m vs CV); vessel attributes help when turning (−109 m) but not overall.
 - So the strong in-area location gain is memorised geography, not transferable knowledge. Transferable geographic
   representations (fairway geometry, coast, bathymetry) are the next research step (V2).
+
+---
+
+# TEST RESULTS: single run after hypothesis freeze (4–6 Oct 2026; 57,068 windows)
+Run 11 Oct 2026, 20:24–20:46 UTC, after the freeze commit `f1b61da`. Every model trained on the train split only, exactly
+as for validation. Sources: `results/tables/*_test*.md`, `results/tables/regimes_test.md`.
+
+| FDE@20 min (m) | In-area | Unseen vessels | Unseen waters |
+|---|---|---|---|
+| CV | 1,554 | 1,554 | 1,554 |
+| A motion | 1,267 | 1,429 | 1,465 |
+| B + vessel | 1,128 | 1,367 | 1,442 |
+| C + location | 863 | 1,165 | **2,592** |
+| D all | **831 (−47%)** | 1,140 (−27%) | 1,918 (+23%) |
+
+Kinematic baselines vs CV (ΔFDE): CTRV +467 m, damped CTRV +2 m, Kalman +0 m. Seeds 0–2: sd ≤ 3.6 m.
+Validation and test agree to within ~25 m on every headline number.
+
+## Hypothesis outcomes (test)
+| | Frozen hypothesis | Evidence (ΔFDE@20, 95% CI, vessel bootstrap) | Outcome |
+|---|---|---|---|
+| H1 | Motion-only learning beats CV; largest gain in non-steady regimes | A − CV −287 (−380 to −195); steady −88 vs turning −316, low-speed −485, speed-changing −756, combined −1,078 | **Supported** |
+| H2 | Vessel context helps beyond motion; more when turning or changing speed than in steady transit | B − A −138 (−176 to −103); turning −216 (−275 to −157) vs steady −75 (−107 to −48); speed-changing −119 (−191 to −45), CI overlaps steady | **Supported in-area** (turning clearly; speed-changing directionally). Shrinks for unseen vessels (−62, −84 to −41) and vanishes in unseen waters (−23, −51 to +9) |
+| H3 | Geographic > vessel context in turning and combined | C − B turning −295 (−327 to −263); combined −132 (−188 to −75) | **Supported** (in-area) |
+| H4 | Geographic gain decreases in unseen areas but stays positive | spatial C − A **+1,127** (+1,031 to +1,229) | **Rejected**: the gain reverses |
+| H4b | Raw-coordinate context does not transfer; motion-only still beats CV (validation-informed) | spatial C − A +1,127; A − CV −89 (−137 to −39) | **Supported** |
+
+Location context improves FDE in all 50 regime × threshold-sensitivity cells in-area (test), as on validation.
