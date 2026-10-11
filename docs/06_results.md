@@ -40,3 +40,20 @@ Training without any validation vessel (109,866 train windows), compared with a 
   from recognising known vessels.
 - Cargo and tanker gains are unchanged under held-out (D: 553 / 642 m); passenger-vessel gains mostly disappear (944 →
   2,162 m). Ferry prediction relies on having seen the same route operator.
+
+## E2–E4 by past-only manoeuvring regime (`results/tables/regimes_val.md`)
+Regime shares (val): steady 52%, turning 23%, low-speed 16%, combined 7%, speed-changing 2%.
+
+| FDE@20 min (m) | Low-speed | Steady | Turning | Speed-changing | Combined |
+|---|---|---|---|---|---|
+| CV | 1,587 | 1,190 | 1,836 | 2,734 | 3,104 |
+| CTRV | 1,788 | 1,301 | **3,257** | 2,971 | 3,800 |
+| A motion | 1,072 | 1,105 | 1,501 | 2,028 | 1,959 |
+| D all | 871 | 656 | 927 | 1,449 | 1,448 |
+
+- **H1-direction:** motion-only learning helps most outside steady transit (A − CV: steady −85 m; combined −1,145 m).
+- **Location (C − A)** improves every regime (−170 to −511 m), largest when turning. Holds in **50/50** regime ×
+  threshold-sensitivity cells (95% CI excluding zero).
+- **Vessel-held-out:** location still helps strongly for steady (−358 m) and turning (−362 m), less for combined
+  (−135 m), and **not at low speed** (+24 m, CI 0 to +48). Harbour and low-speed behaviour seems to be vessel- or
+  route-specific. Vessel attributes help little for unseen vessels and **hurt at low speed** (+66 m).

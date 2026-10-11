@@ -1,8 +1,8 @@
-key,citation,problem,dataset,sampling,features,model,baseline,split,metrics,reported_limitations,reproducibility,relevance,question_for_vesselmind
-R1,"Yang et al. 2024, TR-E 183:103426",AIS+ML review,,,,,,,,,,,
-R2,"Ribeiro et al. 2023, ESWA 231:120561",AIS anomaly review,,,,,,,,,,,
-R3,"Li, Jiao & Yang 2023, EAAI 126:107062",trajectory prediction review,,,,,,,,,,,
-R4,"Li, Jiao & Yang 2023, TR-E 175:103152",trajectory prediction benchmark,,,,,,,,,,,
-R5,"Zhang et al. 2023, Ocean Eng 288:116082",clustering + anomaly,,,,,,,,,,,
-R6,"JMSE 2022 10(1):112 (verify authors)",anomaly review,,,,,,,,,,,
-R7,"TRPRO 2023 73:220-226 (verify authors)",traffic ML overview,,,,,,,,,,,
+key,citation,paper_type,task,claimed_contribution,operational_use,dataset_region,dataset_period,dataset_size,vessel_scope,data_availability,preprocessing,history_length,prediction_horizons,features_motion,features_vessel,features_spatial,features_environment,features_interaction,model,baselines,split_strategy,unseen_vessel_test,spatial_generalisation,metrics,uncertainty,regime_analysis,ablations,main_finding,reported_limitations,observed_weaknesses,reproducibility,relevance_to_vesselmind,question_for_vesselmind
+R1,"Yang, Liu, Li, Zhang & Liu 2024, Transp. Res. Part E 183:103426",review,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+R2,"Ribeiro, Paes & de Oliveira 2023, Expert Syst. Appl. 231:120561",review,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+R3,"Li, Jiao & Yang 2023, Eng. Appl. AI 126:107062",systematic review,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+R4,"Li, Jiao & Yang 2023, Transp. Res. Part E 175:103152",experimental benchmark,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+R5,"Zhang, Liu, Guo & Liu 2023, Ocean Eng. 288:116082",method,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+R6,"Wolsing, Roepert, Bauer & Wehrle 2022, J. Mar. Sci. Eng. 10(1):112",review,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+R7,"Overview of ML methods in maritime traffic monitoring based on AIS 2023, Transp. Res. Procedia 73:220-226 (verify authors)",short overview,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

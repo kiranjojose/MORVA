@@ -165,3 +165,22 @@ def test_residual_targets_zero_on_cv_path_and_invertible():
                                   STEP, 20, [5, 10, 15, 20])
     ra2, rc2 = residual_targets(hist, pred, STEP, [5, 10, 15, 20])
     assert np.allclose(ra2, [[10, 20, 30, 40]], atol=0.5) and np.allclose(rc2, [[-5, -10, -15, -20]], atol=0.5)
+
+
+def test_regimes_label_straight_turn_and_slow():
+    from vesselmind.features.regimes import RegimeParams, assign_regimes, regime_variables, turn_label_reliable
+
+    v_ms, w = 12 * KNOT_MS, np.radians(2.0 / 60)  # 2 deg/min starboard turn
+    t = np.arange(-19, 1) * STEP
+    straight = _hist_from_xy(np.zeros(20), v_ms * t, 12, np.zeros(20))
+    th = w * t
+    turning = _hist_from_xy(v_ms / w * (1 - np.cos(th)), v_ms / w * np.sin(th), 12, np.degrees(th) % 360)
+    slow = _hist_from_xy(np.zeros(20), 1 * KNOT_MS * t, 2, np.zeros(20))
+    hist = np.concatenate([straight, turning, slow])
+    p = RegimeParams()
+    v = regime_variables(hist, STEP, p.lookback_min)
+    assert list(assign_regimes(v, p)) == ["steady", "turning", "low_speed"]
+    assert v["turn_signed_deg_min"][1] == pytest.approx(2.0, abs=0.05)
+    assert v["turn_pos_abs_deg_min"][1] == pytest.approx(2.0, abs=0.2)  # positions agree with COG
+    assert v["turn_consistency"][1] == pytest.approx(1.0)
+    assert list(turn_label_reliable(v, p)) == [True, True, False]

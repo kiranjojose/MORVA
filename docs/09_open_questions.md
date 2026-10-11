@@ -5,6 +5,9 @@ should be able to defend it in an interview.
 
 ## A. Must answer before Mon 12 Oct
 
+> **A1 answered 11 Oct** (see `docs/04_methods.md`). RQs and draft hypotheses are in `docs/05_protocol.md`; the
+> reading questions are in `docs/02_literature.md` (they supersede the reading guide below).
+
 **A1. Manoeuvring regimes.** Using `results/figures/regime_*.png`, define 2–4 regimes from PAST data only.
 Suggested starting point: *straight* (net turn < 1°/min and |ΔSOG| < 1 kn over the last 10 min), *turning*
 (net turn ≥ 1°/min), *speed-changing* (|ΔSOG| ≥ 2 kn, e.g. port departure or arrival).

@@ -59,3 +59,10 @@ Dated entries. Keep failed attempts.
 - **Size control** (random 109,866 train windows, seen vessels kept): D 861 m. So training size accounts for ~40 m (823 → 861); vessel/route familiarity accounts for ~300 m (861 → 1,163).
 - By ship group, D_all FDE (full / size-control / held-out): cargo 573 / 590 / 553, tanker 680 / 700 / 642, **passenger 944 / 1,015 / 2,162**, service 1,346 / 1,399 / 1,692. Fairway knowledge generalises completely for transiting cargo and tankers. Ferry gains depend on having seen the same ferries (each route is served by few vessels, so holding them out removes the route).
 - **Headline (preliminary):** spatial context generalises to unseen vessels (−26% FDE vs CV); vessel attributes add little beyond motion for new vessels; large ferry gains are route familiarity. This is a defensible, nuanced answer to RQ4.
+
+## 2026-10-11 (Sun), regimes (definition: Kiran) and research framing
+- Adopted Kiran's past-only regime definition (low-speed / steady / turning / speed-changing / combined; last 10 min; net turn ≥ 1°/min; |ΔSOG| ≥ 2 kn; mean SOG < 5 kn), with continuous variables, a reliability safeguard (COG vs position-based turn agreement) and one-at-a-time sensitivity.
+- Turn-label reliability: steady 95%, turning 81%, speed-changing 79%, combined 83%.
+- Location context improves FDE in every regime and in all 50 regime × sensitivity cells (CI excluding 0). Under vessel-held-out training it does NOT help at low speed (+24 m), and vessel attributes hurt there (+66 m).
+- RQ1–RQ7 and draft H1–H4 recorded in `05_protocol.md`, explicitly as drafted after validation and to be frozen before test. Literature reading questions and a working review draft (marked UNVERIFIED) are in `02_literature.md`; literature matrix expanded to 34 columns; R6 authors corrected to Wolsing, Roepert, Bauer & Wehrle (2022).
+- New scope from the framing: Kalman-filter baseline (RQ2) and spatially held-out evaluation (RQ7/H4) before 16 Oct; engineered geographic features → V2.

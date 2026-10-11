@@ -414,6 +414,154 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     print("\n".join(lines))
 
 
+def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
+    """E2-E4 by past-only manoeuvring regime, with threshold sensitivity (validation only)."""
+    from dataclasses import replace
+
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    from vesselmind.evaluation.metrics import summarize
+    from vesselmind.features.regimes import (
+        REGIMES,
+        SENSITIVITY,
+        RegimeParams,
+        assign_regimes,
+        regime_variables,
+        turn_label_reliable,
+    )
+
+    w, ev = exp_cfg["windows"], exp_cfg["evaluation"]
+    meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
+    mask = (meta["split"] == "val").to_numpy()
+    hist, m = np.load(ws.processed / "windows.npz")["hist"][mask], meta.filter(pl.Series(mask))
+
+    def latest(pattern):
+        runs = sorted((ws.results / "runs").glob(pattern))
+        if not runs:
+            sys.exit(f"no run matching {pattern}; run it first")
+        return pl.read_parquet(runs[-1] / "per_sample.parquet"), runs[-1].name
+
+    GBM_SETS = ("A_motion", "B_vessel", "C_location", "D_all")  # noqa: N806
+    gbm, gbm_run = latest("*_gbm_val")
+    held, held_run = latest("*_gbm_val_vesselheldout")
+    base, base_run = latest("*_baselines_val")
+    base_w = base.pivot(on="model", index="sample_id", values="fde_m")
+    fde = (m.select("sample_id", "mmsi")
+           .join(gbm.select("sample_id", pl.selectors.starts_with("fde_")), on="sample_id")
+           .join(base_w.select("sample_id", "persistence", "ctrv", "ctrv_damped")
+                 .rename({c: f"fde_{c}" for c in ("persistence", "ctrv", "ctrv_damped")}), on="sample_id")
+           .join(held.select("sample_id", *[pl.col(f"fde_{n}").alias(f"held_{n}") for n in GBM_SETS]),
+                 on="sample_id"))
+    assert len(fde) == len(m), "per-sample results do not cover all val windows"
+    groups = fde["mmsi"].to_numpy()
+    col = lambda c: fde[c].to_numpy()  # noqa: E731
+
+    p0 = RegimeParams()
+    v = regime_variables(hist, w["step_s"], p0.lookback_min)
+    reg = assign_regimes(v, p0)
+    reliable = turn_label_reliable(v, p0)
+    ws.processed.mkdir(parents=True, exist_ok=True)
+    pl.DataFrame({"sample_id": m["sample_id"], "regime": reg, "turn_label_reliable": reliable, **v}).write_parquet(
+        ws.processed / "regimes_val.parquet")
+
+    models = ["persistence", "cv", "ctrv", "ctrv_damped", "A_motion", "B_vessel", "C_location", "D_all"]
+    comps = [("A_motion", "cv"), ("B_vessel", "A_motion"), ("C_location", "A_motion"), ("D_all", "A_motion")]
+    fmt = lambda s: f"{s['mean']:+.0f} ({s['ci95_lo']:+.0f} to {s['ci95_hi']:+.0f})"  # noqa: E731
+
+    def paired(prefix_b, b, prefix_a, a, sel):
+        return summarize(col(f"{prefix_b}{b}")[sel] - col(f"{prefix_a}{a}")[sel], groups[sel], ev["n_bootstrap"],
+                         ev["seed"])
+
+    lines = ["# Results by past-only manoeuvring regime (validation, preliminary)", "",
+             f"Regime parameters: {p0.label()}. Runs: `{gbm_run}`, `{held_run}`, `{base_run}`.", "",
+             "## Mean FDE@20 min (m)", "",
+             "| regime | windows | share | vessels | turn label reliable | " + " | ".join(models) + " |",
+             "|---|---|---|---|---|" + "---|" * len(models)]
+    rows = []
+    for r in REGIMES:
+        sel = reg == r
+        if not sel.any():
+            continue
+        rows.append({"regime": r, **{mm: float(col(f"fde_{mm}")[sel].mean()) for mm in models}})
+        rel = f"{reliable[sel].mean():.0%}" if r != "low_speed" else "n/a"
+        lines.append(f"| {r} | {sel.sum():,} | {sel.mean():.1%} | {len(np.unique(groups[sel]))} | {rel} | "
+                     + " | ".join(f"{rows[-1][mm]:.0f}" for mm in models) + " |")
+
+    lines += ["", "## Paired ΔFDE@20 min by regime (m, 95% CI, vessel bootstrap; negative = first model better)", "",
+              "| regime | " + " | ".join(f"{b} − {a}" for b, a in comps) + " |", "|---|" + "---|" * len(comps)]
+    for r in REGIMES:
+        sel = reg == r
+        if sel.any():
+            lines.append(f"| {r} | " + " | ".join(fmt(paired("fde_", b, "fde_", a, sel)) for b, a in comps) + " |")
+
+    lines += ["", "## Vessel-held-out training (all val vessels unseen): paired ΔFDE@20 min by regime", "",
+              "| regime | A_motion − cv | B_vessel − A_motion | C_location − A_motion | D_all − A_motion |",
+              "|---|---|---|---|---|"]
+    for r in REGIMES:
+        sel = reg == r
+        if sel.any():
+            cells = [fmt(summarize(col("held_A_motion")[sel] - col("fde_cv")[sel], groups[sel], ev["n_bootstrap"],
+                                   ev["seed"]))]
+            cells += [fmt(paired("held_", b, "held_", "A_motion", sel))
+                      for b in ("B_vessel", "C_location", "D_all")]
+            lines.append(f"| {r} | " + " | ".join(cells) + " |")
+
+    # Threshold sensitivity: vary one parameter at a time; also 'sustained turning'
+    configs = [("primary", p0, False)] + [(f"{k}={x:g}", replace(p0, **{k: type(getattr(p0, k))(x)}), False)
+                                          for k, x in SENSITIVITY] + [("sustained turning (>=70% same sign)", p0, True)]
+    sens = []
+    for name, p, sustained in configs:
+        vv = v if p.lookback_min == p0.lookback_min else regime_variables(hist, w["step_s"], p.lookback_min)
+        rr = assign_regimes(vv, p, sustained)
+        for r in REGIMES:
+            sel = rr == r
+            if sel.sum() < 30:
+                continue
+            row = {"config": name, "regime": r, "windows": int(sel.sum()), "share": float(sel.mean()),
+                   "fde_cv": float(col("fde_cv")[sel].mean()), "fde_A": float(col("fde_A_motion")[sel].mean()),
+                   "fde_D": float(col("fde_D_all")[sel].mean())}
+            for b, a in comps:
+                d = paired("fde_", b, "fde_", a, sel)
+                row[f"d_{b}_vs_{a}"], row[f"d_{b}_vs_{a}_lo"], row[f"d_{b}_vs_{a}_hi"] = d["mean"], d["ci95_lo"], d[
+                    "ci95_hi"]
+            sens.append(row)
+    sens_df = pl.DataFrame(sens)
+    sens_df.write_csv(ws.results / "tables" / "regime_sensitivity_val.csv")
+    ci_excl0 = sens_df.filter(pl.col("d_C_location_vs_A_motion_hi") < 0).height
+    lines += ["", "## Threshold sensitivity (`regime_sensitivity_val.csv`)", "",
+              f"{len(configs)} configurations (primary, one-at-a-time changes, sustained turning). Location "
+              f"context (C − A) improves FDE with a 95% CI excluding zero in {ci_excl0} of {sens_df.height} "
+              "regime×config cells.",
+              "", "| config | " + " | ".join(REGIMES) + " |", "|---|" + "---|" * len(REGIMES)]
+    for name, *_ in configs:
+        sub = {r["regime"]: r for r in sens_df.filter(pl.col("config") == name).to_dicts()}
+        lines.append(f"| {name} | " + " | ".join(
+            f"n={sub[r]['windows']:,}, C−A {sub[r]['d_C_location_vs_A_motion']:+.0f}" if r in sub else "–"
+            for r in REGIMES) + " |")
+
+    out = ws.results / "tables" / "regimes_val.md"
+    out.write_text("\n".join(lines) + "\n")
+    print("\n".join(lines))
+
+    show = ["cv", "A_motion", "B_vessel", "C_location", "D_all"]
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    x = np.arange(len(rows))
+    for i, mm in enumerate(show):
+        ax.bar(x + (i - 2) * 0.16, [r[mm] for r in rows], width=0.16, label=mm)
+    counts = {r: int((reg == r).sum()) for r in REGIMES}
+    ax.set_xticks(x, [f"{r['regime']}\n(n={counts[r['regime']]:,})" for r in rows], fontsize=8)
+    ax.set_ylabel("Mean FDE at 20 min (m)")
+    ax.set_title("Prediction error by past-only manoeuvring regime (validation)")
+    ax.legend(fontsize=8)
+    ax.grid(axis="y", alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(ws.results / "figures" / "regime_fde_val.png", dpi=150)
+    plt.close(fig)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="vesselmind")
     ap.add_argument("--synthetic", action="store_true", help="use the isolated synthetic workspace")
@@ -444,6 +592,7 @@ def main(argv=None):
     p = sub.add_parser("sensitivity", help="E0: retained data under different gap thresholds")
     p.add_argument("--gap-s", type=int, nargs="+", default=[600, 1200, 1800])
     p.add_argument("--window-gap-s", type=int, nargs="+", default=[120, 180, 300])
+    sub.add_parser("regime-report", help="results by past-only manoeuvring regime + threshold sensitivity (val)")
     sub.add_parser("regime-eda", help="figures supporting the manoeuvring-regime definition (train+val only)")
 
     args = ap.parse_args(argv)
@@ -453,6 +602,7 @@ def main(argv=None):
         "synth": cmd_synth, "manifest": cmd_manifest, "ingest": cmd_ingest, "clean": cmd_clean,
         "windows": cmd_windows, "baselines": cmd_baselines, "plot-tracks": cmd_plot_tracks,
         "regime-eda": cmd_regime_eda, "sensitivity": cmd_sensitivity, "gbm": cmd_gbm,
+        "regime-report": cmd_regime_report,
     }
     handlers[args.cmd](ws, data_cfg, exp_cfg, args)
 
