@@ -493,12 +493,15 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
     BASE = ("persistence", "ctrv", "ctrv_damped", "kalman_cv")  # noqa: N806
     gbm, gbm_run = latest("*_gbm_val")
     held, held_run = latest("*_gbm_val_vesselheldout")
+    spat, spat_run = latest("*_gbm_val_spatialheldout")
     base, base_run = latest("*_baselines_val")
     base_w = base.pivot(on="model", index="sample_id", values="fde_m")
     fde = (m.select("sample_id", "mmsi")
            .join(gbm.select("sample_id", pl.selectors.starts_with("fde_")), on="sample_id")
            .join(base_w.select("sample_id", *BASE).rename({c: f"fde_{c}" for c in BASE}), on="sample_id")
            .join(held.select("sample_id", *[pl.col(f"fde_{n}").alias(f"held_{n}") for n in GBM_SETS]),
+                 on="sample_id")
+           .join(spat.select("sample_id", *[pl.col(f"fde_{n}").alias(f"spat_{n}") for n in GBM_SETS]),
                  on="sample_id"))
     assert len(fde) == len(m), "per-sample results do not cover all val windows"
     groups = fde["mmsi"].to_numpy()
@@ -521,7 +524,7 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
                          ev["seed"])
 
     lines = ["# Results by past-only manoeuvring regime (validation, preliminary)", "",
-             f"Regime parameters: {p0.label()}. Runs: `{gbm_run}`, `{held_run}`, `{base_run}`.", "",
+             f"Regime parameters: {p0.label()}. Runs: `{gbm_run}`, `{held_run}`, `{spat_run}`, `{base_run}`.", "",
              "## Mean FDE@20 min (m)", "",
              "| regime | windows | share | vessels | turn label reliable | " + " | ".join(models) + " |",
              "|---|---|---|---|---|" + "---|" * len(models)]
@@ -542,17 +545,18 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
         if sel.any():
             lines.append(f"| {r} | " + " | ".join(fmt(paired("fde_", b, "fde_", a, sel)) for b, a in comps) + " |")
 
-    lines += ["", "## Vessel-held-out training (all val vessels unseen): paired ΔFDE@20 min by regime", "",
-              "| regime | A_motion − cv | B_vessel − A_motion | C_location − A_motion | D_all − A_motion |",
-              "|---|---|---|---|---|"]
-    for r in REGIMES:
-        sel = reg == r
-        if sel.any():
-            cells = [fmt(summarize(col("held_A_motion")[sel] - col("fde_cv")[sel], groups[sel], ev["n_bootstrap"],
-                                   ev["seed"]))]
-            cells += [fmt(paired("held_", b, "held_", "A_motion", sel))
-                      for b in ("B_vessel", "C_location", "D_all")]
-            lines.append(f"| {r} | " + " | ".join(cells) + " |")
+    for title, pre in (("Vessel-held-out training (all val vessels unseen)", "held_"),
+                       ("Spatially held-out (longitude band unseen in training, 0.05° buffer)", "spat_")):
+        lines += ["", f"## {title}: paired ΔFDE@20 min by regime", "",
+                  "| regime | A_motion − cv | B_vessel − A_motion | C_location − A_motion | D_all − A_motion |",
+                  "|---|---|---|---|---|"]
+        for r in REGIMES:
+            sel = reg == r
+            if sel.any():
+                cells = [fmt(summarize(col(f"{pre}A_motion")[sel] - col("fde_cv")[sel], groups[sel],
+                                       ev["n_bootstrap"], ev["seed"]))]
+                cells += [fmt(paired(pre, b, pre, "A_motion", sel)) for b in ("B_vessel", "C_location", "D_all")]
+                lines.append(f"| {r} | " + " | ".join(cells) + " |")
 
     # Threshold sensitivity: vary one parameter at a time; also 'sustained turning'
     configs = [("primary", p0, False)] + [(f"{k}={x:g}", replace(p0, **{k: type(getattr(p0, k))(x)}), False)

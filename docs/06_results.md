@@ -57,3 +57,20 @@ Regime shares (val): steady 52%, turning 23%, low-speed 16%, combined 7%, speed-
 - **Vessel-held-out:** location still helps strongly for steady (−358 m) and turning (−362 m), less for combined
   (−135 m), and **not at low speed** (+24 m, CI 0 to +48). Harbour and low-speed behaviour seems to be vessel- or
   route-specific. Vessel attributes help little for unseen vessels and **hurt at low speed** (+66 m).
+
+## RQ7/H4: Spatially held-out evaluation (`results/tables/gbm_ablation_val_spatialheldout.md`)
+Each validation window is predicted by a model trained without its longitude band (4 bands, 3 km buffer).
+
+| FDE@20 min (m) | In-area (standard) | Vessel-held-out | **Spatially held-out** |
+|---|---|---|---|
+| CV | 1,574 | 1,574 | 1,574 |
+| A motion | 1,272 | 1,452 | 1,477 |
+| B + vessel | 1,130 | 1,435 | 1,452 |
+| C + location (raw lat/lon) | 865 | 1,171 | **2,599** |
+| D all | 823 | 1,163 | 1,922 |
+
+- **Raw coordinates do not transfer to unseen waters. They harm** (C − A = +1,122 m), because route corrections learned
+  elsewhere are applied in the wrong place. The harm is largest in steady transit and at the edge bands.
+- **Motion-only learning transfers** (−97 m vs CV); vessel attributes help when turning (−109 m) but not overall.
+- So the strong in-area location gain is memorised geography, not transferable knowledge. Transferable geographic
+  representations (fairway geometry, coast, bathymetry) are the next research step (V2).

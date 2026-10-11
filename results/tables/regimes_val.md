@@ -1,16 +1,16 @@
 # Results by past-only manoeuvring regime (validation, preliminary)
 
-Regime parameters: lookback_min=10, low_speed_kn=5, turn_deg_min=1, speed_change_kn=2, sustained_frac=0.7. Runs: `20261010T150815Z_gbm_val`, `20261010T151423Z_gbm_val_vesselheldout`, `20261009T144057Z_baselines_val`.
+Regime parameters: lookback_min=10, low_speed_kn=5, turn_deg_min=1, speed_change_kn=2, sustained_frac=0.7. Runs: `20261010T150815Z_gbm_val`, `20261010T151423Z_gbm_val_vesselheldout`, `20261011T200906Z_gbm_val_spatialheldout`, `20261011T195833Z_baselines_val`.
 
 ## Mean FDE@20 min (m)
 
-| regime | windows | share | vessels | turn label reliable | persistence | cv | ctrv | ctrv_damped | A_motion | B_vessel | C_location | D_all |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| low_speed | 9,890 | 15.7% | 266 | n/a | 2108 | 1587 | 1788 | 1609 | 1072 | 923 | 903 | 871 |
-| steady | 32,761 | 52.0% | 652 | 95% | 6280 | 1190 | 1301 | 1188 | 1105 | 1019 | 671 | 656 |
-| turning | 14,293 | 22.7% | 603 | 81% | 6061 | 1836 | 3257 | 1836 | 1501 | 1298 | 989 | 927 |
-| speed_changing | 1,414 | 2.2% | 295 | 79% | 5905 | 2734 | 2971 | 2737 | 2028 | 1844 | 1539 | 1449 |
-| combined | 4,624 | 7.3% | 357 | 83% | 4190 | 3104 | 3800 | 3125 | 1959 | 1637 | 1547 | 1448 |
+| regime | windows | share | vessels | turn label reliable | persistence | cv | ctrv | ctrv_damped | kalman_cv | A_motion | B_vessel | C_location | D_all |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| low_speed | 9,890 | 15.7% | 266 | n/a | 2108 | 1587 | 1788 | 1609 | 1587 | 1072 | 923 | 903 | 871 |
+| steady | 32,761 | 52.0% | 652 | 95% | 6280 | 1190 | 1301 | 1188 | 1190 | 1105 | 1019 | 671 | 656 |
+| turning | 14,293 | 22.7% | 603 | 81% | 6061 | 1836 | 3257 | 1836 | 1837 | 1501 | 1298 | 989 | 927 |
+| speed_changing | 1,414 | 2.2% | 295 | 79% | 5905 | 2734 | 2971 | 2737 | 2735 | 2028 | 1844 | 1539 | 1449 |
+| combined | 4,624 | 7.3% | 357 | 83% | 4190 | 3104 | 3800 | 3125 | 3105 | 1959 | 1637 | 1547 | 1448 |
 
 ## Paired ΔFDE@20 min by regime (m, 95% CI, vessel bootstrap; negative = first model better)
 
@@ -31,6 +31,16 @@ Regime parameters: lookback_min=10, low_speed_kn=5, turn_deg_min=1, speed_change
 | turning | -182 (-220 to -146) | -53 (-76 to -32) | -362 (-395 to -327) | -387 (-420 to -351) |
 | speed_changing | -274 (-372 to -155) | -98 (-165 to -31) | -291 (-344 to -237) | -319 (-392 to -249) |
 | combined | -446 (-575 to -303) | -33 (-104 to +42) | -135 (-253 to -31) | -156 (-221 to -94) |
+
+## Spatially held-out (longitude band unseen in training, 0.05° buffer): paired ΔFDE@20 min by regime
+
+| regime | A_motion − cv | B_vessel − A_motion | C_location − A_motion | D_all − A_motion |
+|---|---|---|---|---|
+| low_speed | -206 (-336 to -85) | +32 (-44 to +138) | +234 (+152 to +329) | +196 (+107 to +302) |
+| steady | -21 (-38 to -4) | -11 (-32 to +10) | +1414 (+1338 to +1497) | +580 (+532 to +630) |
+| turning | -89 (-159 to -20) | -109 (-159 to -58) | +1306 (+1176 to +1443) | +380 (+305 to +456) |
+| speed_changing | -216 (-417 to +13) | -64 (-173 to +53) | +832 (+599 to +1074) | +290 (+150 to +415) |
+| combined | -390 (-608 to -158) | +20 (-123 to +164) | +466 (+324 to +602) | +263 (+119 to +394) |
 
 ## Threshold sensitivity (`regime_sensitivity_val.csv`)
 
