@@ -79,3 +79,7 @@ Dated entries. Keep failed attempts.
 - Motion-only learning DOES transfer spatially (−97 m vs CV; combined −390, low-speed −206). Vessel attributes: ~0 overall, but −109 m (−159 to −58) when turning.
 - **H4 as drafted ("decrease but remain positive") is contradicted on validation with raw lat/lon.** The location gain is memorised geography. This sharpens the research direction: geographic context needs transferable representations (distance/bearing to fairway centreline, coast, bathymetry, bend geometry) rather than coordinates. That is RQ6's "meaningful geographic features" → V2, and a natural PhD-level question.
 - Note for honesty: H4 was drafted earlier today, BEFORE this run.
+
+## 2026-10-11 (Sun, night), H4b added (option b)
+- Decision (Kiran): keep H4 unchanged and report it as tested; add H4b ("raw-coordinate context does not transfer to unseen areas"), explicitly marked as drafted AFTER the spatial validation result (commit `2ae4ece`). Option (c), rewriting H4, was rejected because it would hide that the original prediction was wrong.
+- The hypotheses are not frozen yet. The freeze (with commit hash) happens before the single test run.

@@ -39,6 +39,16 @@ vessel-held-out training with a same-size random-subset control; spatially held-
   turning and combined manoeuvres.
 - **H4 (generalisation):** improvements from geographic context decrease under spatially held-out evaluation but remain
   positive if the features capture transferable fairway geometry rather than memorised coordinates.
+- **H4b (raw-coordinate transfer), added after the spatial validation result:** geographic context represented by raw
+  coordinates (latitude, longitude, course) does **not** transfer to unseen areas. Under spatially held-out evaluation
+  it does not improve, and may worsen, FDE@20 min relative to the motion-only model, while the motion-only model
+  still improves on CV.
+
+> **Provenance of H4 / H4b.** H4 was drafted on 11 Oct 2026, before the spatially held-out run. On validation, that
+> run contradicted H4 with raw coordinates (C − A = +1,122 m FDE@20; `results/tables/gbm_ablation_val_spatialheldout.md`,
+> commit `2ae4ece`). H4 is kept unchanged and will be reported as tested. H4b was added afterwards (see the
+> research log) and is **validation-informed**, so the test set is its first independent check. Neither the test split
+> nor any test result has been accessed.
 
 Frozen on: ____ (commit hash: ____)
 
