@@ -26,7 +26,7 @@ Whole-day time blocks: train 19–30 Sep, val 1–3 Oct, **test 4–6 Oct (locke
 full span lies inside it. Scalers, thresholds and tuning use train only (damped-CTRV τ tuned on train). Robustness:
 vessel-held-out training with a same-size random-subset control; spatially held-out evaluation (pending).
 
-## Hypotheses (DRAFT)
+## Hypotheses (FROZEN 2026-10-11)
 > **Transparency note:** these hypotheses were drafted on 11 Oct 2026 **after** the validation analysis
 > (`docs/06_results.md`). They will be frozen, with commit hash, **before** the single test-set run. The test split has
 > not been accessed. Numerical thresholds come from the literature and operational consultation, not from test results.
@@ -50,7 +50,8 @@ vessel-held-out training with a same-size random-subset control; spatially held-
 > research log) and is **validation-informed**, so the test set is its first independent check. Neither the test split
 > nor any test result has been accessed.
 
-Frozen on: ____ (commit hash: ____)
+**FROZEN on 2026-10-11 20:24 UTC by Kiran. Hypothesis text as of commit `e80e7aa`.** No changes to H1–H4b after this
+point. The test split (4–6 Oct) is accessed only after this freeze commit, once per experiment, with `--confirm-test`.
 
 ## Test-set rule
 `baselines --split test --confirm-test` and `gbm --split test --confirm-test` are run once, after freezing. Any rerun

@@ -83,3 +83,6 @@ Dated entries. Keep failed attempts.
 ## 2026-10-11 (Sun, night), H4b added (option b)
 - Decision (Kiran): keep H4 unchanged and report it as tested; add H4b ("raw-coordinate context does not transfer to unseen areas"), explicitly marked as drafted AFTER the spatial validation result (commit `2ae4ece`). Option (c), rewriting H4, was rejected because it would hide that the original prediction was wrong.
 - The hypotheses are not frozen yet. The freeze (with commit hash) happens before the single test run.
+
+## 2026-10-11 (Sun, 20:24 UTC), HYPOTHESES FROZEN
+- Kiran approved the freeze. H1–H4b frozen as of commit `e80e7aa`. Next: single test-set run of every experiment (baselines, GBM ablation, vessel-held-out, spatially held-out, regime report), each once, with `--confirm-test`.
