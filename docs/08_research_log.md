@@ -86,3 +86,7 @@ Dated entries. Keep failed attempts.
 
 ## 2026-10-11 (Sun, 20:24 UTC), HYPOTHESES FROZEN
 - Kiran approved the freeze. H1–H4b frozen as of commit `e80e7aa`. Next: single test-set run of every experiment (baselines, GBM ablation, vessel-held-out, spatially held-out, regime report), each once, with `--confirm-test`.
+
+## 2026-10-11 (Sun, 20:24–20:25 UTC), test run started
+- First attempt (20:24:36) failed in argument parsing: the shell loop passed each command as one word (zsh does not word-split variables). The CLI exited before loading any data, so the test split was not accessed. Retried at 20:24:55 with explicit commands.
+- Test baselines completed (`results/tables/baselines_test.md`). GBM test runs in progress.
