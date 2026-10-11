@@ -86,3 +86,40 @@ def ctrv_damped(hist, n_future, step_s, tau_s, window_steps=5, max_rate_deg_s=3.
     y = np.cumsum(v * np.cos(theta) * dt, axis=1)[:, substeps - 1 :: substeps]
     lat, lon = from_local_xy(x, y, lat0[:, None], lon0[:, None])
     return np.stack([lat, lon], axis=-1)
+
+
+def kalman_cv(hist, n_future, step_s, q, r_pos_m=15.0, r_vel_ms=0.5):
+    """Constant-velocity Kalman filter over the history, then straight-line extrapolation.
+
+    State [x, y, vx, vy] in the local frame at the anchor (metres, m/s). Measurements are the resampled positions
+    and the reported SOG/COG velocity (ignored where missing). Process noise is white acceleration with spectral
+    density q (m^2/s^3), the single tuned parameter; r_pos_m / r_vel_ms are measurement standard deviations.
+    """
+    n, t_len = hist.shape[:2]
+    lat0, lon0 = hist[:, -1, 0], hist[:, -1, 1]
+    px, py = to_local_xy(hist[..., 0], hist[..., 1], lat0[:, None], lon0[:, None])
+    vx, vy = velocity_from_sog_cog(hist[..., 2], hist[..., 3])
+    dt = float(step_s)
+    f = np.array([[1, 0, dt, 0], [0, 1, 0, dt], [0, 0, 1, 0], [0, 0, 0, 1]], dtype=float)
+    qm = q * np.array([[dt**3 / 3, 0, dt**2 / 2, 0], [0, dt**3 / 3, 0, dt**2 / 2],
+                       [dt**2 / 2, 0, dt, 0], [0, dt**2 / 2, 0, dt]])
+    v0x = np.where(np.isnan(vx[:, 0]), (px[:, 1] - px[:, 0]) / dt, vx[:, 0])
+    v0y = np.where(np.isnan(vy[:, 0]), (py[:, 1] - py[:, 0]) / dt, vy[:, 0])
+    s = np.stack([px[:, 0], py[:, 0], v0x, v0y], axis=1)
+    p = np.tile(np.diag([r_pos_m**2, r_pos_m**2, 4.0, 4.0]), (n, 1, 1))
+    eye = np.eye(4)
+    for t in range(1, t_len):
+        s = s @ f.T
+        p = f @ p @ f.T + qm
+        vel_ok = ~(np.isnan(vx[:, t]) | np.isnan(vy[:, t]))
+        z = np.stack([px[:, t], py[:, t], np.where(vel_ok, vx[:, t], s[:, 2]), np.where(vel_ok, vy[:, t], s[:, 3])], 1)
+        r_vel = np.where(vel_ok, r_vel_ms**2, 1e8)
+        r = np.zeros((n, 4, 4))
+        r[:, 0, 0] = r[:, 1, 1] = r_pos_m**2
+        r[:, 2, 2] = r[:, 3, 3] = r_vel
+        k = p @ np.linalg.inv(p + r)
+        s = s + np.einsum("nij,nj->ni", k, z - s)
+        p = (eye - k) @ p
+    tau = _future_times(n_future, step_s)[None, :]
+    lat, lon = from_local_xy(s[:, 0:1] + s[:, 2:3] * tau, s[:, 1:2] + s[:, 3:4] * tau, lat0[:, None], lon0[:, None])
+    return np.stack([lat, lon], axis=-1)

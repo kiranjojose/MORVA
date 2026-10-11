@@ -24,6 +24,7 @@ baselines:
   ctrv_max_turn_rate_deg_s: 3.0
   ctrv_min_sog_kn: 1.0           # below this, turn rate is treated as 0
   ctrv_damped_tau_grid_s: [30, 60, 120, 180, 300, 600]   # turn-decay time constant, tuned on TRAIN only
+  kalman_q_grid: [1.0e-4, 1.0e-3, 1.0e-2, 3.0e-2, 0.1, 0.3, 1.0]   # CV-Kalman process noise (m^2/s^3), tuned on TRAIN only
   tuning_max_windows: 60000      # random train subsample used for tuning
 
 evaluation:
@@ -39,3 +40,8 @@ gbm:
     B_vessel: [motion, vessel]
     C_location: [motion, location]
     D_all: [motion, vessel, location]
+  spatial:
+    # Spatially held-out evaluation (H4): hold out one longitude band at a time. Training excludes every window
+    # whose history or future comes within `buffer_deg` of the held-out band, so no route crosses the boundary.
+    lon_edges: [10.4, 11.05, 11.7, 12.35, 13.0]
+    buffer_deg: 0.05             # ~3 km at 55.5 N

@@ -175,6 +175,10 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
     tuning = {str(tau): float(step_errors_m(damped(h_tr, tau), f_tr).mean()) for tau in b["ctrv_damped_tau_grid_s"]}
     best_tau = float(min(tuning, key=tuning.get))
     print(f"damped CTRV tau tuned on {len(train_idx):,} train windows: ADE by tau {tuning} -> tau={best_tau:g}s")
+    kf = lambda h, q: baselines.kalman_cv(h, w["future_steps"], w["step_s"], q)  # noqa: E731
+    kf_tuning = {str(q): float(step_errors_m(kf(h_tr, q), f_tr).mean()) for q in b["kalman_q_grid"]}
+    best_q = float(min(kf_tuning, key=kf_tuning.get))
+    print(f"Kalman-CV q tuned on train: ADE by q {kf_tuning} -> q={best_q:g}")
 
     models = {
         "persistence": lambda h: baselines.persistence(h, w["future_steps"], w["step_s"]),
@@ -182,6 +186,7 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
         "ctrv": lambda h: baselines.ctrv(h, w["future_steps"], w["step_s"], b["ctrv_turn_window_steps"],
                                          b["ctrv_max_turn_rate_deg_s"], b["ctrv_min_sog_kn"]),
         "ctrv_damped": lambda h: damped(h, best_tau),
+        "kalman_cv": lambda h: kf(h, best_q),
     }
     run_dir = ws.results / "runs" / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}_baselines_{args.split}"
     rows, summary, step_err = [], {}, {}
@@ -203,7 +208,8 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
     run_dir.mkdir(parents=True, exist_ok=True)
     pl.concat(rows).write_parquet(run_dir / "per_sample.parquet")
     _write_json({"split": args.split, "git": _git_hash(), "config": exp_cfg, "metrics": summary,
-                 "paired_vs_cv": paired, "ctrv_damped_tuning": {"ade_by_tau_train": tuning, "best_tau_s": best_tau}},
+                 "paired_vs_cv": paired, "ctrv_damped_tuning": {"ade_by_tau_train": tuning, "best_tau_s": best_tau},
+                 "kalman_tuning": {"ade_by_q_train": kf_tuning, "best_q": best_q}},
                 run_dir / "summary.json")
 
     lines = ["| model | metric | mean (95% CI, vessel bootstrap) | median | p90 | n |", "|---|---|---|---|---|---|"]
@@ -212,7 +218,7 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
             lines.append(f"| {name} | {k} | {s['mean']:.0f} ({s['ci95_lo']:.0f}–{s['ci95_hi']:.0f}) | "
                          f"{s['median']:.0f} | {s['p90']:.0f} | {s['n_samples']} / {s['n_vessels']} vessels |")
     lines += ["", f"Paired difference vs CV on identical windows (model − CV, m; negative = better). "
-              f"Damped-CTRV tau = {best_tau:g} s, tuned on train.", "",
+              f"Damped-CTRV tau = {best_tau:g} s, Kalman q = {best_q:g} m²/s³, both tuned on train.", "",
               "| model | ΔADE (95% CI) | ΔFDE (95% CI) |", "|---|---|---|"]
     for name, d in paired.items():
         a, f = d["ade_m"], d["fde_m"]
@@ -302,36 +308,72 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
         tr[keep_idx] = True
         suffix += f"_sub{args.train_subsample}"
         print(f"random train subsample: {args.train_subsample:,} windows")
-    h_tr, f_tr, m_tr = arrays["hist"][tr], arrays["fut"][tr], meta.filter(pl.Series(tr))
-    h_ev, f_ev, m_ev = arrays["hist"][ev_mask], arrays["fut"][ev_mask], meta.filter(pl.Series(ev_mask))
+    hist_all, fut_all = arrays["hist"], arrays["fut"]
     if not tr.any() or not ev_mask.any():
         sys.exit(f"empty split: {tr.sum()} train / {ev_mask.sum()} {args.split} windows; rerun `windows`")
+    m_ev, h_ev, f_ev = meta.filter(pl.Series(ev_mask)), hist_all[ev_mask], fut_all[ev_mask]
     groups = m_ev["mmsi"].to_numpy()
+    seeds = args.seeds or [g["seed"]]
+
+    def fit_sets(tr_m, ev_m, seeds):
+        """Fit every feature set on tr_m windows and return step errors on ev_m windows."""
+        h_tr, f_tr, m_tr = hist_all[tr_m], fut_all[tr_m], meta.filter(pl.Series(tr_m))
+        h_e, f_e, m_e = hist_all[ev_m], fut_all[ev_m], meta.filter(pl.Series(ev_m))
+        out, info, sfde = {}, {}, {}
+        for name, sets in g["feature_sets"].items():
+            X_tr, cols = build_features(h_tr, m_tr, step, sets)
+            X_e, _ = build_features(h_e, m_e, step, sets)
+            keep = ~np.isnan(X_tr).all(axis=0)  # a feature with no training values cannot be used
+            dropped = [c for c, k in zip(cols, keep, strict=True) if not k]
+            X_tr, X_e, cols = X_tr[:, keep], X_e[:, keep], [c for c, k in zip(cols, keep, strict=True) if k]
+            if dropped:
+                print(f"{name}: dropped all-missing features {dropped}")
+            cat = [c == "ship_group" for c in cols] if "ship_group" in cols else None
+            sfde[name] = {}
+            for seed in seeds:  # tables use the first seed; the spread across seeds is reported separately
+                t0 = time.time()
+                model = ResidualGBM(knots, categorical=cat, seed=seed).fit(X_tr, h_tr, f_tr, step)
+                e = step_errors_m(model.predict(X_e, h_e, step, n_fut), f_e)
+                sfde[name][seed] = float(e[:, -1].mean())
+                if seed == seeds[0]:
+                    out[name] = e
+                    info[name] = {"features": cols, "dropped_all_missing": dropped, "train_windows": int(tr_m.sum()),
+                                  "fit_s": round(time.time() - t0, 1), "n_iter": model.n_iter()}
+                print(f"{name} seed {seed}: fitted in {time.time() - t0:.0f} s on {int(tr_m.sum()):,} windows, "
+                      f"ADE {e.mean():.0f} m, FDE {e[:, -1].mean():.0f} m (n={int(ev_m.sum()):,})")
+        return out, info, sfde
 
     errs = {"cv": step_errors_m(baselines.cv(h_ev, n_fut, step), f_ev)}
-    fit_info, seed_fde = {}, {}
-    seeds = args.seeds or [g["seed"]]
-    for name, sets in g["feature_sets"].items():
-        X_tr, cols = build_features(h_tr, m_tr, step, sets)
-        X_ev, _ = build_features(h_ev, m_ev, step, sets)
-        keep = ~np.isnan(X_tr).all(axis=0)  # a feature with no training values cannot be used
-        dropped = [c for c, k in zip(cols, keep, strict=True) if not k]
-        X_tr, X_ev, cols = X_tr[:, keep], X_ev[:, keep], [c for c, k in zip(cols, keep, strict=True) if k]
-        if dropped:
-            print(f"{name}: dropped all-missing features {dropped}")
-        cat = [c == "ship_group" for c in cols] if "ship_group" in cols else None
-        seed_fde[name] = {}
-        for seed in seeds:  # tables use the first seed; the spread across seeds is reported separately
-            t0 = time.time()
-            model = ResidualGBM(knots, categorical=cat, seed=seed).fit(X_tr, h_tr, f_tr, step)
-            e = step_errors_m(model.predict(X_ev, h_ev, step, n_fut), f_ev)
-            seed_fde[name][seed] = float(e[:, -1].mean())
-            if seed == seeds[0]:
-                errs[name] = e
-                fit_info[name] = {"features": cols, "dropped_all_missing": dropped,
-                                  "fit_s": round(time.time() - t0, 1), "n_iter": model.n_iter()}
-            print(f"{name} seed {seed}: fitted in {time.time() - t0:.0f} s, {args.split} ADE {e.mean():.0f} m, "
-                  f"FDE {e[:, -1].mean():.0f} m")
+    if args.spatial_holdout:
+        sp = g["spatial"]
+        edges, buf = np.asarray(sp["lon_edges"], float), sp["buffer_deg"]
+        lons = np.concatenate([hist_all[..., 1], fut_all[..., 1]], axis=1)
+        lon_min, lon_max = np.nanmin(lons, axis=1), np.nanmax(lons, axis=1)
+        band = np.clip(np.digitize(hist_all[:, -1, 1], edges[1:-1]), 0, len(edges) - 2)  # anchor band
+        ev_idx = np.flatnonzero(ev_mask)
+        for name in g["feature_sets"]:
+            errs[name] = np.full((len(ev_idx), n_fut), np.nan)
+        fit_info, seed_fde = {"folds": []}, {}
+        for b in range(len(edges) - 1):
+            lo, hi = edges[b], edges[b + 1]
+            ev_b = ev_mask & (band == b)
+            tr_b = tr & ((lon_max < lo - buf) | (lon_min >= hi + buf))
+            if not ev_b.any() or not tr_b.any():
+                continue
+            print(f"spatial fold {b}: hold out lon [{lo}, {hi}); train {int(tr_b.sum()):,} / eval {int(ev_b.sum()):,}")
+            out, info, _ = fit_sets(tr_b, ev_b, seeds[:1])
+            pos = ev_b[ev_idx]
+            for name, e in out.items():
+                errs[name][pos] = e
+            fit_info["folds"].append({"lon": [float(lo), float(hi)], "train_windows": int(tr_b.sum()),
+                                      "eval_windows": int(ev_b.sum()), "models": info})
+        suffix += "_spatialheldout"
+        tr_report = int(np.mean([f["train_windows"] for f in fit_info["folds"]]))
+    else:
+        out, fit_info, seed_fde = fit_sets(tr, ev_mask, seeds)
+        errs.update(out)
+        tr_report = int(tr.sum())
+    m_tr = meta.filter(pl.Series(tr))
 
     per = {k: per_sample_metrics(e, step, w["horizons_min"]) for k, e in errs.items()}
     summary = {k: {mk: summarize(v, groups, ev["n_bootstrap"], ev["seed"]) for mk, v in p.items()}
@@ -378,13 +420,16 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     _write_json({"split": args.split, "git": _git_hash(), "config": exp_cfg["gbm"], "fit": fit_info,
                  "metrics": summary, "paired": comparisons, "fde_by_turn_bin": by_turn.to_dicts(),
                  "fde_by_ship_group": by_group.to_dicts(), "vessel_novelty": novelty,
-                 "holdout_eval_vessels": bool(args.holdout_eval_vessels), "train_windows": int(tr.sum()),
+                 "holdout_eval_vessels": bool(args.holdout_eval_vessels), "train_windows": tr_report,
+                 "spatial_holdout": bool(args.spatial_holdout),
                  "seed_fde": seed_fde}, run_dir / "summary.json")
 
     fmt = lambda s: f"{s['mean']:+.0f} ({s['ci95_lo']:+.0f} to {s['ci95_hi']:+.0f})"  # noqa: E731
     title = args.split + (", vessel-held-out" if args.holdout_eval_vessels else "") + (
+        ", spatially held-out (longitude bands)" if args.spatial_holdout else "") + (
         f", random train subsample {args.train_subsample:,}" if args.train_subsample else "")
-    lines = [f"# Residual GBM context ablation ({title}; {int(tr.sum()):,} train windows)", "",
+    lines = [f"# Residual GBM context ablation ({title}; {tr_report:,} train windows"
+             f"{' (mean per fold)' if args.spatial_holdout else ''})", "",
              "| model | ADE m (95% CI) | FDE@20 m (95% CI) | err@5 | err@10 |", "|---|---|---|---|---|"]
     for k, s in summary.items():
         lines.append(f"| {k} | {s['ade_m']['mean']:.0f} ({s['ade_m']['ci95_lo']:.0f}–{s['ade_m']['ci95_hi']:.0f}) | "
@@ -445,14 +490,14 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
         return pl.read_parquet(runs[-1] / "per_sample.parquet"), runs[-1].name
 
     GBM_SETS = ("A_motion", "B_vessel", "C_location", "D_all")  # noqa: N806
+    BASE = ("persistence", "ctrv", "ctrv_damped", "kalman_cv")  # noqa: N806
     gbm, gbm_run = latest("*_gbm_val")
     held, held_run = latest("*_gbm_val_vesselheldout")
     base, base_run = latest("*_baselines_val")
     base_w = base.pivot(on="model", index="sample_id", values="fde_m")
     fde = (m.select("sample_id", "mmsi")
            .join(gbm.select("sample_id", pl.selectors.starts_with("fde_")), on="sample_id")
-           .join(base_w.select("sample_id", "persistence", "ctrv", "ctrv_damped")
-                 .rename({c: f"fde_{c}" for c in ("persistence", "ctrv", "ctrv_damped")}), on="sample_id")
+           .join(base_w.select("sample_id", *BASE).rename({c: f"fde_{c}" for c in BASE}), on="sample_id")
            .join(held.select("sample_id", *[pl.col(f"fde_{n}").alias(f"held_{n}") for n in GBM_SETS]),
                  on="sample_id"))
     assert len(fde) == len(m), "per-sample results do not cover all val windows"
@@ -467,7 +512,7 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
     pl.DataFrame({"sample_id": m["sample_id"], "regime": reg, "turn_label_reliable": reliable, **v}).write_parquet(
         ws.processed / "regimes_val.parquet")
 
-    models = ["persistence", "cv", "ctrv", "ctrv_damped", "A_motion", "B_vessel", "C_location", "D_all"]
+    models = ["persistence", "cv", "ctrv", "ctrv_damped", "kalman_cv", "A_motion", "B_vessel", "C_location", "D_all"]
     comps = [("A_motion", "cv"), ("B_vessel", "A_motion"), ("C_location", "A_motion"), ("D_all", "A_motion")]
     fmt = lambda s: f"{s['mean']:+.0f} ({s['ci95_lo']:+.0f} to {s['ci95_hi']:+.0f})"  # noqa: E731
 
@@ -589,6 +634,7 @@ def main(argv=None):
                    help="exclude every vessel of the evaluated split from training")
     p.add_argument("--seeds", type=int, nargs="+", help="seeds to train (default: config seed)")
     p.add_argument("--train-subsample", type=int, help="random subsample of training windows (size control)")
+    p.add_argument("--spatial-holdout", action="store_true", help="hold out one longitude band at a time (H4)")
     p = sub.add_parser("sensitivity", help="E0: retained data under different gap thresholds")
     p.add_argument("--gap-s", type=int, nargs="+", default=[600, 1200, 1800])
     p.add_argument("--window-gap-s", type=int, nargs="+", default=[120, 180, 300])

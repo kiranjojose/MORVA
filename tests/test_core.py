@@ -184,3 +184,12 @@ def test_regimes_label_straight_turn_and_slow():
     assert v["turn_pos_abs_deg_min"][1] == pytest.approx(2.0, abs=0.2)  # positions agree with COG
     assert v["turn_consistency"][1] == pytest.approx(1.0)
     assert list(turn_label_reliable(v, p)) == [True, True, False]
+
+
+def test_kalman_cv_matches_cv_on_noise_free_straight_line():
+    from vesselmind.models.baselines import kalman_cv
+
+    v = 10 * KNOT_MS
+    t = np.arange(-19, 1) * STEP
+    hist = _hist_from_xy(v * t * np.sin(np.radians(70)), v * t * np.cos(np.radians(70)), 10, np.full(20, 70.0))
+    assert step_errors_m(kalman_cv(hist, 20, STEP, q=1e-4), cv(hist, 20, STEP)).max() < 5.0

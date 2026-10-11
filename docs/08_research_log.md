@@ -66,3 +66,8 @@ Dated entries. Keep failed attempts.
 - Location context improves FDE in every regime and in all 50 regime × sensitivity cells (CI excluding 0). Under vessel-held-out training it does NOT help at low speed (+24 m), and vessel attributes hurt there (+66 m).
 - RQ1–RQ7 and draft H1–H4 recorded in `05_protocol.md`, explicitly as drafted after validation and to be frozen before test. Literature reading questions and a working review draft (marked UNVERIFIED) are in `02_literature.md`; literature matrix expanded to 34 columns; R6 authors corrected to Wolsing, Roepert, Bauer & Wehrle (2022).
 - New scope from the framing: Kalman-filter baseline (RQ2) and spatially held-out evaluation (RQ7/H4) before 16 Oct; engineered geographic features → V2.
+
+## 2026-10-11 (Sun), Kalman baseline (RQ2)
+- CV Kalman filter (state x, y, vx, vy; measurements: 1-min positions plus reported SOG/COG velocity; white-acceleration process noise q tuned on 60k TRAIN windows). Train ADE decreases monotonically with q: 1e-4 → 784 m, 1e-2 → 654 m, 1.0 → 643 m. The best q (largest in the grid) makes the filter follow the latest measurement, so it converges to CV: val paired ΔADE/ΔFDE vs CV = +0 m.
+- Interpretation: smoothing over the 20-min history adds lag and does not improve on the latest reported SOG/COG. Together with CTRV and damped CTRV, every kinematic refinement tested collapses to, or loses against, CV. The most recent state is the best kinematic predictor in this area.
+- Refactored `gbm` so feature sets can be fitted per spatial fold. Regression check on the synthetic workspace reproduces the earlier numbers exactly (A 1,013 / B 1,007 / C 1,086 / D 1,088 m).

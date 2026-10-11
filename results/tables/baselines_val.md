@@ -20,11 +20,17 @@
 | ctrv_damped | err_5min_m | 163 (147–180) | 44 | 466 | 62982 / 692 vessels |
 | ctrv_damped | err_10min_m | 514 (464–565) | 167 | 1480 | 62982 / 692 vessels |
 | ctrv_damped | err_20min_m | 1578 (1435–1727) | 753 | 4156 | 62982 / 692 vessels |
+| kalman_cv | ade_m | 640 (582–703) | 270 | 1729 | 62982 / 692 vessels |
+| kalman_cv | fde_m | 1574 (1432–1722) | 744 | 4154 | 62982 / 692 vessels |
+| kalman_cv | err_5min_m | 160 (144–176) | 41 | 465 | 62982 / 692 vessels |
+| kalman_cv | err_10min_m | 510 (462–559) | 159 | 1480 | 62982 / 692 vessels |
+| kalman_cv | err_20min_m | 1574 (1432–1722) | 744 | 4154 | 62982 / 692 vessels |
 
-Paired difference vs CV on identical windows (model − CV, m; negative = better). Damped-CTRV tau = 30 s, tuned on train.
+Paired difference vs CV on identical windows (model − CV, m; negative = better). Damped-CTRV tau = 30 s, Kalman q = 1 m²/s³, both tuned on train.
 
 | model | ΔADE (95% CI) | ΔFDE (95% CI) |
 |---|---|---|
 | persistence | +2259 (+2099 to +2427) | +3839 (+3511 to +4182) |
 | ctrv | +197 (+180 to +214) | +468 (+420 to +513) |
 | ctrv_damped | +3 (+1 to +5) | +4 (+1 to +7) |
+| kalman_cv | +0 (-0 to +0) | +0 (-0 to +0) |
