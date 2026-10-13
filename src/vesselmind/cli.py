@@ -612,6 +612,26 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
     plt.close(fig)
 
 
+def cmd_summary_figure(ws: Workspace, data_cfg, exp_cfg, args):
+    """Three-panel generalisation figure (in-area / unseen vessels / unseen waters) from stored runs."""
+    from vesselmind.viz.plots import plot_generalisation_panels
+
+    def metrics(pattern):
+        runs = sorted((ws.results / "runs").glob(pattern))
+        if not runs:
+            sys.exit(f"no run matching {pattern}")
+        mets = json.loads((runs[-1] / "summary.json").read_text())["metrics"]
+        return {m: v["fde_m"] for m, v in mets.items()}
+
+    sp = args.split
+    panels = {"In-area": metrics(f"*_gbm_{sp}"), "Unseen vessels": metrics(f"*_gbm_{sp}_vesselheldout"),
+              "Unseen waters": metrics(f"*_gbm_{sp}_spatialheldout")}
+    label = "test split, single post-freeze run" if sp == "test" else "validation"
+    out = plot_generalisation_panels(panels, ws.results / "figures" / f"generalisation_{sp}.png",
+                                     f"Learned residual model vs constant velocity (dashed), {label}")
+    print(f"wrote {out.relative_to(project_path('.'))}")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="vesselmind")
     ap.add_argument("--synthetic", action="store_true", help="use the isolated synthetic workspace")
@@ -643,6 +663,8 @@ def main(argv=None):
     p = sub.add_parser("sensitivity", help="E0: retained data under different gap thresholds")
     p.add_argument("--gap-s", type=int, nargs="+", default=[600, 1200, 1800])
     p.add_argument("--window-gap-s", type=int, nargs="+", default=[120, 180, 300])
+    p = sub.add_parser("summary-figure", help="3-panel generalisation figure from stored runs")
+    p.add_argument("--split", default="test", choices=["val", "test"])
     p = sub.add_parser("regime-report", help="results by past-only manoeuvring regime + threshold sensitivity")
     p.add_argument("--split", default="val", choices=["val", "test"])
     sub.add_parser("regime-eda", help="figures supporting the manoeuvring-regime definition (train+val only)")
@@ -654,7 +676,7 @@ def main(argv=None):
         "synth": cmd_synth, "manifest": cmd_manifest, "ingest": cmd_ingest, "clean": cmd_clean,
         "windows": cmd_windows, "baselines": cmd_baselines, "plot-tracks": cmd_plot_tracks,
         "regime-eda": cmd_regime_eda, "sensitivity": cmd_sensitivity, "gbm": cmd_gbm,
-        "regime-report": cmd_regime_report,
+        "regime-report": cmd_regime_report, "summary-figure": cmd_summary_figure,
     }
     handlers[args.cmd](ws, data_cfg, exp_cfg, args)
 
