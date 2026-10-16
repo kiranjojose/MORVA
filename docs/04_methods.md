@@ -40,7 +40,7 @@ and does not yet produce calibrated uncertainty.
 ## Metrics
 ADE, FDE and per-horizon error (m, haversine). Mean, median and p90, with 95% CI from a vessel-grouped bootstrap. Paired differences for model comparisons.
 
-## Manoeuvring regimes (frozen 11 Oct 2026; `src/vesselmind/features/regimes.py`)
+## Manoeuvring regimes (frozen 11 Oct 2026; `src/morva/features/regimes.py`)
 A regime describes the vessel's observed motion state at prediction time, computed **only from the last 10 minutes of
 the observation history**. No future movement, position or prediction error is used.
 

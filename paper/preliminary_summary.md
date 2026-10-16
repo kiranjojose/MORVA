@@ -1,6 +1,6 @@
 # When does context help vessel trajectory prediction? A controlled AIS study in Danish straits
 
-**Kiran Jose Puthussery · Preliminary research summary · October 2026 · VesselMind V1**
+**Kiran Jose Puthussery · Preliminary research summary · October 2026 · MORVA V1**
 
 ## Motivation and research question
 
@@ -25,7 +25,7 @@ memorised route. I therefore treated generalisation as part of the research ques
 AIS trajectory-prediction research now spans classical machine learning, recurrent networks, graph models and
 transformers, but reviews continue to identify data quality, heterogeneous evaluation and incomplete contextual
 information as important problems [1,2]. A comparative study across channel, archipelago and port settings also shows
-that the relative suitability of prediction methods depends on the traffic environment [3]. VesselMind complements
+that the relative suitability of prediction methods depends on the traffic environment [3]. MORVA complements
 this literature with a controlled feature ablation, past-only manoeuvring regimes, and separate tests for familiar
 waters, unseen vessels and unseen waters.
 
@@ -144,6 +144,6 @@ illegal or erroneous.
 3. H. Li, H. Jiao and Z. Yang, “AIS data-driven ship trajectory prediction modelling and analysis based on machine
    learning and deep learning methods,” *Transportation Research Part E*, 175, 103152, 2023.
 
-**Reproducibility and provenance.** Code and documentation: <https://github.com/kiranjojose/vesselmind>. The repository records the data manifests and checksums, experiment configuration,
+**Reproducibility and provenance.** Code and documentation: <https://github.com/kiranjojose/morva>. The repository records the data manifests and checksums, experiment configuration,
 quality reports, run summaries and the failed pre-access test command. Raw DMA files are not redistributed. The test
 set is now spent; any subsequent model development is treated as post-hoc and returns to validation or new data.

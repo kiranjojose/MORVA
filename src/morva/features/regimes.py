@@ -11,7 +11,7 @@ from dataclasses import asdict, dataclass
 
 import numpy as np
 
-from vesselmind.geo import to_local_xy
+from morva.geo import to_local_xy
 
 REGIMES = ["low_speed", "steady", "turning", "speed_changing", "combined"]
 

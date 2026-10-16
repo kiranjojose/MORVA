@@ -2,7 +2,7 @@
 
 import polars as pl
 
-from vesselmind.quality.checks import HARD_FLAGS
+from morva.quality.checks import HARD_FLAGS
 
 
 def segment_tracks(df: pl.DataFrame, gap_s: float, min_points: int, min_duration_s: float) -> pl.DataFrame:

@@ -4,13 +4,13 @@ import numpy as np
 import polars as pl
 import pytest
 
-from vesselmind.evaluation.metrics import grouped_bootstrap, per_sample_metrics, step_errors_m
-from vesselmind.evaluation.splits import assign_split
-from vesselmind.features.windows import build_windows
-from vesselmind.geo import KNOT_MS, from_local_xy, haversine_m, to_local_xy
-from vesselmind.models.baselines import ctrv, cv, persistence
-from vesselmind.quality.checks import add_flags, normalize_sentinels
-from vesselmind.trajectories.segment import segment_tracks
+from morva.evaluation.metrics import grouped_bootstrap, per_sample_metrics, step_errors_m
+from morva.evaluation.splits import assign_split
+from morva.features.windows import build_windows
+from morva.geo import KNOT_MS, from_local_xy, haversine_m, to_local_xy
+from morva.models.baselines import ctrv, cv, persistence
+from morva.quality.checks import add_flags, normalize_sentinels
+from morva.trajectories.segment import segment_tracks
 
 STEP = 60
 
@@ -128,7 +128,7 @@ def test_metrics_and_grouped_bootstrap():
 
 
 def test_ctrv_damped_limits():
-    from vesselmind.models.baselines import ctrv_damped
+    from morva.models.baselines import ctrv_damped
 
     v, w = 12 * KNOT_MS, np.radians(0.3)
     t = np.arange(-19, 1) * STEP
@@ -140,7 +140,7 @@ def test_ctrv_damped_limits():
 
 
 def test_body_frame_roundtrip_and_axes():
-    from vesselmind.features.motion import from_body, to_body
+    from morva.features.motion import from_body, to_body
 
     th = np.radians(90.0)  # heading east: east is 'along', south is starboard 'cross'
     a, c = to_body(np.array([100.0, 0.0]), np.array([0.0, -50.0]), th)
@@ -150,7 +150,7 @@ def test_body_frame_roundtrip_and_axes():
 
 
 def test_residual_targets_zero_on_cv_path_and_invertible():
-    from vesselmind.models.gbm import residual_targets, residuals_to_positions
+    from morva.models.gbm import residual_targets, residuals_to_positions
 
     v = 10 * KNOT_MS
     t = np.arange(-19, 1) * STEP
@@ -168,7 +168,7 @@ def test_residual_targets_zero_on_cv_path_and_invertible():
 
 
 def test_regimes_label_straight_turn_and_slow():
-    from vesselmind.features.regimes import RegimeParams, assign_regimes, regime_variables, turn_label_reliable
+    from morva.features.regimes import RegimeParams, assign_regimes, regime_variables, turn_label_reliable
 
     v_ms, w = 12 * KNOT_MS, np.radians(2.0 / 60)  # 2 deg/min starboard turn
     t = np.arange(-19, 1) * STEP
@@ -187,7 +187,7 @@ def test_regimes_label_straight_turn_and_slow():
 
 
 def test_kalman_cv_matches_cv_on_noise_free_straight_line():
-    from vesselmind.models.baselines import kalman_cv
+    from morva.models.baselines import kalman_cv
 
     v = 10 * KNOT_MS
     t = np.arange(-19, 1) * STEP

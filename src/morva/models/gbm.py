@@ -8,8 +8,8 @@ horizons (default 5/10/15/20 min). One HistGradientBoostingRegressor per (knot, 
 import numpy as np
 from sklearn.ensemble import HistGradientBoostingRegressor
 
-from vesselmind.features.motion import anchor_frame, from_body, to_body
-from vesselmind.geo import from_local_xy, to_local_xy
+from morva.features.motion import anchor_frame, from_body, to_body
+from morva.geo import from_local_xy, to_local_xy
 
 
 def residual_targets(hist, fut, step_s, knots_steps):

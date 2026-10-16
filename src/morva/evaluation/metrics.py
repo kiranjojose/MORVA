@@ -7,7 +7,7 @@ vessel are strongly correlated; resampling windows would give falsely narrow int
 
 import numpy as np
 
-from vesselmind.geo import haversine_m
+from morva.geo import haversine_m
 
 
 def step_errors_m(pred: np.ndarray, true: np.ndarray) -> np.ndarray:

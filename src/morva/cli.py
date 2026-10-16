@@ -1,6 +1,6 @@
-"""VesselMind command-line pipeline.
+"""MORVA command-line pipeline.
 
-    vesselmind [--synthetic] synth | manifest FILE | ingest | clean | windows | baselines | plot-tracks
+    morva [--synthetic] synth | manifest FILE | ingest | clean | windows | baselines | plot-tracks
 
 `--synthetic` redirects all data and results to data/_synthetic and results/_synthetic so
 smoke-test artefacts can never mix with real experiment outputs.
@@ -16,7 +16,7 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
-from vesselmind.config import load_config, project_path
+from morva.config import load_config, project_path
 
 
 class Workspace:
@@ -46,16 +46,16 @@ def _write_json(obj: dict, path: Path) -> None:
 
 
 def cmd_synth(ws: Workspace, data_cfg, exp_cfg, args):
-    from vesselmind.ingestion.synthetic import generate
+    from morva.ingestion.synthetic import generate
 
     if not ws.synthetic:
-        sys.exit("synth only writes to the synthetic workspace: run `vesselmind --synthetic synth`")
+        sys.exit("synth only writes to the synthetic workspace: run `morva --synthetic synth`")
     out = generate(ws.raw / "SYNTHETIC_aisdk-2025-01-01.csv")
     print(f"wrote {out.relative_to(project_path('.'))}")
 
 
 def cmd_manifest(ws: Workspace, data_cfg, exp_cfg, args):
-    from vesselmind.ingestion.manifest import write_manifest
+    from morva.ingestion.manifest import write_manifest
 
     src = data_cfg["source"]
     for f in map(Path, args.files):
@@ -67,7 +67,7 @@ def cmd_manifest(ws: Workspace, data_cfg, exp_cfg, args):
 
 
 def cmd_ingest(ws: Workspace, data_cfg, exp_cfg, args):
-    from vesselmind.ingestion.dma import ingest_file
+    from morva.ingestion.dma import ingest_file
 
     if args.files:
         files = [Path(f) for f in args.files]
@@ -99,8 +99,8 @@ CLEAN_COLUMNS = ["t", "mmsi", "lat", "lon", "sog", "cog", "heading", "nav_status
 
 
 def cmd_clean(ws: Workspace, data_cfg, exp_cfg, args):
-    from vesselmind.quality.checks import FLAG_COLS, HARD_FLAGS, add_flags, normalize_sentinels, quality_report
-    from vesselmind.trajectories.segment import segment_tracks, vessel_table
+    from morva.quality.checks import FLAG_COLS, HARD_FLAGS, add_flags, normalize_sentinels, quality_report
+    from morva.trajectories.segment import segment_tracks, vessel_table
 
     raw = pl.read_parquet(sorted(ws.interim.glob("*.parquet")), columns=CLEAN_COLUMNS)
     q, s = data_cfg["quality"], data_cfg["segmentation"]
@@ -126,8 +126,8 @@ def cmd_clean(ws: Workspace, data_cfg, exp_cfg, args):
 
 
 def cmd_windows(ws: Workspace, data_cfg, exp_cfg, args):
-    from vesselmind.evaluation.splits import assign_split, resolve_boundaries, split_summary
-    from vesselmind.features.windows import build_windows
+    from morva.evaluation.splits import assign_split, resolve_boundaries, split_summary
+    from morva.features.windows import build_windows
 
     w = exp_cfg["windows"]
     tracks = pl.read_parquet(ws.processed / "tracks.parquet")
@@ -149,9 +149,9 @@ def cmd_windows(ws: Workspace, data_cfg, exp_cfg, args):
 
 
 def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
-    from vesselmind.evaluation.metrics import per_sample_metrics, step_errors_m, summarize
-    from vesselmind.models import baselines
-    from vesselmind.viz.plots import plot_error_vs_horizon
+    from morva.evaluation.metrics import per_sample_metrics, step_errors_m, summarize
+    from morva.models import baselines
+    from morva.viz.plots import plot_error_vs_horizon
 
     if args.split == "test" and not args.confirm_test:
         sys.exit("Test split is locked. Freeze hypotheses first, then pass --confirm-test (one final run).")
@@ -233,7 +233,7 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
 
 
 def cmd_plot_tracks(ws: Workspace, data_cfg, exp_cfg, args):
-    from vesselmind.viz.plots import plot_tracks
+    from morva.viz.plots import plot_tracks
 
     tracks = pl.read_parquet(ws.processed / "tracks.parquet")
     title = f"{data_cfg['aoi']['name']}{' (SYNTHETIC)' if ws.synthetic else ''}"
@@ -242,7 +242,7 @@ def cmd_plot_tracks(ws: Workspace, data_cfg, exp_cfg, args):
 
 
 def cmd_regime_eda(ws: Workspace, data_cfg, exp_cfg, args):
-    from vesselmind.viz.regime_eda import regime_eda
+    from morva.viz.regime_eda import regime_eda
 
     w = exp_cfg["windows"]
     hist = np.load(ws.processed / "windows.npz")["hist"]
@@ -256,8 +256,8 @@ def cmd_regime_eda(ws: Workspace, data_cfg, exp_cfg, args):
 
 def cmd_sensitivity(ws: Workspace, data_cfg, exp_cfg, args):
     """E0: how segmentation gap and window gap thresholds change retained data (counts only, no model fitting)."""
-    from vesselmind.features.windows import build_windows
-    from vesselmind.trajectories.segment import segment_tracks
+    from morva.features.windows import build_windows
+    from morva.trajectories.segment import segment_tracks
 
     s, w = data_cfg["segmentation"], exp_cfg["windows"]
     points = pl.read_parquet(ws.processed / "points_clean.parquet")
@@ -280,11 +280,11 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     """E3/E4: residual GBM with feature-set ablation. Trains on train, evaluates on `--split` (val by default)."""
     import time
 
-    from vesselmind.evaluation.metrics import per_sample_metrics, step_errors_m, summarize
-    from vesselmind.features.motion import SHIP_GROUP_CODES, build_features
-    from vesselmind.models import baselines
-    from vesselmind.models.gbm import ResidualGBM
-    from vesselmind.viz.regime_eda import TURN_BINS, past_turn_rate_deg_min
+    from morva.evaluation.metrics import per_sample_metrics, step_errors_m, summarize
+    from morva.features.motion import SHIP_GROUP_CODES, build_features
+    from morva.models import baselines
+    from morva.models.gbm import ResidualGBM
+    from morva.viz.regime_eda import TURN_BINS, past_turn_rate_deg_min
 
     if args.split == "test" and not args.confirm_test:
         sys.exit("Test split is locked. Freeze hypotheses first, then pass --confirm-test (one final run).")
@@ -468,8 +468,8 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    from vesselmind.evaluation.metrics import summarize
-    from vesselmind.features.regimes import (
+    from morva.evaluation.metrics import summarize
+    from morva.features.regimes import (
         REGIMES,
         SENSITIVITY,
         RegimeParams,
@@ -614,7 +614,7 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
 
 def cmd_summary_figure(ws: Workspace, data_cfg, exp_cfg, args):
     """Three-panel generalisation figure (in-area / unseen vessels / unseen waters) from stored runs."""
-    from vesselmind.viz.plots import plot_generalisation_panels
+    from morva.viz.plots import plot_generalisation_panels
 
     def metrics(pattern):
         runs = sorted((ws.results / "runs").glob(pattern))
@@ -633,7 +633,7 @@ def cmd_summary_figure(ws: Workspace, data_cfg, exp_cfg, args):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(prog="vesselmind")
+    ap = argparse.ArgumentParser(prog="morva")
     ap.add_argument("--synthetic", action="store_true", help="use the isolated synthetic workspace")
     ap.add_argument("--data-config", default="configs/data.yaml")
     ap.add_argument("--exp-config", default="configs/experiment.yaml")

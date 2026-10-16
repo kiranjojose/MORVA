@@ -11,7 +11,7 @@ Flag columns (bool):
 import numpy as np
 import polars as pl
 
-from vesselmind.geo import KNOT_MS, haversine_m
+from morva.geo import KNOT_MS, haversine_m
 
 FLAG_COLS = ["flag_invalid_pos", "flag_bad_mmsi", "flag_duplicate", "flag_sog_high", "flag_speed_spike"]
 HARD_FLAGS = ["flag_invalid_pos", "flag_bad_mmsi", "flag_duplicate", "flag_speed_spike"]

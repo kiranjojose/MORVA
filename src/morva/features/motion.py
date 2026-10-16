@@ -8,8 +8,8 @@ makes the problem heading-invariant, so the model learns manoeuvres rather than 
 import numpy as np
 import polars as pl
 
-from vesselmind.geo import KNOT_MS, to_local_xy
-from vesselmind.models.baselines import _speed_course
+from morva.geo import KNOT_MS, to_local_xy
+from morva.models.baselines import _speed_course
 
 
 def to_body(x, y, theta_rad):

@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
-from vesselmind.geo import KNOT_MS, from_local_xy
+from morva.geo import KNOT_MS, from_local_xy
 
 TS_FMT = "%d/%m/%Y %H:%M:%S"
 

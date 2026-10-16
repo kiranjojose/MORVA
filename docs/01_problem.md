@@ -25,7 +25,7 @@ the current state, while vessel and geographic context may help explain how that
 This reasoning also creates a methodological risk. Vessel dimensions can act as a fingerprint for ships repeatedly
 seen in the data, and raw latitude and longitude can let a model memorise local routes. A model can therefore achieve
 high accuracy without learning a representation that transfers to a new vessel population or a different waterway.
-For this reason, VesselMind studies not only in-area accuracy but also vessel-held-out and spatially held-out
+For this reason, MORVA studies not only in-area accuracy but also vessel-held-out and spatially held-out
 performance.
 
 The project is deliberately baseline-led. At a 5–20-minute horizon, constant velocity is physically interpretable,

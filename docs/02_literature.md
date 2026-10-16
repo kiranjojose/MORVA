@@ -11,7 +11,7 @@ Yang et al. review the use of machine learning with AIS across trajectory-level 
 including trajectory prediction, collision avoidance, anomaly detection and energy efficiency. The paper is useful
 here as a broad account of the field rather than as evidence for a particular prediction model. It identifies AIS data
 quality, the need for benchmark datasets and the integration of AIS with additional information sources as continuing
-research needs. These points support VesselMind's emphasis on provenance, controlled comparisons and contextual
+research needs. These points support MORVA's emphasis on provenance, controlled comparisons and contextual
 information.
 
 **Verified from:** full text and publication record. DOI: `10.1016/j.tre.2024.103426`.
@@ -33,7 +33,7 @@ only one part of the problem and motivates explicit context and generalisation a
 The companion experimental study implements five classical machine-learning and seven deep-learning approaches and
 compares them on six evaluation measures. Its three AIS datasets represent a normal channel at Chengshan Jiao, complex
 traffic in the Zhoushan Archipelago and a port setting at Caofeidian. The study is relevant because it evaluates model
-fitness across different maritime environments rather than assuming one universally best method. VesselMind takes a
+fitness across different maritime environments rather than assuming one universally best method. MORVA takes a
 different but complementary approach: it holds the learned architecture fixed while ablating motion, vessel and
 location information and then evaluates transfer to unseen vessels and spatial bands.
 
@@ -54,7 +54,7 @@ vessels and familiar geography. Differences in regions, preprocessing, predictio
 make comparisons across papers difficult. A model evaluated on random or overlapping samples may answer a different
 question from a model evaluated on later days, unseen vessels or unseen waters.
 
-VesselMind therefore occupies a narrower position than a general state-of-the-art architecture paper. It uses strong
+MORVA therefore occupies a narrower position than a general state-of-the-art architecture paper. It uses strong
 kinematic baselines and a fixed residual learner to ask when motion, vessel and raw geographic context help. Its
 spatial result also exposes a distinction that aggregate in-area accuracy can hide: location can be highly predictive
 without being transferable.
@@ -69,7 +69,7 @@ The first study addresses four connected gaps:
 4. **Negative evidence:** the failure of raw coordinates outside their training waters is retained as a result rather
    than hidden by the strong in-area score.
 
-This does not establish that VesselMind is the state of the art in absolute predictive accuracy. The present claim is
+This does not establish that MORVA is the state of the art in absolute predictive accuracy. The present claim is
 methodological and empirical: context gains must be decomposed and tested under the form of novelty relevant to the
 intended application.
 

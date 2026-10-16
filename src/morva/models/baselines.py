@@ -8,7 +8,7 @@ step and return predicted positions [n, n_future, 2] (lat, lon).
 
 import numpy as np
 
-from vesselmind.geo import KNOT_MS, from_local_xy, to_local_xy, velocity_from_sog_cog
+from morva.geo import KNOT_MS, from_local_xy, to_local_xy, velocity_from_sog_cog
 
 
 def _future_times(n_future: int, step_s: float) -> np.ndarray:

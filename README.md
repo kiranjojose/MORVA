@@ -1,9 +1,9 @@
-# VesselMind
+# MORVA
 
-**Context-aware vessel trajectory prediction from historical AIS, with reproducible baselines, manoeuvring-regime
-analysis and explicit generalisation tests.**
+**Context-aware vessel manoeuvre prediction from AIS, with reproducible baselines, manoeuvring-regime analysis and
+explicit generalisation tests.**
 
-VesselMind is an independent maritime machine-learning research project. It asks a focused question:
+MORVA (Maritime Operational Reasoning and Vessel Analytics) is an independent maritime machine-learning research project. It asks a focused question:
 
 > When do vessel and geographic context improve 5–20-minute trajectory prediction beyond constant-motion and
 > motion-only learned baselines, and do those improvements transfer to unseen vessels and unseen waters?
@@ -20,7 +20,7 @@ bend or lead into a terminal approach.
 
 This creates a useful modelling question. Recent motion provides a strong short-term baseline, while vessel type,
 dimensions and location may contain additional information. Those same variables can also create shortcuts: vessel
-attributes may identify recurring services, and raw coordinates may let a model memorise local routes. VesselMind
+attributes may identify recurring services, and raw coordinates may let a model memorise local routes. MORVA
 therefore evaluates both predictive accuracy and transfer.
 
 ## Study at a glance
@@ -72,7 +72,7 @@ understanding.
 
 ### Leakage-aware windows
 
-AIS messages are irregular. VesselMind segments tracks, resamples them to one-minute intervals and rejects a prediction
+AIS messages are irregular. MORVA segments tracks, resamples them to one-minute intervals and rejects a prediction
 window if any original reporting gap inside its history or future exceeds 180 seconds. Windows never cross the
 train/validation/test boundaries.
 
@@ -159,9 +159,9 @@ with real experiment outputs.
 To process DMA data:
 
 ```bash
-uv run vesselmind manifest data/raw/aisdk-YYYY-MM-DD.zip --notes "..."
+uv run morva manifest data/raw/aisdk-YYYY-MM-DD.zip --notes "..."
 make pipeline
-uv run vesselmind gbm
+uv run morva gbm
 ```
 
 The test split is deliberately protected by `--confirm-test`. It has already been used for the recorded V1 test run
@@ -183,13 +183,13 @@ and must not be used for further model development.
 
 | Path | Purpose |
 |---|---|
-| `src/vesselmind/ingestion/` | DMA ingestion, manifests and synthetic data |
-| `src/vesselmind/quality/` | Sentinel normalisation and quality flags |
-| `src/vesselmind/trajectories/` | Track segmentation and vessel metadata |
-| `src/vesselmind/features/` | Windows, motion features and regimes |
-| `src/vesselmind/models/` | Kinematic baselines, Kalman filter and residual GBM |
-| `src/vesselmind/evaluation/` | Splits, metrics and grouped uncertainty |
-| `src/vesselmind/viz/` | Maps and result visualisations |
+| `src/morva/ingestion/` | DMA ingestion, manifests and synthetic data |
+| `src/morva/quality/` | Sentinel normalisation and quality flags |
+| `src/morva/trajectories/` | Track segmentation and vessel metadata |
+| `src/morva/features/` | Windows, motion features and regimes |
+| `src/morva/models/` | Kinematic baselines, Kalman filter and residual GBM |
+| `src/morva/evaluation/` | Splits, metrics and grouped uncertainty |
+| `src/morva/viz/` | Maps and result visualisations |
 | `configs/` | Data and experiment configuration |
 | `docs/` | Problem, literature, methods, protocol, results and limitations |
 | `paper/` | Preliminary research summary |
@@ -214,7 +214,7 @@ The results cover 18 days, one Danish study area and Class A traffic. The spatia
 not independent waterways. The learned comparison uses one model family and deterministic outputs. AIS omits control
 commands, route intent and several environmental and interaction variables.
 
-VesselMind does not provide collision avoidance, infer intent, certify anomalies or replace radar, bridge judgement or
+MORVA does not provide collision avoidance, infer intent, certify anomalies or replace radar, bridge judgement or
 VTS procedures. See the full [limitations](docs/07_limitations.md).
 
 ## Next research steps

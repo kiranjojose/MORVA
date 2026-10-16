@@ -79,7 +79,7 @@ because presenting all hypotheses as fully prospective would overstate the stren
 
 ## Safety, anomaly and deployment limits
 
-VesselMind is an offline research prototype. It has not been tested for real-time latency, missing live feeds, cyber
+MORVA is an offline research prototype. It has not been tested for real-time latency, missing live feeds, cyber
 security, operator workload, alert fatigue or failure recovery. It is not a replacement for radar, bridge judgement,
 VTS procedures or certified navigation equipment.
 
