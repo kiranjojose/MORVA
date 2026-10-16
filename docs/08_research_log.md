@@ -12,7 +12,7 @@ Dated entries. Keep failed attempts.
 - File: `aisdk-2026-10-05.zip` (Mon 5 Oct 2026, DMA, 621 MB zipped / 3.16 GB CSV). Manifest with SHA-256 in `data/manifests/`.
 - Header matches the expected DMA schema (26 columns). Timestamps run 00:00:00–23:59:58, consistent with one UTC day.
 - AOI (provisional box): 2.97 M rows, 481 MMSIs, Class A only.
-- **~47% of rows are exact full-row duplicates** (1.41 M). Another 4,159 (MMSI, t) groups have conflicting positions; the first row is kept for now. TODO: decide on a rule for the conflicts.
+- **~47% of rows are exact full-row duplicates** (1.41 M). Another 4,159 (MMSI, t) groups have conflicting positions; the first row is kept under the V1 rule. A provenance-based conflict rule remains future data-quality work.
 - Invalid MMSIs excluded: one transmitter with MMSI < 1e6 (44k rows) and two 111xxxxxx SAR aircraft (16k rows).
 - SOG sentinel 102.3: 13.7k rows. Median report interval 10 s, p99 180 s.
 - **Bug fixed:** DMA writes ship type "Undefined" on rows without a merged static message, which could win the per-vessel mode. It is now treated as missing. Metadata coverage on windows ≈ 97% (type and length).
@@ -35,7 +35,7 @@ Dated entries. Keep failed attempts.
 - Share of windows by net past turn rate: >1°/min 42%, >2°/min 31%, >5°/min 16%. The AOI is manoeuvring-heavy (strait bends, ferry terminals, port approaches; see `regime_turn_hotspots.png`).
 - **CTRV vs CV by past turn rate (val FDE@20 min):** nearly equal when straight (<0.5°/min: 1,226 vs 1,145 m); CTRV worst in moderate turns (2–5°/min: 3,380 vs 1,785 m, +1.6 km). Interpretation to test: turns in this area are short (bends), so extrapolating a turn for 20 min overshoots. Whether a turn *continues* depends on where the ship is, which motivates spatial/vessel context.
 - Speed distributions differ clearly by ship type (tankers narrow at 10–12 kn; passenger and pilot vessels wide; fishing slow), which supports ship type as a context feature.
-- Waiting on: Kiran's regime definition.
+- Next decision at this stage: freeze a past-only manoeuvring-regime definition.
 
 ## 2026-10-09 (Fri, night), baseline diagnosis + E0 sensitivity
 - **Damped CTRV** (turn rate decays as exp(−t/τ)), with τ tuned on 60k TRAIN windows over {30…600 s}: train ADE increases monotonically with τ, so the best τ is 30 s, i.e. essentially CV. Validation, paired vs CV: ΔADE +3 m (+1 to +5), ΔFDE +4 m (+1 to +7). Plain CTRV: ΔADE +197 m (+180 to +214), ΔFDE +468 m (+420 to +513).
@@ -51,7 +51,8 @@ Dated entries. Keep failed attempts.
 - **Location helps even when the past turn rate is near zero** (0–0.5°/min: 1,051 → 660 m). It anticipates bends and stops that past motion cannot show, which is consistent with the turn-persistence diagnosis.
 - Largest absolute gains for passenger vessels (CV 2,573 → 944 m; ferries stopping and turning at terminals) and cargo/tanker on location (984 → 583, 1,233 → 690).
 - **Vessel novelty check (important caveat):** for the 244 val vessels NOT seen in training, location still helps (−391 m, CI −428 to −352), almost as much as for seen vessels (−417). So it is spatial knowledge, not identity. Vessel attributes help unseen vessels only a little (−25 m vs −189 for seen ones): length/beam/draught likely act partly as a vessel fingerprint. Motion-only gains are also much smaller for unseen vessels (−66 vs −396). Seen and unseen vessels are different populations (regular traffic vs occasional visitors), so this mixes novelty with traffic type.
-- TODO: vessel-held-out evaluation (exclude val vessels from training) to separate these effects; 3 seeds; regime breakdown with Kiran's definition.
+- Next checks identified at this stage: vessel-held-out evaluation, three seeds and the final regime breakdown. These
+  were completed in the subsequent runs below.
 
 ## 2026-10-10 (Sat, evening), seeds, vessel-held-out and size control (VALIDATION)
 - **Seeds 0–2:** FDE@20 sd ≤ 5.3 m for every feature set (A 1,272 / B 1,130 / C 865 / D 823 m). The ablation ranking is not a seed artefact.
@@ -60,8 +61,8 @@ Dated entries. Keep failed attempts.
 - By ship group, D_all FDE (full / size-control / held-out): cargo 573 / 590 / 553, tanker 680 / 700 / 642, **passenger 944 / 1,015 / 2,162**, service 1,346 / 1,399 / 1,692. Fairway knowledge generalises completely for transiting cargo and tankers. Ferry gains depend on having seen the same ferries (each route is served by few vessels, so holding them out removes the route).
 - **Headline (preliminary):** spatial context generalises to unseen vessels (−26% FDE vs CV); vessel attributes add little beyond motion for new vessels; large ferry gains are route familiarity. This is a defensible, nuanced answer to RQ4.
 
-## 2026-10-11 (Sun), regimes (definition: Kiran) and research framing
-- Adopted Kiran's past-only regime definition (low-speed / steady / turning / speed-changing / combined; last 10 min; net turn ≥ 1°/min; |ΔSOG| ≥ 2 kn; mean SOG < 5 kn), with continuous variables, a reliability safeguard (COG vs position-based turn agreement) and one-at-a-time sensitivity.
+## 2026-10-11 (Sun), regimes and research framing
+- Adopted the past-only regime definition (low-speed / steady / turning / speed-changing / combined; last 10 min; net turn ≥ 1°/min; |ΔSOG| ≥ 2 kn; mean SOG < 5 kn), with continuous variables, a reliability safeguard (COG vs position-based turn agreement) and one-at-a-time sensitivity.
 - Turn-label reliability: steady 95%, turning 81%, speed-changing 79%, combined 83%.
 - Location context improves FDE in every regime and in all 50 regime × sensitivity cells (CI excluding 0). Under vessel-held-out training it does NOT help at low speed (+24 m), and vessel attributes hurt there (+66 m).
 - RQ1–RQ7 and draft H1–H4 recorded in `05_protocol.md`, explicitly as drafted after validation and to be frozen before test. Literature reading questions and a working review draft (marked UNVERIFIED) are in `02_literature.md`; literature matrix expanded to 34 columns; R6 authors corrected to Wolsing, Roepert, Bauer & Wehrle (2022).
@@ -77,19 +78,20 @@ Dated entries. Keep failed attempts.
 - FDE@20 (all val): CV 1,574; A motion 1,477 (−97 vs CV); B +vessel 1,452; **C +location 2,599 (+1,122 vs A; +1,025 vs CV)**; D all 1,922 (+445 vs A).
 - **Raw coordinates do not transfer; they actively harm in unseen areas.** The model applies route corrections learned elsewhere (bends, stops) at the wrong places. The harm is worst in steady transit (+1,414 m) and at the edge bands (fold 0 Great Belt west: C FDE 3,357 vs A 1,481; fold 3 Øresund: 2,250 vs 1,269), and smaller in interior bands (fold 1: 2,029 vs 1,910; fold 2: 1,607 vs 1,502), consistent with trees extrapolating at the edge of the coordinate range.
 - Motion-only learning DOES transfer spatially (−97 m vs CV; combined −390, low-speed −206). Vessel attributes: ~0 overall, but −109 m (−159 to −58) when turning.
-- **H4 as drafted ("decrease but remain positive") is contradicted on validation with raw lat/lon.** The location gain is memorised geography. This sharpens the research direction: geographic context needs transferable representations (distance/bearing to fairway centreline, coast, bathymetry, bend geometry) rather than coordinates. That is RQ6's "meaningful geographic features" → V2, and a natural PhD-level question.
+- **H4 as drafted ("decrease but remain positive") is contradicted on validation with raw lat/lon.** The location gain is memorised geography. This sharpens the research direction: geographic context needs transferable representations (distance/bearing to fairway centreline, coast, bathymetry, bend geometry) rather than coordinates. That is RQ6's "meaningful geographic features" → V2 and the central next research question.
 - Note for honesty: H4 was drafted earlier today, BEFORE this run.
 
 ## 2026-10-11 (Sun, night), H4b added (option b)
-- Decision (Kiran): keep H4 unchanged and report it as tested; add H4b ("raw-coordinate context does not transfer to unseen areas"), explicitly marked as drafted AFTER the spatial validation result (commit `2ae4ece`). Option (c), rewriting H4, was rejected because it would hide that the original prediction was wrong.
+- Decision: keep H4 unchanged and report it as tested; add H4b ("raw-coordinate context does not transfer to unseen areas"), explicitly marked as drafted AFTER the spatial validation result (commit `2ae4ece`). Rewriting H4 was rejected because it would hide that the original prediction was wrong.
 - The hypotheses are not frozen yet. The freeze (with commit hash) happens before the single test run.
 
 ## 2026-10-11 (Sun, 20:24 UTC), HYPOTHESES FROZEN
-- Kiran approved the freeze. H1–H4b frozen as of commit `e80e7aa`. Next: single test-set run of every experiment (baselines, GBM ablation, vessel-held-out, spatially held-out, regime report), each once, with `--confirm-test`.
+- H1–H4b frozen as of commit `e80e7aa`. Next: single test-set run of every experiment (baselines, GBM ablation, vessel-held-out, spatially held-out, regime report), each once, with `--confirm-test`.
 
 ## 2026-10-11 (Sun, 20:24–20:25 UTC), test run started
 - First attempt (20:24:36) failed in argument parsing: the shell loop passed each command as one word (zsh does not word-split variables). The CLI exited before loading any data, so the test split was not accessed. Retried at 20:24:55 with explicit commands.
-- Test baselines completed (`results/tables/baselines_test.md`). GBM test runs in progress.
+- Test baselines completed (`results/tables/baselines_test.md`). GBM test runs were started and completed in the
+  following logged step.
 
 ## 2026-10-11 (Sun, 20:46 UTC), TEST RUN COMPLETE
 - All five steps ran once (baselines, GBM 3 seeds, vessel-held-out, spatially held-out, regime report). Validation and test agree within ~25 m on every headline number.

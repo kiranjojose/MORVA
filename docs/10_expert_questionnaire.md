@@ -1,9 +1,8 @@
 # 10 — Expert input: questionnaires
 
-**Is expert input needed?** Not for V1 results: the data and protocol stand on their own. It is valuable for three
-things: (1) grounding the regime definition and anomaly types in practice, (2) interpreting failure cases, and
-(3) the interview, where "I validated my assumptions with navigators and class surveyors" is a strong signal of
-research maturity. Aim for 3–6 short responses this week. Even informal answers count, if documented.
+**Purpose.** The V1 results follow from the recorded data and protocol. Expert input is used to ground the regime
+definition, interpret failure cases, identify trustworthy AIS fields, define operationally meaningful accuracy and
+shape later anomaly categories. It is qualitative domain validation, not a substitute for statistical evaluation.
 
 **Ground rules (put these in the message you send):**
 - About 10 minutes, informal, for an independent research project (not for any employer).
@@ -58,10 +57,10 @@ to predict a ship's position 5–20 minutes ahead and to flag unusual behaviour.
    inappropriate or overreaching?
 6. What would make you trust, or reject, a data-driven indicator of abnormal vessel behaviour?
 
-## Q4: Commercial / sales (optional, for the long-term startup question only)
+## Q4: Operational users and system integration
 
-1. Who in a shipping company, port or authority would care about short-term traffic prediction or behaviour
-   anomalies? Who owns that budget?
+1. Which roles in a shipping company, port or authority use short-term traffic prediction or behaviour-deviation
+   information?
 2. Which existing products do they use (MarineTraffic/Kpler, Windward, Spire, VTS systems)? What is missing?
 3. Would a regional, physics-aware behaviour model be interesting, or is AIS analytics seen as a commodity?
 4. Which data would customers be willing to share (engine, fuel, voyage plans), and under what conditions?
@@ -75,5 +74,5 @@ to predict a ship's position 5–20 minutes ahead and to flag unusual behaviour.
 | Q1.5, Q3.3 | Data card: field reliability (`03_data_card.md`) |
 | Q1.6, Q3.4 | Anomaly types for the synthetic benchmark (E5) |
 | Q2.2, Q2.5, Q2.6 | Vessel context grouping; plausibility constraints (V2/V3 physics-informed work) |
-| Q1.8, Q3.5–3.6 | Discussion section and interview narrative |
-| Q4 | Startup notes only, not the research report |
+| Q1.8, Q3.5–3.6 | Operational requirements and discussion section |
+| Q4 | System requirements, integration constraints and future field evaluation |

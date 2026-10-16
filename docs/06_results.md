@@ -1,7 +1,8 @@
 # 06 — Results
 
-> All numbers below are **validation (1–3 Oct 2026), preliminary**. The test split (4–6 Oct) is locked until the
-> hypotheses are frozen. Source: `results/tables/baselines_val.md`, `results/tables/gbm_ablation_val.md`.
+The first sections report validation results from 1–3 October 2026. The final section reports the single test run on
+4–6 October, performed after the hypothesis freeze. The test split is now closed to further model development.
+Sources are the versioned tables under `results/tables/`.
 
 ## E2: Kinematic baselines (62,982 windows, 692 vessels)
 | Model | ADE (m) | FDE@20 min (m) |

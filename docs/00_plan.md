@@ -1,41 +1,64 @@
-# 00 — Project plan
+# 00 — Research and development roadmap
 
-**Objective:** Test whether vessel context (type, size, manoeuvring regime) improves 5/10/20-minute trajectory
-prediction over transparent kinematic baselines, using 18 days of real Danish AIS (19 Sep – 6 Oct 2026).
+## Objective
 
-**Application:** NTNU PhD (AI for ship traffic monitoring) asks for a CV and cover letter only.
-Plan: **apply Fri 16 Oct 2026** with a public repo and a preliminary summary linked from both documents.
-After that, keep building towards the interview (deeper results plus a live demo).
+Develop and evaluate context-aware 5–20-minute vessel trajectory prediction from historical AIS, with emphasis on
+reproducibility, interpretable baselines, manoeuvring regimes and transfer beyond familiar vessels and waters.
 
-## Phase 1: Application-ready (9–16 Oct)
+## V1 — Reproducible prediction study
 
-| Day | Kiran (research owner) | Claude (engineering) |
-|---|---|---|
-| Fri 9 ✅ | Repo, 18-day dataset, frozen split | Pipeline, quality, baselines on 359k windows |
-| Fri 9 eve / Sat 10 | Read R1–R4, fill literature matrix | Regime-support figures (turn-rate and speed distributions, turn hotspots) |
-| Sat 10 | **Define manoeuvring regimes** | E0 gap-threshold sensitivity, paired CV-vs-CTRV CI, CTRV failure diagnosis |
-| Sun 11 | Draft H1–H3, cover letter v1 | Implement regimes, baselines by regime and ship type |
-| Mon 12 | **Freeze hypotheses** (commit), CV project entry | Gradient-boosting predictor (motion-only) |
-| Tue 13 | Review results, decide headline | **Context ablation with GBM**: motion-only vs + ship type/size |
-| Wed 14 | Write the preliminary summary (Claude drafts figures and tables) | Figures, README polish |
-| Thu 15 | Final cover letter + CV with repo link | Remove the proposal from git history, make the repo public, final checks |
-| **Fri 16** | **Submit application** | — |
+**Status: complete.**
 
-**The preliminary summary (1–2 pages, `paper/preliminary_summary.md`/PDF) contains:** problem, data and quality
-numbers, method, split, validation results (baselines, regime breakdown, GBM context ablation), what's next.
-All numbers are labelled *validation, preliminary*. The test set stays locked.
+- Ingest and document 18 days of Danish historical AIS.
+- Build quality checks, trajectory segmentation and gap-safe windows.
+- Freeze chronological train, validation and test periods.
+- Establish persistence, CV, CTRV, damped CTRV and Kalman baselines.
+- Implement a residual gradient-boosting predictor.
+- Ablate motion, vessel and raw-location information.
+- Define past-only manoeuvring regimes and threshold sensitivity.
+- Evaluate later-time, vessel-held-out and spatially held-out generalisation.
+- Freeze hypotheses and perform a single test run.
+- Publish the preliminary summary, data card, protocol, results and limitations.
 
-## Phase 2: Interview-ready (17 Oct onwards)
+## V2 — Transferable navigational context
 
-| Window | Work |
-|---|---|
-| 17–21 Oct | GRU (motion-only vs + context), 3 seeds, uncertainty output |
-| 22–24 Oct | Synthetic anomaly benchmark (speed, turn, route-offset, residual signals) |
-| ~25 Oct | **One-time test-set run** after the protocol is final; numbers frozen |
-| 26–30 Oct | V1 report (6–10 pages), figure set |
-| Nov | Demo for the interview: historical playback map, predicted vs actual tracks, anomaly overlays |
-| On interview call | Prepare a 10-minute walkthrough: question → data → why the baselines → results → limits → PhD direction |
+The V1 spatial hold-out shows that raw coordinates encode useful local knowledge but transfer poorly. V2 replaces
+absolute position with features whose meaning is consistent across waterways:
 
-## Fallback
-If something slips before 16 Oct, apply with data quality + baselines + the regime analysis. That is already an honest,
-complete piece of work. The application does not wait for the learned model.
+- fairway-relative position and heading;
+- local fairway curvature and distance to upcoming bends;
+- distance to coastline, port, anchorage and route junctions;
+- depth and bathymetric constraints where licensing permits;
+- historical traffic-flow direction and density;
+- course-relative rather than absolute spatial representation.
+
+Evaluation should include independent waterways, longer time periods and the existing in-area, vessel-held-out and
+spatially held-out controls.
+
+## V3 — Uncertainty and interaction
+
+- Produce calibrated trajectory intervals or multiple plausible futures.
+- Compare quantile, conformal and probabilistic output formulations.
+- Add neighbouring-vessel features and encounter geometry.
+- Evaluate calibration and route validity, not displacement error alone.
+- Measure compute, latency and degradation under missing observations.
+
+## V4 — Behaviour deviation research
+
+Prediction residuals may support behavioural-deviation screening, but this is a separate task:
+
+- define anomaly categories and operational relevance;
+- distinguish data faults from unusual vessel behaviour;
+- obtain credible labels or expert-reviewed cases;
+- compare residual-based signals with transparent route, speed and turn rules;
+- measure false alarms and context-dependent explanations;
+- avoid interpreting an outlier as automatically unsafe or illegal.
+
+## Engineering roadmap
+
+- Version datasets, feature definitions and trained artifacts.
+- Add experiment tracking and deterministic reproduction commands.
+- Create batch inference and historical playback APIs.
+- Build an interactive analysis interface for tracks, predictions and uncertainty.
+- Add monitoring for data quality, model drift and unsupported operating conditions.
+- Document security, retention, licensing and audit requirements before external deployment.

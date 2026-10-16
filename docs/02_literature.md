@@ -1,135 +1,94 @@
-# 02 — Literature
+# 02 — Literature position for the preliminary summary
 
-Matrix: [`references/literature_matrix.csv`](../references/literature_matrix.csv) (34 columns) · BibTeX:
-[`references/references.bib`](../references/references.bib)
+This is a deliberately bounded review. I verified the three papers cited in `paper/preliminary_summary.md`; the wider
+reading programme remains in `references/literature_matrix.csv` and should be completed before a journal submission.
 
-> Don't fill the matrix from abstracts alone. For important papers (especially R4, R5, R6), read the methods, dataset,
-> evaluation, tables and limitations.
+## Verified sources used in the summary
 
-## Questions to answer for every paper (1–2 sentences each)
+### Yang et al. (2024): AIS and machine learning across maritime applications
 
-**Framing.** (1) What exact problem does it solve? (2) Trajectory, destination or route prediction, anomaly detection,
-collision risk or traffic flow? (3) Claimed operational use case? (4) Claimed novelty?
+Yang et al. review the use of machine learning with AIS across trajectory-level and higher-level maritime research,
+including trajectory prediction, collision avoidance, anomaly detection and energy efficiency. The paper is useful
+here as a broad account of the field rather than as evidence for a particular prediction model. It identifies AIS data
+quality, the need for benchmark datasets and the integration of AIS with additional information sources as continuing
+research needs. These points support VesselMind's emphasis on provenance, controlled comparisons and contextual
+information.
 
-**Data.** (5) Where was the AIS collected? (6) Dates and duration? (7) Vessels, messages, trajectories, samples?
-(8) Class A, Class B, which vessel types? (9) Public dataset? (10) Reproducible from the paper?
+**Verified from:** full text and publication record. DOI: `10.1016/j.tre.2024.103426`.
 
-**Preprocessing.** (11) Duplicates, invalid positions, gaps, missing fields, outliers? (12) Track segmentation?
-(13) Resampling interval? (14) How much interpolation? (15) Stationary or low-speed vessels removed? (16) Could
-preprocessing remove the difficult cases and flatter performance?
+### Li, Jiao and Yang (2023a): systematic review and methods analysis
 
-**Task.** (17) History length? (18) Horizons? (19) Predicting coordinates, displacement, course/speed, route class or
-a distribution? (20) Autoregressive or direct? (21) One future or several?
+This systematic review covers ship-trajectory-prediction literature from 2000 to June 2023. From 1,356 initial records,
+the authors retain 84 papers for systematic analysis and compare thirteen method families: Kalman filter, support
+vector regression, Gaussian process regression, back-propagation neural network, random forest, RNN, LSTM, Bi-LSTM,
+GRU, Bi-GRU, sequence-to-sequence, spatio-temporal graph convolutional network and transformer. The review stresses
+that prediction suitability depends on the application and that future work must address navigation intention,
+vessel interaction, interpretability, reliability and multi-source information. This supports treating architecture as
+only one part of the problem and motivates explicit context and generalisation analysis.
 
-**Features.** (22) Motion variables? (23) Vessel type, length, draught, nav status? (24) Geographic, route, fairway,
-weather, current, bathymetry? (25) Neighbouring vessels or encounters? (26) Is every input available at prediction time?
+**Verified from:** open-access full text, Sections 2–6. DOI: `10.1016/j.engappai.2023.107062`.
 
-**Models and baselines.** (27) Proposed model? (28) Transparent baselines? (29) **Constant velocity?** (30) CTRV or
-Kalman? (31) Identical samples and splits for all models? (32) Is the gain from the architecture, extra context, or both?
+### Li, Jiao and Yang (2023b): comparative prediction benchmark
 
-**Evaluation validity.** (33) How are train/val/test split? (34) Can the same vessel appear in every split?
-(35) Can overlapping windows cross splits? (36) Temporal or spatial leakage? (37) Unseen vessels, future periods or new
-regions tested? (38) Hyperparameters chosen on test data?
+The companion experimental study implements five classical machine-learning and seven deep-learning approaches and
+compares them on six evaluation measures. Its three AIS datasets represent a normal channel at Chengshan Jiao, complex
+traffic in the Zhoushan Archipelago and a port setting at Caofeidian. The study is relevant because it evaluates model
+fitness across different maritime environments rather than assuming one universally best method. VesselMind takes a
+different but complementary approach: it holds the learned architecture fixed while ablating motion, vessel and
+location information and then evaluates transfer to unseen vessels and spatial bands.
 
-**Metrics and evidence.** (39) Metrics? (40) Reported per horizon? (41) Median, tail errors or CIs? (42) Several seeds?
-(43) Ablations? (44) Results by vessel type, region or manoeuvring regime? (45) Uncertainty calibrated or only
-visualised?
+**Verified from:** open-access publication record and article abstract/method description. DOI:
+`10.1016/j.tre.2023.103152`.
 
-**Limitations and relevance.** (46) Failure modes reported? (47) A limitation the authors don't discuss? (48) What can
-VesselMind reproduce? (49) What should VesselMind do differently? (50) Does the paper strengthen, weaken or change our
-research gap?
+## Short state-of-the-art position
 
-## Scope notes on R1–R7 (verify while reading)
+AIS trajectory prediction has progressed from motion extrapolation and state estimation to classical machine learning,
+recurrent sequence models, graph-based interaction models and transformers. The literature shows two broad trends.
+First, increasingly expressive models are used to capture nonlinear movement, longer temporal dependencies and
+interactions. Second, researchers are adding contextual information such as vessel characteristics, geographic
+structure, weather and surrounding traffic.
 
-| Paper | Use it for | Don't use it for / read critically |
-|---|---|---|
-| R1 Yang et al. 2024, AIS+ML review | Broad motivation; taxonomy of AIS applications; data quality, benchmark and multi-source challenges | Evaluation design; "best model" claims |
-| R2 Ribeiro et al. 2023, anomaly review | Message vs trajectory anomalies; supervised/unsupervised; the ground-truth problem; future anomaly taxonomy | Does the field evaluate real operational anomalies or mostly statistical outliers and simulations? |
-| R3 Li, Jiao & Yang 2023, systematic review | Trajectory-prediction taxonomy (Kalman, SVR, GP, RF, RNN/LSTM/GRU, seq2seq, graph, transformer); related work | Is there a consistent evaluation standard? |
-| R4 Li, Jiao & Yang 2023, benchmark | 12 methods across a normal channel, archipelago and port; ranking depends on environment | Splits, horizons, **CV included?**, equal inputs, manoeuvres analysed separately, uncertainty, code/data public |
-| R5 Zhang et al. 2023, clustering + anomaly | Route-dependent normality; prediction residuals as anomaly signals (Yantai Port) | Anomaly ground truth, threshold tuning, generalisation beyond the port, baselines |
-| R6 Wolsing et al. 2022, AIS-track anomaly review | Anomaly taxonomy; route deviation dominates; regional dependence; private data; scarce ground truth; simulated anomalies | (Most useful review for the limitations section) |
-| R7 Transp. Res. Procedia 2023 overview | Short orientation; terminology; finding references | Research gap or state-of-the-art claims |
+The main unresolved issue for this study is not whether a complex model can fit a familiar AIS dataset. It is whether
+the reported improvement is attributable to the model, to extra information, or to shortcuts created by repeated
+vessels and familiar geography. Differences in regions, preprocessing, prediction horizons, data splits and metrics
+make comparisons across papers difficult. A model evaluated on random or overlapping samples may answer a different
+question from a model evaluated on later days, unseen vessels or unseen waters.
 
-## Additional papers the review still needs (find and verify)
-- A reproducible CV/CTRV or Kalman-baseline study
-- An uncertainty-aware vessel-prediction paper using Danish AIS (candidates: TrAISformer, GeoTrackNet)
-- A feature-ablation study
-- A navigation / fairway-context paper
-- A multi-vessel interaction paper
-- A probabilistic or multimodal prediction paper
-- A cross-region generalisation paper
-- A recent (2025–2026) trajectory-prediction review
+VesselMind therefore occupies a narrower position than a general state-of-the-art architecture paper. It uses strong
+kinematic baselines and a fixed residual learner to ask when motion, vessel and raw geographic context help. Its
+spatial result also exposes a distinction that aggregate in-area accuracy can hide: location can be highly predictive
+without being transferable.
 
----
+## Gap addressed by the first study
 
-## Working draft of the literature review
+The first study addresses four connected gaps:
 
-> **Status: UNVERIFIED DRAFT (11 Oct 2026).** Every statement about a paper must be checked against the paper itself,
-> with page or table references, before it appears in any submitted document. Rewrite it in your own words. Written
-> without reference to VesselMind's results.
+1. **Attribution:** context feature groups are changed while the learned model and evaluation samples remain fixed.
+2. **Interpretability:** performance is reported by past-only manoeuvring regime rather than only as one aggregate.
+3. **Generalisation:** chronological, vessel-held-out and spatially held-out settings are reported separately.
+4. **Negative evidence:** the failure of raw coordinates outside their training waters is retained as a result rather
+   than hidden by the strong in-area score.
 
-### AIS-based maritime behaviour modelling
-AIS provides large-scale observations of vessel position, course, speed, identity and selected static or
-voyage-related attributes. These records support research in trajectory reconstruction, traffic-pattern extraction,
-trajectory prediction, collision-risk assessment, anomaly detection and emissions analysis. Reviews describe a shift
-from descriptive AIS analytics towards machine-learning systems for situational awareness and autonomous navigation.
-The value of AIS comes with substantial data-quality challenges: irregular reporting, duplicates, missing or stale
-static fields, inconsistent identifiers, positional errors and incomplete receiver coverage. Yang et al. [R1] identify
-the lack of common benchmark datasets and the limited integration of AIS with other sources as continuing barriers to
-reliable comparison and deployment. *(verify)*
+This does not establish that VesselMind is the state of the art in absolute predictive accuracy. The present claim is
+methodological and empirical: context gains must be decomposed and tested under the form of novelty relevant to the
+intended application.
 
-### Ship trajectory prediction
-Methods can be grouped into kinematic models (constant velocity, constant turn rate), classical data-driven methods
-(Kalman filters, support-vector methods, Gaussian processes, tree ensembles) and deep learning (RNNs, encoder-decoders,
-graph models, transformers, probabilistic generative models). Li, Jiao and Yang's systematic review [R3] traces this
-development and compares input requirements, computational characteristics, strengths and limitations. Suitability
-depends on horizon, traffic environment, data availability and application, so architecture alone is not a sufficient
-basis for judging prediction quality. *(verify)* Their experimental benchmark [R4] compares 12 methods across a normal
-channel, a complex archipelago and a port area, and shows that performance varies with the maritime environment
-*(verify)*. Broader problems remain: private datasets, differing preprocessing, inconsistent horizons and metrics, and
-comparisons that do not always include strong transparent kinematic baselines.
+## References
 
-### Context-aware prediction
-Past position, speed and course show recent motion but not necessarily future intent. A vessel starting a course
-alteration may keep turning, settle on a new course, enter a port approach, follow a fairway bend or react to traffic.
-Vessel particulars, route geometry, environment and interactions may carry information that motion history does not.
-Context is often introduced together with a new architecture, which makes it hard to tell whether the gain comes from
-the information or the model. Raw coordinates may let a model memorise regional routes rather than learn transferable
-behaviour. Controlled feature ablations, and evaluation on unseen vessels, later periods and held-out areas, are
-therefore needed.
+- Yang, Y., Liu, Y., Li, G., Zhang, Z. and Liu, Y. (2024). *Harnessing the power of machine learning for AIS
+  data-driven maritime research: A comprehensive review.* Transportation Research Part E, 183, 103426.
+  <https://doi.org/10.1016/j.tre.2024.103426>
+- Li, H., Jiao, H. and Yang, Z. (2023a). *Ship trajectory prediction based on machine learning and deep learning: A
+  systematic review and methods analysis.* Engineering Applications of Artificial Intelligence, 126, 107062.
+  <https://doi.org/10.1016/j.engappai.2023.107062>
+- Li, H., Jiao, H. and Yang, Z. (2023b). *AIS data-driven ship trajectory prediction modelling and analysis based on
+  machine learning and deep learning methods.* Transportation Research Part E, 175, 103152.
+  <https://doi.org/10.1016/j.tre.2023.103152>
 
-### Manoeuvring regimes
-Prediction difficulty is not uniform. Straight, steady transit suits simple extrapolation; course alterations, speed
-changes and low-speed manoeuvring violate constant-motion assumptions. A complex model can look beneficial mainly
-because of a dataset's regime mix. Benchmarks compare geographic scenarios, but fewer studies isolate performance by
-regimes defined strictly from information available before prediction *(verify against R3/R4)*. Regime-conditioned
-evaluation shows whether a model helps generally or only in specific behaviours, and links statistical performance to
-interpretable ship-handling conditions.
+## Reading still required before journal submission
 
-### Uncertainty and generalisation
-Future trajectories can be multimodal near junctions, ports and encounters; a single prediction may average between
-valid routes. Uncertainty outputs are only useful if calibrated. High accuracy in a familiar region does not establish
-generalisation: repeated vessels, overlapping windows, random splits and memorised geography can all inflate results.
-Credible evaluation needs chronological separation, protection against windows crossing split boundaries, and
-vessel- and spatially held-out analysis.
-
-### AIS anomaly detection
-Reviews distinguish route deviations, unexpected activity, close approaches, unusual port calls or zone entries,
-identity and reporting anomalies, and speed or course behaviours, addressed with clustering, density estimation,
-reconstruction or prediction errors, and rule-based constraints. Wolsing et al. [R6] review 44 studies: route
-deviation dominates, many models are region-specific, datasets are often private, and reliable labelled ground truth is
-scarce, so simulated anomalies are common. These measure sensitivity to the injected pattern, not detection of real
-incidents. *(verify)* Ribeiro et al. [R2] similarly emphasise limited labels and heterogeneous definitions of
-abnormality. A statistical outlier is not automatically unsafe or illegal; slowing may be abnormal in a lane but
-expected near a berth. Zhang et al. [R5] combine compressed trajectories, DTW similarity, density-based clustering and
-transformer prediction near Yantai Port, which illustrates learned route normality but raises questions of regional
-dependence and ground truth. *(verify)*
-
-### Identified research gap
-Inconsistent preprocessing and evaluation; strong kinematic baselines not always emphasised; performance rarely
-explained by interpretable manoeuvring regimes; context and architecture changed at the same time; repeated vessels and
-familiar geography inflating generalisation; uncertainty not calibrated; anomaly studies lacking common data and real
-ground truth. The proposed direction is not another architecture but a controlled study of **when context helps**:
-identical samples, transparent and learned baselines, motion/vessel/geographic ablation, past-only regimes, and
-temporal, vessel and spatial generalisation tests.
+The paper-level review is not complete. The next literature pass should add primary studies on: strong CV/CTRV and
+Kalman baselines; Danish AIS prediction; fairway and chart context; calibrated and multimodal uncertainty;
+interaction-aware prediction; cross-region transfer; and anomaly evaluation with credible ground truth. Each paper
+should be entered in the literature matrix from its methods, data, evaluation tables and limitations—not from its
+abstract alone.

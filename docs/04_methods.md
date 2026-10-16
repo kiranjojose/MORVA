@@ -10,14 +10,37 @@ UTC parse → schema cast → AOI + Class A filter → sentinels to null → fla
 - **Persistence**: last position.
 - **CV**: last reported SOG/COG, finite-difference fallback.
 - **CTRV**: constant turn rate from the mean COG change over the last 5 min, clipped to ±3°/s, set to 0 below 1 kn.
+- **Damped CTRV**: the estimated turn rate decays exponentially; the decay constant is selected on training data.
+- **CV Kalman**: linear local-position/velocity state estimator; process noise is selected on training data.
 
-## Learned models (next)
-GBM on displacement targets; small GRU (A: motion-only, B: + vessel type/size). Three seeds each, with Gaussian output for uncertainty.
+## Learned residual model
+The learned model uses scikit-learn's histogram gradient boosting with absolute-error loss. It begins with the CV
+trajectory and predicts along-track and cross-track residuals in the vessel's body frame at 5, 10, 15 and 20 minutes.
+Intermediate one-minute residuals are linearly interpolated.
+
+Four controlled feature sets are evaluated:
+
+- **A motion**: recent SOG statistics, speed changes, net turns, COG jitter, reported/finite-difference speed ratio and
+  past positions in the body frame.
+- **B vessel**: A plus ship group, length, width and draught.
+- **C location**: A plus latitude, longitude and sine/cosine of anchor course.
+- **D all**: motion, vessel and location features.
+
+The learner and prediction targets remain fixed across feature sets. Seeds 0–2 are reported. The model is deterministic
+and does not yet produce calibrated uncertainty.
+
+## Generalisation settings
+
+- **In-area chronological**: train on 19–30 September; evaluate validation 1–3 October and test 4–6 October.
+- **Vessel-held-out**: remove all evaluation MMSIs from the training set; compare with a random training subset of the
+  same size.
+- **Spatially held-out**: divide the AOI into four longitude bands; for each band, train outside the band and a 0.05°
+  buffer, then predict anchors inside the held-out band.
 
 ## Metrics
 ADE, FDE and per-horizon error (m, haversine). Mean, median and p90, with 95% CI from a vessel-grouped bootstrap. Paired differences for model comparisons.
 
-## Manoeuvring regimes (definition: Kiran, 11 Oct 2026; `src/vesselmind/features/regimes.py`)
+## Manoeuvring regimes (frozen 11 Oct 2026; `src/vesselmind/features/regimes.py`)
 A regime describes the vessel's observed motion state at prediction time, computed **only from the last 10 minutes of
 the observation history**. No future movement, position or prediction error is used.
 
