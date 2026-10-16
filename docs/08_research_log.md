@@ -82,11 +82,11 @@ Dated entries. Keep failed attempts.
 - Note for honesty: H4 was drafted earlier today, BEFORE this run.
 
 ## 2026-10-11 (Sun, night), H4b added (option b)
-- Decision: keep H4 unchanged and report it as tested; add H4b ("raw-coordinate context does not transfer to unseen areas"), explicitly marked as drafted AFTER the spatial validation result (commit `2ae4ece`). Rewriting H4 was rejected because it would hide that the original prediction was wrong.
+- Decision: keep H4 unchanged and report it as tested; add H4b ("raw-coordinate context does not transfer to unseen areas"), explicitly marked as drafted AFTER the spatial validation result (commit `8e851c0`). Rewriting H4 was rejected because it would hide that the original prediction was wrong.
 - The hypotheses are not frozen yet. The freeze (with commit hash) happens before the single test run.
 
 ## 2026-10-11 (Sun, 20:24 UTC), HYPOTHESES FROZEN
-- H1–H4b frozen as of commit `e80e7aa`. Next: single test-set run of every experiment (baselines, GBM ablation, vessel-held-out, spatially held-out, regime report), each once, with `--confirm-test`.
+- H1–H4b frozen as of commit `9d4d83c`. Next: single test-set run of every experiment (baselines, GBM ablation, vessel-held-out, spatially held-out, regime report), each once, with `--confirm-test`.
 
 ## 2026-10-11 (Sun, 20:24–20:25 UTC), test run started
 - First attempt (20:24:36) failed in argument parsing: the shell loop passed each command as one word (zsh does not word-split variables). The CLI exited before loading any data, so the test split was not accessed. Retried at 20:24:55 with explicit commands.

@@ -79,7 +79,7 @@ Each validation window is predicted by a model trained without its longitude ban
 ---
 
 # TEST RESULTS: single run after hypothesis freeze (4–6 Oct 2026; 57,068 windows)
-Run 11 Oct 2026, 20:24–20:46 UTC, after the freeze commit `f1b61da`. Every model trained on the train split only, exactly
+Run 11 Oct 2026, 20:24–20:46 UTC, after the freeze commit `f8ded2d`. Every model trained on the train split only, exactly
 as for validation. Sources: `results/tables/*_test*.md`, `results/tables/regimes_test.md`.
 
 | FDE@20 min (m) | In-area | Unseen vessels | Unseen waters |

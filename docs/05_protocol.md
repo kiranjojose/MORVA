@@ -47,10 +47,10 @@ used once after the hypothesis freeze and is now closed to further model develop
 
 > **Provenance of H4 / H4b.** H4 was drafted on 11 Oct 2026, before the spatially held-out run. On validation, that
 > run contradicted H4 with raw coordinates (C − A = +1,122 m FDE@20; `results/tables/gbm_ablation_val_spatialheldout.md`,
-> commit `2ae4ece`). H4 is kept unchanged and will be reported as tested. H4b was added afterwards (see the
+> commit `8e851c0`). H4 is kept unchanged and will be reported as tested. H4b was added afterwards (see the
 > research log) and is **validation-informed**, so the test set was its first independent check.
 
-**FROZEN on 2026-10-11 20:24 UTC. Hypothesis text as of commit `e80e7aa`.** No changes to H1–H4b were made after this
+**FROZEN on 2026-10-11 20:24 UTC. Hypothesis text as of commit `9d4d83c`.** No changes to H1–H4b were made after this
 point. The test split was accessed after the freeze, once per experiment, with `--confirm-test`.
 
 ## Test-set status
