@@ -1,6 +1,6 @@
 # When does context help vessel trajectory prediction? A controlled AIS study in Danish straits
 
-**Kiran Jojo Jose · Preliminary research summary · October 2026 · VesselMind V1**
+**Kiran Jose Puthussery · Preliminary research summary · October 2026 · VesselMind V1**
 
 ## Motivation and research question
 
