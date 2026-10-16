@@ -144,6 +144,6 @@ illegal or erroneous.
 3. H. Li, H. Jiao and Z. Yang, “AIS data-driven ship trajectory prediction modelling and analysis based on machine
    learning and deep learning methods,” *Transportation Research Part E*, 175, 103152, 2023.
 
-**Reproducibility and provenance.** Code and documentation: <https://github.com/kiranjojose/MORVA>. The repository records the data manifests and checksums, experiment configuration,
+**Reproducibility and provenance.** Code and documentation: <https://github.com/kiranjojose/morva>. The repository records the data manifests and checksums, experiment configuration,
 quality reports, run summaries and the failed pre-access test command. Raw DMA files are not redistributed. The test
 set is now spent; any subsequent model development is treated as post-hoc and returns to validation or new data.
