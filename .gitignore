@@ -17,6 +17,8 @@ data/processed/*
 # Large run artefacts (tables, figures and run summaries are committed)
 results/runs/**/*.parquet
 results/runs/**/*.npz
+results/v2/runs/**/*.parquet
+results/v2/runs/**/*.npz
 *.pt
 
 .DS_Store

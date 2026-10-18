@@ -110,3 +110,19 @@ Dated entries. Keep failed attempts.
 - **Determinism fix:** `add_flags` used an unstable sort, so the record kept from a conflicting duplicate (same MMSI and timestamp, different values) could change between runs. Found because home train had 238,829 windows against V1's 238,830. The missing window (vessel 219007393, 25 Sep 04:47) depends on a duplicate pair with SOG 1.3 vs 0.2 kn, and the 0.2 kn record puts it below the 1-knot threshold. The sort is now stable, so the first record in file order is always kept (as the docstring said), with a regression test. Two full reruns give identical windows. V1 val counts are identical (62,982). V1 train differs by this one window. V1 test windows rise from 57,068 to 57,079, because segments that used to end at the end of the data now continue into 7 Oct. V1 results are not re-run.
 - V2 split counts (windows): home train 238,829 / val 120,412 / test 167,533; Bornholm context 80,760 / val 41,675 / test 55,561; Skagen context 156,175 / val 67,809 / test 97,396. Peak memory for `clean` is 10.1 GB.
 
+## 2026-10-18 (Sun, evening), V1 models on the new validation data (reference for V2)
+- Outputs now go to `results/v2/` (`results_dir` in `configs/experiment.yaml`), so V2 runs never overwrite V1 tables. The three V1 tables changed by the split commit were restored from `1c9bcfc`. `baselines` and `gbm` take `--region`, so each waterway is evaluated on its own.
+- All runs are validation only (home val 1–6 Oct; transfer_val 1–6 Oct). FDE@20 (m):
+
+| Model | In-area | In-area, unseen vessels | Bornholm | Bornholm, unseen vessels | Skagen | Skagen, unseen vessels |
+|---|---:|---:|---:|---:|---:|---:|
+| CV | 1,563 | 1,563 | 583 | 583 | 877 | 877 |
+| A motion | 1,271 | 1,451 | 584 | 589 | 856 | 860 |
+| B + vessel | 1,127 | 1,427 | 595 | 604 | 833 | 837 |
+| C + raw location | 861 | 1,189 | 1,778 | 1,945 | 1,335 | 1,292 |
+| D all | 835 | 1,179 | 1,983 | 1,631 | 1,197 | 1,184 |
+
+- **Raw coordinates fail on truly independent waterways**, more severely than in the V1 longitude-band test: C − A = +1,194 m (CI +1,089 to +1,297) in Bornholm and +479 m (+434 to +527) in Skagen. Removing the evaluated vessels from training changes little, so this is geography, not vessel familiarity.
+- **New finding: motion-only learning gives no gain over CV in the transfer waterways** (A − CV: Bornholm +1 m, −21 to +19; Skagen −21 m, −69 to +13), against −292 m in-area. CV error there is already low (583 m Bornholm, 877 m Skagen) because most traffic is straight transit through a traffic separation scheme or open water. V2 therefore has little room to improve on CV in these waters overall. The realistic test for fairway features is (a) no harm relative to A, and (b) gains in turning and bend regimes. This should shape the V2 hypotheses.
+- The in-area vessel-held-out training set falls to 89,705 windows (val now covers 6 days and 1,048 vessels). Part of the in-area unseen-vessel gap is therefore a training-size effect; a same-size random control is needed before interpreting it.
+

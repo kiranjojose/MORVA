@@ -20,7 +20,7 @@ from morva.config import load_config, project_path
 
 
 class Workspace:
-    def __init__(self, synthetic: bool, data_cfg: dict):
+    def __init__(self, synthetic: bool, data_cfg: dict, exp_cfg: dict | None = None):
         def resolve(rel: str) -> Path:
             return project_path(rel) / "_synthetic" if synthetic else project_path(rel)
 
@@ -28,7 +28,8 @@ class Workspace:
         self.synthetic = synthetic
         self.raw, self.interim = resolve(p["raw"]), resolve(p["interim"])
         self.processed, self.manifests = resolve(p["processed"]), resolve(p["manifests"])
-        self.results = resolve("results")
+        # Each study version writes to its own results tree, so V2 never overwrites V1 tables and figures
+        self.results = resolve("results") if synthetic else project_path((exp_cfg or {}).get("results_dir", "results"))
 
 
 def _git_hash() -> str:
@@ -43,6 +44,16 @@ def _write_json(obj: dict, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(obj, indent=2, default=str) + "\n")
     print(f"wrote {path.relative_to(project_path('.'))}")
+
+
+def _eval_mask(meta: pl.DataFrame, args) -> tuple[np.ndarray, str]:
+    """Windows of `--split`, optionally restricted to one `--region`; returns (mask, run-name suffix)."""
+    mask = meta["split"] == args.split
+    if getattr(args, "region", None):
+        if "region" not in meta.columns:
+            sys.exit("--region needs windows built with region tags; rerun `clean` and `windows`")
+        mask &= meta["region"] == args.region
+    return mask.to_numpy(), f"_{args.region}" if getattr(args, "region", None) else ""
 
 
 def _check_test_lock(args) -> None:
@@ -209,10 +220,11 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
     w, b, ev = exp_cfg["windows"], exp_cfg["baselines"], exp_cfg["evaluation"]
     arrays = np.load(ws.processed / "windows.npz")
     meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
-    mask = (meta["split"] == args.split).to_numpy()
+    mask, run_name = _eval_mask(meta, args)
+    run_name = f"{args.split}{run_name}"
     if not mask.any():
-        sys.exit(f"no windows in split '{args.split}'")
-    hist, fut, m = arrays["hist"][mask], arrays["fut"][mask], meta.filter(pl.col("split") == args.split)
+        sys.exit(f"no windows in '{run_name}'")
+    hist, fut, m = arrays["hist"][mask], arrays["fut"][mask], meta.filter(pl.Series(mask))
     groups = m["mmsi"].to_numpy()
 
     # Tune the damped-CTRV time constant on TRAIN windows only (never on the split being evaluated)
@@ -239,7 +251,7 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
         "ctrv_damped": lambda h: damped(h, best_tau),
         "kalman_cv": lambda h: kf(h, best_q),
     }
-    run_dir = ws.results / "runs" / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}_baselines_{args.split}"
+    run_dir = ws.results / "runs" / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}_baselines_{run_name}"
     rows, summary, step_err = [], {}, {}
     for name, fn in models.items():
         err = step_errors_m(fn(hist), fut)
@@ -258,7 +270,7 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
 
     run_dir.mkdir(parents=True, exist_ok=True)
     pl.concat(rows).write_parquet(run_dir / "per_sample.parquet")
-    _write_json({"split": args.split, "git": _git_hash(), "config": exp_cfg, "metrics": summary,
+    _write_json({"split": args.split, "region": args.region, "git": _git_hash(), "config": exp_cfg, "metrics": summary,
                  "paired_vs_cv": paired, "ctrv_damped_tuning": {"ade_by_tau_train": tuning, "best_tau_s": best_tau},
                  "kalman_tuning": {"ade_by_q_train": kf_tuning, "best_q": best_q}},
                 run_dir / "summary.json")
@@ -275,11 +287,11 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
         a, f = d["ade_m"], d["fde_m"]
         lines.append(f"| {name} | {a['mean']:+.0f} ({a['ci95_lo']:+.0f} to {a['ci95_hi']:+.0f}) | "
                      f"{f['mean']:+.0f} ({f['ci95_lo']:+.0f} to {f['ci95_hi']:+.0f}) |")
-    table = ws.results / "tables" / f"baselines_{args.split}.md"
+    table = ws.results / "tables" / f"baselines_{run_name}.md"
     table.write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
-    fig = plot_error_vs_horizon(step_err, w["step_s"], ws.results / "figures" / f"baselines_error_{args.split}.png",
-                                f"Baseline error vs lead time ({args.split}{', SYNTHETIC' if ws.synthetic else ''})")
+    fig = plot_error_vs_horizon(step_err, w["step_s"], ws.results / "figures" / f"baselines_error_{run_name}.png",
+                                f"Baseline error vs lead time ({run_name}{', SYNTHETIC' if ws.synthetic else ''})")
     print(f"wrote {fig.relative_to(project_path('.'))}")
 
 
@@ -344,13 +356,12 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     arrays = np.load(ws.processed / "windows.npz")
     meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
     tr = (meta["split"] == "train").to_numpy()
-    ev_mask = (meta["split"] == args.split).to_numpy()
-    suffix = ""
-    if args.holdout_eval_vessels:  # train only on vessels that never appear in the evaluated split
-        ev_vessels = meta.filter(pl.col("split") == args.split)["mmsi"].unique().implode()
+    ev_mask, suffix = _eval_mask(meta, args)
+    if args.holdout_eval_vessels:  # train only on vessels that never appear in the evaluated windows
+        ev_vessels = meta.filter(pl.Series(ev_mask))["mmsi"].unique().implode()
         n_before = int(tr.sum())
         tr &= ~meta["mmsi"].is_in(ev_vessels).to_numpy()
-        suffix = "_vesselheldout"
+        suffix += "_vesselheldout"
         print(f"vessel-held-out: train windows {n_before:,} -> {int(tr.sum()):,}")
     if args.train_subsample and args.train_subsample < tr.sum():  # size control for the held-out comparison
         keep_idx = np.random.default_rng(ev["seed"]).choice(np.flatnonzero(tr), args.train_subsample, replace=False)
@@ -467,7 +478,8 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     per_sample = pl.DataFrame({"sample_id": m_ev["sample_id"], **{f"fde_{k}": e[:, -1] for k, e in errs.items()},
                                **{f"ade_{k}": e.mean(axis=1) for k, e in errs.items()}})
     per_sample.write_parquet(run_dir / "per_sample.parquet")
-    _write_json({"split": args.split, "git": _git_hash(), "config": exp_cfg["gbm"], "fit": fit_info,
+    _write_json({"split": args.split, "region": args.region, "git": _git_hash(), "config": exp_cfg["gbm"],
+                 "fit": fit_info,
                  "metrics": summary, "paired": comparisons, "fde_by_turn_bin": by_turn.to_dicts(),
                  "fde_by_ship_group": by_group.to_dicts(), "vessel_novelty": novelty,
                  "holdout_eval_vessels": bool(args.holdout_eval_vessels), "train_windows": tr_report,
@@ -475,7 +487,8 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
                  "seed_fde": seed_fde}, run_dir / "summary.json")
 
     fmt = lambda s: f"{s['mean']:+.0f} ({s['ci95_lo']:+.0f} to {s['ci95_hi']:+.0f})"  # noqa: E731
-    title = args.split + (", vessel-held-out" if args.holdout_eval_vessels else "") + (
+    title = args.split + (f", {args.region}" if args.region else "") + (
+        ", vessel-held-out" if args.holdout_eval_vessels else "") + (
         ", spatially held-out (longitude bands)" if args.spatial_holdout else "") + (
         f", random train subsample {args.train_subsample:,}" if args.train_subsample else "")
     lines = [f"# Residual GBM context ablation ({title}; {tr_report:,} train windows"
@@ -685,6 +698,8 @@ def cmd_summary_figure(ws: Workspace, data_cfg, exp_cfg, args):
 def main(argv=None):
     from morva.evaluation.splits import EVAL_SPLITS
 
+    region_names = _region_names(load_config("configs/data.yaml"))
+
     ap = argparse.ArgumentParser(prog="morva")
     ap.add_argument("--synthetic", action="store_true", help="use the isolated synthetic workspace")
     ap.add_argument("--data-config", default="configs/data.yaml")
@@ -703,10 +718,12 @@ def main(argv=None):
     p = sub.add_parser("baselines", help="evaluate persistence / CV / CTRV")
     p.add_argument("--split", default="val", choices=["train", *EVAL_SPLITS])
     p.add_argument("--confirm-test", action="store_true")
+    p.add_argument("--region", choices=region_names, help="evaluate one region only (default: all in the split)")
     sub.add_parser("plot-tracks", help="overview map of segmented tracks")
     p = sub.add_parser("gbm", help="E3/E4: residual GBM context ablation (train -> val)")
     p.add_argument("--split", default="val", choices=list(EVAL_SPLITS))
     p.add_argument("--confirm-test", action="store_true")
+    p.add_argument("--region", choices=region_names, help="evaluate one region only (default: all in the split)")
     p.add_argument("--holdout-eval-vessels", action="store_true",
                    help="exclude every vessel of the evaluated split from training")
     p.add_argument("--seeds", type=int, nargs="+", help="seeds to train (default: config seed)")
@@ -723,7 +740,7 @@ def main(argv=None):
 
     args = ap.parse_args(argv)
     data_cfg, exp_cfg = load_config(args.data_config), load_config(args.exp_config)
-    ws = Workspace(args.synthetic, data_cfg)
+    ws = Workspace(args.synthetic, data_cfg, exp_cfg)
     handlers = {
         "synth": cmd_synth, "manifest": cmd_manifest, "ingest": cmd_ingest, "clean": cmd_clean,
         "windows": cmd_windows, "baselines": cmd_baselines, "plot-tracks": cmd_plot_tracks,

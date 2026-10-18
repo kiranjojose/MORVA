@@ -69,7 +69,7 @@ V2 adds nine later days and two independent waterways. The V1 funnel above descr
 | Bornholm | 11,157,079 | 11,095,262 | 4,125 | 1,879 |
 | Skagen | 36,835,264 | 36,664,715 | 4,853 | 2,130 |
 
-Prediction windows by split (`results/tables/split_summary.json`):
+Prediction windows by split (`results/v2/tables/split_summary.json`):
 
 | Split | Home | Bornholm | Skagen |
 |---|---:|---:|---:|

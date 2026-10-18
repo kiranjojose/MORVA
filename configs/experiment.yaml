@@ -1,5 +1,8 @@
 # Experiment configuration. Freeze `split` before any model comparison.
 
+# V2 outputs (tables, figures, runs). V1 results stay in results/ and are not overwritten.
+results_dir: results/v2
+
 windows:
   step_s: 60              # resampling step (1 min)
   obs_steps: 20           # history length incl. anchor point (20 min)
