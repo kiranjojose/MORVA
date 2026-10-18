@@ -57,3 +57,36 @@ point. The test split was accessed after the freeze, once per experiment, with `
 `baselines --split test --confirm-test` and the corresponding GBM evaluations were run once after freezing. The test
 split is spent. Any further development uses validation or new data; any unavoidable rerun must be reported with its
 reason in the research log.
+
+## V2 split (set 2026-10-18)
+Set before any V2 feature work and before the new days were ingested. Defined in `configs/experiment.yaml` and
+`configs/data.yaml`.
+
+**Time blocks** (whole UTC days, a window must lie entirely inside one block):
+
+| Block | Days | Role |
+|---|---|---|
+| train | 19–30 Sep (12) | Model fitting. Unchanged from V1 so V1 and V2 models are directly comparable |
+| val | 1–6 Oct (6) | Development and model selection. Merges the V1 validation days with the spent V1 test days |
+| test | 7–15 Oct (9) | **Locked.** Downloaded and ingested only after this split was set |
+
+Windows ending after 16 Oct 00:00 UTC are excluded, so files downloaded later cannot enter the test block unnoticed.
+
+**Regions.** The home area (Great Belt / Øresund / southern Kattegat) is the only area used for training. Two
+independent waterways are ingested with the same pipeline but never contribute to model fitting:
+
+| Region | Box | Why |
+|---|---|---|
+| Bornholm | 54.7–55.6° N, 14.0–15.6° E | Bornholmsgat traffic separation scheme. A constrained waterway with a home-like cargo, tanker and passenger mix; about 65 km east of the home area |
+| Skagen | 57.2–58.0° N, 9.6–11.2° E | Skagen corner and Skagerrak entrance. A different waterway type (open-sea bend, more fishing); about 110 km north |
+
+Windows in these regions are labelled `transfer_context` (training days), `transfer_val` (validation days) or
+`transfer_test` (test days). `transfer_context` may support context built from historical traffic, such as V2
+traffic-flow maps, because such history would exist for any real waterway. It is never used to fit model weights.
+`transfer_test` is locked in the same way as `test`.
+
+**Evaluation settings for V2:** home val/test (in-area), home val/test with vessel hold-out (unseen vessels), the V1
+longitude-band hold-out (unseen bands), and transfer val/test (unseen waterways). About half of the vessels in
+Bornholm also appear in the home area. Unseen-waterway results should therefore also be reported with the
+`--holdout-eval-vessels` option, so that neither the waterway nor the vessels have been seen.
+

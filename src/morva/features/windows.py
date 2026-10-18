@@ -42,6 +42,7 @@ def build_windows(tracks: pl.DataFrame, cfg: dict):
         t = g["t"].dt.epoch("s").to_numpy().astype(float)
         if len(t) < 2:
             continue
+        region = g["region"][0] if "region" in g.columns else None
         res = _resample_segment(
             t, g["lat"].to_numpy(), g["lon"].to_numpy(),
             g["sog"].to_numpy().astype(float), g["cog"].to_numpy().astype(float), step,
@@ -59,7 +60,7 @@ def build_windows(tracks: pl.DataFrame, cfg: dict):
                 continue
             hists.append(h)
             futs.append(arr[start + n_obs : start + span, :2])
-            meta.append((int(seg_id), int(mmsi), grid[start + n_obs - 1]))
+            meta.append((int(seg_id), int(mmsi), grid[start + n_obs - 1], region))
 
     if not hists:
         raise ValueError("No valid windows; check segmentation and window config.")
@@ -71,4 +72,6 @@ def build_windows(tracks: pl.DataFrame, cfg: dict):
             "t0": [m[2] for m in meta],
         }
     ).with_columns(pl.from_epoch(pl.col("t0").cast(pl.Int64), time_unit="s").dt.replace_time_zone("UTC"))
+    if "region" in tracks.columns:
+        meta_df = meta_df.with_columns(region=pl.Series([m[3] for m in meta], dtype=pl.String))
     return np.stack(hists), np.stack(futs), meta_df

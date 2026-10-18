@@ -17,7 +17,7 @@ smoke:
 
 # Provenance record (checksum, size) for every raw file; existing manifests are kept
 manifests:
-	uv run morva manifest data/raw/*.zip --notes "DMA daily file, study period 2026-09-19..2026-10-06"
+	uv run morva manifest data/raw/*.zip --notes "DMA daily file, study period 2026-09-19..2026-10-15"
 
 # Real data: validation split only. The test split is run once, manually, with --confirm-test.
 pipeline: manifests

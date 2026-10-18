@@ -10,13 +10,17 @@ windows:
   min_mean_sog_kn: 1.0    # exclude moored / drifting windows from the prediction task
 
 split:
-  # Whole-day time blocks over DMA files 2026-09-19 .. 2026-10-06 (18 days, UTC):
-  #   train 19 Sep (Sat) - 30 Sep (Wed)  12 days, two weekends
-  #   val    1 Oct (Thu) -  3 Oct (Sat)   3 days, incl. a weekend day
-  #   test   4 Oct (Sun) -  6 Oct (Tue)   3 days, incl. a weekend day  (LOCKED)
-  # Set 2026-10-09. Do not change after the first model comparison.
+  # V2 split, set 2026-10-18 before any V2 data were inspected. Whole-day blocks over DMA files
+  # 2026-09-19 .. 2026-10-15 (27 days, UTC):
+  #   train 19 Sep (Sat) - 30 Sep (Wed)  12 days, unchanged from V1 so V1 and V2 models stay comparable
+  #   val    1 Oct (Thu) -  6 Oct (Tue)   6 days = V1 val + the spent V1 test (both already seen; development only)
+  #   test   7 Oct (Wed) - 15 Oct (Thu)   9 days, never ingested before this split was set (LOCKED)
+  # Windows ending after test_end are excluded, so later downloads cannot silently enter the test block.
+  # Windows in the transfer_aois get transfer_context / transfer_val / transfer_test labels and are never trained on.
+  # V1 (frozen 2026-10-09, test spent): train_end 2026-10-01, val_end 2026-10-04, data through 2026-10-06.
   train_end: "2026-10-01T00:00:00"
-  val_end: "2026-10-04T00:00:00"
+  val_end: "2026-10-07T00:00:00"
+  test_end: "2026-10-16T00:00:00"
   auto_fractions: [0.7, 0.15]   # only used if the explicit boundaries above are null
 
 baselines:

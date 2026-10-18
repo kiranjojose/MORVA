@@ -47,7 +47,8 @@ def _implied_speed_spike(df: pl.DataFrame, max_kn: float) -> np.ndarray:
 
 
 def add_flags(df: pl.DataFrame, max_implied_speed_kn: float, max_plausible_sog_kn: float) -> pl.DataFrame:
-    df = df.sort(["mmsi", "t"]).with_columns(
+    # Stable sort: among conflicting (mmsi, t) records the first in file order is kept, so reruns are identical
+    df = df.sort(["mmsi", "t"], maintain_order=True).with_columns(
         flag_invalid_pos=(
             pl.col("lat").is_null() | pl.col("lon").is_null()
             | ~pl.col("lat").is_between(-90, 90) | ~pl.col("lon").is_between(-180, 180)

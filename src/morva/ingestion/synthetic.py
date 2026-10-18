@@ -42,7 +42,7 @@ def _voyage(rng, mmsi, start, duration_s, report_s, lat0, lon0):
     }
 
 
-def generate(out_csv: Path, n_vessels: int = 40, n_moored: int = 3, seed: int = 7) -> Path:
+def generate(out_csv: Path, n_vessels: int = 40, n_moored: int = 3, n_transfer: int = 6, seed: int = 7) -> Path:
     rng = np.random.default_rng(seed)
     day = datetime(2025, 1, 1)
     parts = []
@@ -66,6 +66,15 @@ def generate(out_csv: Path, n_vessels: int = 40, n_moored: int = 3, seed: int = 
             "sog": np.abs(rng.normal(0, 0.1, n)).round(1), "cog": rng.uniform(0, 360, n).round(1),
             "heading": np.full(n, 511.0),
         }).with_columns(ship_type=pl.lit("Cargo"), length=pl.lit(120.0)))
+
+    # A few voyages in the Bornholm transfer AOI (separate RNG so the home-area data stay unchanged)
+    rng_transfer = np.random.default_rng(seed + 1)
+    for k in range(n_transfer):
+        start = day + timedelta(seconds=float(rng_transfer.uniform(0, 18 * 3600)))
+        parts.append(pl.DataFrame(
+            _voyage(rng_transfer, 219_500_000 + k, start, rng_transfer.uniform(2, 4) * 3600, 10.0,
+                    rng_transfer.uniform(55.0, 55.3), rng_transfer.uniform(14.6, 15.0))
+        ).with_columns(ship_type=pl.lit("Cargo"), length=pl.lit(150.0)))
 
     df = pl.concat(parts, how="diagonal").sort("t")
 

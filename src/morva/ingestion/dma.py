@@ -2,7 +2,8 @@
 
 Raw files are never modified. A zip is extracted to a temporary CSV, read as all-string
 columns (DMA uses text such as "Unknown" in numeric fields), cast leniently, filtered to
-the AOI and allowed mobile types, and written to `data/interim/<stem>.parquet`.
+the home AOI, any transfer AOIs and the allowed mobile types, tagged with a `region` column,
+and written to `data/interim/<stem>.parquet`.
 """
 
 import shutil
@@ -57,12 +58,20 @@ def scan_dma_csv(path: Path, timestamp_format: str) -> pl.LazyFrame:
     return _cast(lf, timestamp_format)
 
 
-def filter_aoi(lf: pl.LazyFrame, aoi: dict, keep_mobile_types: list[str]) -> pl.LazyFrame:
-    return lf.filter(
-        pl.col("lat").is_between(aoi["lat_min"], aoi["lat_max"])
-        & pl.col("lon").is_between(aoi["lon_min"], aoi["lon_max"])
-        & pl.col("mobile_type").is_in(keep_mobile_types)
-    )
+def regions(data_cfg: dict) -> list[dict]:
+    """Home AOI first, then the V2 transfer waterways. Boxes must not overlap."""
+    return [data_cfg["aoi"], *data_cfg.get("transfer_aois", [])]
+
+
+def filter_aoi(lf: pl.LazyFrame, boxes: list[dict], keep_mobile_types: list[str]) -> pl.LazyFrame:
+    """Keep rows inside any box and tag each with the box name in `region`."""
+    region = pl.lit(None, pl.String)
+    for box in reversed(boxes):
+        inside = pl.col("lat").is_between(box["lat_min"], box["lat_max"]) & pl.col("lon").is_between(
+            box["lon_min"], box["lon_max"])
+        region = pl.when(inside).then(pl.lit(box["name"])).otherwise(region)
+    return lf.filter(pl.col("mobile_type").is_in(keep_mobile_types)).with_columns(region=region).filter(
+        pl.col("region").is_not_null())
 
 
 def ingest_file(src: Path, out_dir: Path, data_cfg: dict) -> dict:
@@ -72,7 +81,7 @@ def ingest_file(src: Path, out_dir: Path, data_cfg: dict) -> dict:
     information and are removed here; their count is returned for the ingest log.
     Partial duplicates (same MMSI and time, different values) are kept for the quality stage.
     """
-    src_cfg, aoi = data_cfg["source"], data_cfg["aoi"]
+    src_cfg = data_cfg["source"]
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{src.name.split('.')[0]}.parquet"
 
@@ -88,7 +97,8 @@ def ingest_file(src: Path, out_dir: Path, data_cfg: dict) -> dict:
         else:
             csv_path = src
 
-        lf = filter_aoi(scan_dma_csv(csv_path, src_cfg["timestamp_format"]), aoi, src_cfg["keep_mobile_types"])
+        lf = filter_aoi(scan_dma_csv(csv_path, src_cfg["timestamp_format"]), regions(data_cfg),
+                        src_cfg["keep_mobile_types"])
         df = lf.collect()
     unique = df.unique(maintain_order=True)
     unique.write_parquet(out_path)
@@ -98,4 +108,5 @@ def ingest_file(src: Path, out_dir: Path, data_cfg: dict) -> dict:
         "rows_in_aoi": len(df),
         "exact_duplicates_removed": len(df) - len(unique),
         "rows_written": len(unique),
+        "rows_written_by_region": dict(sorted(unique["region"].value_counts().iter_rows())),
     }

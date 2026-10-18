@@ -1,5 +1,4 @@
-# Data configuration. PROVISIONAL until the Saturday dataset gate:
-# freeze the AOI and dates only after inspecting real files (see docs/05_protocol.md).
+# Data configuration. The home AOI was frozen for V1; V2 adds independent transfer waterways below.
 
 source:
   provider: Danish Maritime Authority
@@ -7,13 +6,33 @@ source:
   timestamp_format: "%d/%m/%Y %H:%M:%S"   # DMA format; timestamps are UTC (verify on real file)
   keep_mobile_types: ["Class A"]          # V1: Class A only (SOLAS vessels, denser reporting)
 
-# Area of interest: Great Belt / Oresund / southern Kattegat (provisional bounding box)
+# Home area of interest: Great Belt / Oresund / southern Kattegat. All model training uses this area only.
 aoi:
   name: great_belt_oresund
   lat_min: 54.8
   lat_max: 56.2
   lon_min: 10.4
   lon_max: 13.0
+
+# V2 independent waterways (set 2026-10-18). Ingested with the home AOI but never used to fit model weights: their
+# windows are labelled transfer_* by `windows`. Chosen from a one-day traffic check (2026-09-24, Class A):
+#   bornholm  Bornholmsgat TSS and approaches. Constrained waterway with a home-like cargo/tanker/passenger mix;
+#             ~65 km east of the home AOI. About half of its vessels also visit the home AOI.
+#   skagen    Skagen corner and Skagerrak entrance. A different waterway type (open-sea bend, more fishing);
+#             ~110 km north of the home AOI.
+# Rejected: Little Belt (too close and too little traffic), Horns Rev (too little traffic), northern Kattegat
+# (shares the home routes' through-traffic and continues them geometrically).
+transfer_aois:
+  - name: bornholm
+    lat_min: 54.7
+    lat_max: 55.6
+    lon_min: 14.0
+    lon_max: 15.6
+  - name: skagen
+    lat_min: 57.2
+    lat_max: 58.0
+    lon_min: 9.6
+    lon_max: 11.2
 
 paths:
   raw: data/raw

@@ -53,6 +53,37 @@ minutes of duration. Each segment is resampled to a one-minute grid, but a predi
 original observation gap inside its 20-minute history plus 20-minute future exceeds 180 seconds. Windows with mean
 history SOG below 1 knot are excluded from the prediction task.
 
+## V2 extension (2026-10-18)
+
+V2 adds nine later days and two independent waterways. The V1 funnel above describes the V1 study only.
+
+| Field | Value |
+|---|---|
+| Files | 27 daily ZIP files, 19 September to 15 October 2026; the 9 new files were size-checked against the DMA listing, zip-tested and checksummed in `data/manifests/` |
+| Home area | Unchanged V1 box. The only area used for model fitting |
+| Transfer waterways | Bornholm 54.7–55.6° N, 14.0–15.6° E; Skagen 57.2–58.0° N, 9.6–11.2° E |
+
+| Region | Rows after de-duplication | Passing hard flags | Segments | Vessels |
+|---|---:|---:|---:|---:|
+| Home | 43,812,556 | 43,289,862 | 8,492 | 2,516 |
+| Bornholm | 11,157,079 | 11,095,262 | 4,125 | 1,879 |
+| Skagen | 36,835,264 | 36,664,715 | 4,853 | 2,130 |
+
+Prediction windows by split (`results/tables/split_summary.json`):
+
+| Split | Home | Bornholm | Skagen |
+|---|---:|---:|---:|
+| train / transfer_context (19–30 Sep) | 238,829 | 80,760 | 156,175 |
+| val / transfer_val (1–6 Oct) | 120,412 | 41,675 | 67,809 |
+| test / transfer_test (7–15 Oct, locked) | 167,533 | 55,561 | 97,396 |
+
+Many transfer-waterway vessels also appear in home training. In `transfer_val`, they account for 44% of Bornholm
+windows (334 of 752 vessels) and 28% of Skagen windows (286 of 797 vessels). Unseen-waterway results should
+therefore be reported both for all vessels and with every evaluated vessel removed from training.
+
+Skagen has many more raw rows than Bornholm but relatively fewer windows, because much of its traffic is slow
+fishing activity below the 1-knot window threshold.
+
 ## Data completeness and observed quality
 
 After sentinel conversion, the missing fractions are approximately:

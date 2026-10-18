@@ -45,6 +45,13 @@ def _write_json(obj: dict, path: Path) -> None:
     print(f"wrote {path.relative_to(project_path('.'))}")
 
 
+def _check_test_lock(args) -> None:
+    from morva.evaluation.splits import LOCKED_SPLITS
+
+    if args.split in LOCKED_SPLITS and not args.confirm_test:
+        sys.exit(f"Split '{args.split}' is locked. Freeze hypotheses first, then pass --confirm-test (one final run).")
+
+
 def cmd_synth(ws: Workspace, data_cfg, exp_cfg, args):
     from morva.ingestion.synthetic import generate
 
@@ -88,41 +95,78 @@ def cmd_ingest(ws: Workspace, data_cfg, exp_cfg, args):
             continue
         rec = ingest_file(f, ws.interim, data_cfg)
         log[f.name] = rec
-        print(f"{f.name}: {rec['rows_in_aoi']:,} rows in AOI, "
+        print(f"{f.name}: {rec['rows_in_aoi']:,} rows in AOIs {rec['rows_written_by_region']}, "
               f"{rec['exact_duplicates_removed']:,} exact duplicates removed")
     _write_json(dict(sorted(log.items())), log_path)
 
 
 # Columns used downstream; loading only these keeps multi-week runs within laptop memory
 CLEAN_COLUMNS = ["t", "mmsi", "lat", "lon", "sog", "cog", "heading", "nav_status",
-                 "ship_type", "length", "width", "draught"]
+                 "ship_type", "length", "width", "draught", "region"]
+
+
+def _region_names(data_cfg: dict) -> list[str]:
+    from morva.ingestion.dma import regions
+
+    return [r["name"] for r in regions(data_cfg)]
+
+
+def _track_files(ws: Workspace) -> list[Path]:
+    files = sorted((ws.processed / "tracks").glob("*.parquet"))
+    if not files:
+        sys.exit(f"no track files in {ws.processed / 'tracks'}; run `clean`")
+    return files
 
 
 def cmd_clean(ws: Workspace, data_cfg, exp_cfg, args):
+    """Quality flags and segmentation, one region at a time so peak memory stays at one area's size.
+
+    Writes tracks/<region>.parquet (segment ids unique across regions), vessels.parquet keyed by (mmsi, region),
+    and points_clean.parquet for the home AOI only (used by the V1 `sensitivity` analysis).
+    """
     from morva.quality.checks import FLAG_COLS, HARD_FLAGS, add_flags, normalize_sentinels, quality_report
     from morva.trajectories.segment import segment_tracks, vessel_table
 
-    raw = pl.read_parquet(sorted(ws.interim.glob("*.parquet")), columns=CLEAN_COLUMNS)
+    interim = sorted(ws.interim.glob("*.parquet"))
     q, s = data_cfg["quality"], data_cfg["segmentation"]
-    flagged = add_flags(normalize_sentinels(raw), q["max_implied_speed_kn"], q["max_plausible_sog_kn"])
-    report = quality_report(raw, flagged)
-
-    ws.processed.mkdir(parents=True, exist_ok=True)
-    # Pre-segmentation clean points, kept so segmentation thresholds can be varied in `sensitivity`
-    flagged.filter(~pl.any_horizontal(HARD_FLAGS)).drop(FLAG_COLS).write_parquet(ws.processed / "points_clean.parquet")
-    tracks = segment_tracks(flagged, s["gap_s"], s["min_points"], s["min_duration_s"])
-    report["segmentation"] = {
-        **s,
-        "segments": tracks["segment_id"].n_unique(),
-        "vessels_with_segments": tracks["mmsi"].n_unique(),
-        "rows_in_segments": len(tracks),
-    }
-    tracks.write_parquet(ws.processed / "tracks.parquet")
-    vessel_table(tracks).write_parquet(ws.processed / "vessels.parquet")
-    _write_json(report, ws.results / "tables" / "quality_report.json")
-    print(json.dumps(report["flags"], indent=2))
-    seg = report["segmentation"]
-    print(f"{seg['segments']} segments from {seg['vessels_with_segments']} vessels")
+    home = data_cfg["aoi"]["name"]
+    track_dir = ws.processed / "tracks"
+    track_dir.mkdir(parents=True, exist_ok=True)
+    for old in track_dir.glob("*.parquet"):
+        old.unlink()
+    reports, vessels, next_segment = {}, [], 0
+    for region in _region_names(data_cfg):
+        raw = pl.scan_parquet(interim).filter(pl.col("region") == region).select(CLEAN_COLUMNS).collect()
+        if raw.is_empty():
+            print(f"{region}: no rows")
+            continue
+        flagged = add_flags(normalize_sentinels(raw), q["max_implied_speed_kn"], q["max_plausible_sog_kn"])
+        report = quality_report(raw, flagged)
+        del raw
+        if region == home:  # pre-segmentation clean points, so `sensitivity` can vary segmentation thresholds
+            flagged.filter(~pl.any_horizontal(HARD_FLAGS)).drop(FLAG_COLS).write_parquet(
+                ws.processed / "points_clean.parquet")
+        tracks = segment_tracks(flagged, s["gap_s"], s["min_points"], s["min_duration_s"])
+        del flagged
+        tracks = tracks.with_columns(pl.col("segment_id").rank("dense").cast(pl.Int64) - 1 + next_segment)
+        next_segment = int(tracks["segment_id"].max()) + 1 if len(tracks) else next_segment
+        report["segmentation"] = {
+            **s,
+            "segments": tracks["segment_id"].n_unique(),
+            "vessels_with_segments": tracks["mmsi"].n_unique(),
+            "rows_in_segments": len(tracks),
+        }
+        tracks.write_parquet(track_dir / f"{region}.parquet")
+        vessels.append(vessel_table(tracks).with_columns(region=pl.lit(region)))
+        reports[region] = report
+        seg = report["segmentation"]
+        print(f"{region}: {seg['segments']} segments from {seg['vessels_with_segments']} vessels; "
+              f"flags {report['flags']}")
+        del tracks
+    pl.concat(vessels, how="diagonal").write_parquet(ws.processed / "vessels.parquet")
+    # Home report at top level (same keys as V1); transfer waterways reported separately
+    out = {**reports.get(home, {}), "transfer_regions": {r: v for r, v in reports.items() if r != home}}
+    _write_json(out, ws.results / "tables" / "quality_report.json")
 
 
 def cmd_windows(ws: Workspace, data_cfg, exp_cfg, args):
@@ -130,19 +174,27 @@ def cmd_windows(ws: Workspace, data_cfg, exp_cfg, args):
     from morva.features.windows import build_windows
 
     w = exp_cfg["windows"]
-    tracks = pl.read_parquet(ws.processed / "tracks.parquet")
-    hist, fut, meta = build_windows(tracks, w)
+    parts = []
+    for f in _track_files(ws):  # one region at a time; segments never cross regions
+        try:
+            parts.append(build_windows(pl.read_parquet(f), w))
+        except ValueError:
+            print(f"{f.stem}: no valid windows")
+    hist = np.concatenate([p[0] for p in parts])
+    fut = np.concatenate([p[1] for p in parts])
+    meta = pl.concat([p[2] for p in parts]).with_columns(sample_id=pl.int_range(pl.len(), dtype=pl.Int64))
     split_cfg = exp_cfg["split"]
     if ws.synthetic:  # synthetic data has its own dates: always use proportional blocks
-        split_cfg = {**split_cfg, "train_end": None, "val_end": None}
-    train_end, val_end = resolve_boundaries(meta, split_cfg)
-    meta = assign_split(meta, train_end, val_end, w["step_s"], w["obs_steps"], w["future_steps"])
+        split_cfg = {**split_cfg, "train_end": None, "val_end": None, "test_end": None}
+    train_end, val_end, test_end = resolve_boundaries(meta, split_cfg)
+    meta = assign_split(meta, train_end, val_end, w["step_s"], w["obs_steps"], w["future_steps"],
+                        test_end=test_end, home_region=data_cfg["aoi"]["name"])
     vessels = pl.read_parquet(ws.processed / "vessels.parquet").drop("n_points")
-    meta = meta.join(vessels, on="mmsi", how="left", maintain_order="left")
+    meta = meta.join(vessels, on=["mmsi", "region"], how="left", maintain_order="left")
 
     np.savez_compressed(ws.processed / "windows.npz", hist=hist, fut=fut, sample_id=meta["sample_id"].to_numpy())
     meta.write_parquet(ws.processed / "windows_meta.parquet")
-    summary = split_summary(meta, train_end, val_end)
+    summary = split_summary(meta, train_end, val_end, test_end)
     summary["boundaries_source"] = "explicit" if split_cfg.get("train_end") else "auto_fractions (PROVISIONAL)"
     _write_json(summary, ws.results / "tables" / "split_summary.json")
     print(json.dumps(summary["counts"], indent=2))
@@ -153,8 +205,7 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
     from morva.models import baselines
     from morva.viz.plots import plot_error_vs_horizon
 
-    if args.split == "test" and not args.confirm_test:
-        sys.exit("Test split is locked. Freeze hypotheses first, then pass --confirm-test (one final run).")
+    _check_test_lock(args)
     w, b, ev = exp_cfg["windows"], exp_cfg["baselines"], exp_cfg["evaluation"]
     arrays = np.load(ws.processed / "windows.npz")
     meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
@@ -235,7 +286,7 @@ def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
 def cmd_plot_tracks(ws: Workspace, data_cfg, exp_cfg, args):
     from morva.viz.plots import plot_tracks
 
-    tracks = pl.read_parquet(ws.processed / "tracks.parquet")
+    tracks = pl.read_parquet(ws.processed / "tracks" / f"{data_cfg['aoi']['name']}.parquet")
     title = f"{data_cfg['aoi']['name']}{' (SYNTHETIC)' if ws.synthetic else ''}"
     out = plot_tracks(tracks, ws.results / "figures" / "tracks_overview.png", title)
     print(f"wrote {out.relative_to(project_path('.'))}")
@@ -260,7 +311,7 @@ def cmd_sensitivity(ws: Workspace, data_cfg, exp_cfg, args):
     from morva.trajectories.segment import segment_tracks
 
     s, w = data_cfg["segmentation"], exp_cfg["windows"]
-    points = pl.read_parquet(ws.processed / "points_clean.parquet")
+    points = pl.read_parquet(ws.processed / "points_clean.parquet")  # home AOI only
     rows = []
     for gap_s in args.gap_s:
         tracks = segment_tracks(points, gap_s, s["min_points"], s["min_duration_s"])
@@ -286,8 +337,7 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     from morva.models.gbm import ResidualGBM
     from morva.viz.regime_eda import TURN_BINS, past_turn_rate_deg_min
 
-    if args.split == "test" and not args.confirm_test:
-        sys.exit("Test split is locked. Freeze hypotheses first, then pass --confirm-test (one final run).")
+    _check_test_lock(args)
     w, g, ev = exp_cfg["windows"], exp_cfg["gbm"], exp_cfg["evaluation"]
     step, n_fut = w["step_s"], w["future_steps"]
     knots = [int(k * 60 / step) for k in g["knots_min"]]
@@ -633,6 +683,8 @@ def cmd_summary_figure(ws: Workspace, data_cfg, exp_cfg, args):
 
 
 def main(argv=None):
+    from morva.evaluation.splits import EVAL_SPLITS
+
     ap = argparse.ArgumentParser(prog="morva")
     ap.add_argument("--synthetic", action="store_true", help="use the isolated synthetic workspace")
     ap.add_argument("--data-config", default="configs/data.yaml")
@@ -649,11 +701,11 @@ def main(argv=None):
     sub.add_parser("clean", help="quality flags, report, segmentation")
     sub.add_parser("windows", help="build prediction windows and time-block split")
     p = sub.add_parser("baselines", help="evaluate persistence / CV / CTRV")
-    p.add_argument("--split", default="val", choices=["train", "val", "test"])
+    p.add_argument("--split", default="val", choices=["train", *EVAL_SPLITS])
     p.add_argument("--confirm-test", action="store_true")
     sub.add_parser("plot-tracks", help="overview map of segmented tracks")
     p = sub.add_parser("gbm", help="E3/E4: residual GBM context ablation (train -> val)")
-    p.add_argument("--split", default="val", choices=["val", "test"])
+    p.add_argument("--split", default="val", choices=list(EVAL_SPLITS))
     p.add_argument("--confirm-test", action="store_true")
     p.add_argument("--holdout-eval-vessels", action="store_true",
                    help="exclude every vessel of the evaluated split from training")

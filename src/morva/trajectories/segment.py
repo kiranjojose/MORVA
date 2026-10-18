@@ -6,15 +6,16 @@ from morva.quality.checks import HARD_FLAGS
 
 
 def segment_tracks(df: pl.DataFrame, gap_s: float, min_points: int, min_duration_s: float) -> pl.DataFrame:
-    """Drop hard-flagged points (if flag columns are present), start a new segment when the gap exceeds `gap_s`,
-    and keep segments with enough points and duration. Adds integer `segment_id`."""
+    """Drop hard-flagged points (if flag columns are present), start a new segment when the gap exceeds `gap_s` or
+    the vessel changes `region` (if present), and keep segments with enough points and duration. Adds integer
+    `segment_id`."""
     flags = [c for c in HARD_FLAGS if c in df.columns]  # absent when given already-clean points
     clean = (df.filter(~pl.any_horizontal(flags)) if flags else df).sort(["mmsi", "t"])
+    new = (pl.col("mmsi") != pl.col("mmsi").shift(1)) | (pl.col("t").diff().dt.total_seconds() > gap_s)
+    if "region" in clean.columns:  # a segment never spans two areas, so every window has exactly one region
+        new = new | (pl.col("region") != pl.col("region").shift(1))
     clean = clean.with_columns(
-        _new=(
-            (pl.col("mmsi") != pl.col("mmsi").shift(1))
-            | (pl.col("t").diff().dt.total_seconds() > gap_s)
-        ).fill_null(True)
+        _new=new.fill_null(True)
     ).with_columns(segment_id=pl.col("_new").cum_sum().cast(pl.Int64)).drop("_new")
 
     stats = clean.group_by("segment_id").agg(

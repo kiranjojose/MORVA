@@ -35,6 +35,9 @@ absolute position with features whose meaning is consistent across waterways:
 Evaluation should include independent waterways, longer time periods and the existing in-area, vessel-held-out and
 spatially held-out controls.
 
+**Status: split set (2026-10-18).** New locked test period 7–15 Oct 2026. Independent waterways: Bornholm
+(Bornholmsgat) and Skagen. See `docs/05_protocol.md`, "V2 split".
+
 ## V3 — Uncertainty and interaction
 
 - Produce calibrated trajectory intervals or multiple plausible futures.

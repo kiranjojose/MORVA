@@ -193,3 +193,49 @@ def test_kalman_cv_matches_cv_on_noise_free_straight_line():
     t = np.arange(-19, 1) * STEP
     hist = _hist_from_xy(v * t * np.sin(np.radians(70)), v * t * np.cos(np.radians(70)), 10, np.full(20, 70.0))
     assert step_errors_m(kalman_cv(hist, 20, STEP, q=1e-4), cv(hist, 20, STEP)).max() < 5.0
+
+
+def test_segmentation_splits_on_region_change():
+    a = _points(219000001, T0, 200, 10).with_columns(region=pl.lit("home"))
+    b = _points(219000001, T0 + timedelta(seconds=2010), 200, 10).with_columns(region=pl.lit("bornholm"))
+    seg = segment_tracks(add_flags(pl.concat([a, b]), 50, 40), gap_s=1200, min_points=20, min_duration_s=600)
+    assert seg["segment_id"].n_unique() == 2
+    assert seg.group_by("segment_id").agg(pl.col("region").n_unique())["region"].max() == 1
+
+
+def test_filter_aoi_tags_regions_and_drops_outside():
+    from morva.ingestion.dma import filter_aoi
+
+    boxes = [dict(name="home", lat_min=55, lat_max=56, lon_min=10, lon_max=13),
+             dict(name="bornholm", lat_min=54.7, lat_max=55.6, lon_min=14, lon_max=15.6)]
+    lf = pl.LazyFrame({"lat": [55.5, 55.2, 57.0, 55.5], "lon": [11.0, 14.8, 11.0, 11.0],
+                       "mobile_type": ["Class A", "Class A", "Class A", "Class B"]})
+    out = filter_aoi(lf, boxes, ["Class A"]).collect()
+    assert out["region"].to_list() == ["home", "bornholm"]
+
+
+def test_split_transfer_regions_never_train_and_test_end_excludes():
+    t0 = [T0 + timedelta(minutes=m) for m in range(0, 720, 5)]
+    n = len(t0)
+    meta = pl.DataFrame({"t0": t0 * 2, "mmsi": [1] * n + [2] * n, "region": ["home"] * n + ["bornholm"] * n})
+    out = assign_split(meta, T0 + timedelta(hours=4), T0 + timedelta(hours=6), 60, 20, 20,
+                       test_end=T0 + timedelta(hours=9), home_region="home")
+    home, transfer = out.filter(pl.col("region") == "home"), out.filter(pl.col("region") == "bornholm")
+    assert set(transfer["split"]) == {"transfer_context", "transfer_val", "transfer_test", "excluded"}
+    assert set(home["split"]) == {"train", "val", "test", "excluded"}
+    assert (out.filter(pl.col("split") == "train")["region"] == "home").all()
+    late = out.filter(pl.col("t0") + timedelta(minutes=20) > T0 + timedelta(hours=9))
+    assert len(late) > 0 and (late["split"] == "excluded").all()
+    # Same time blocks in both regions
+    assert (home["split"].replace({"train": "transfer_context", "val": "transfer_val", "test": "transfer_test"})
+            == transfer["split"]).all()
+
+
+def test_conflicting_duplicates_keep_first_in_file_order():
+    base = _points(219000001, T0, 2000, 10)
+    dup = base.with_columns(sog=pl.lit(0.2))  # same (mmsi, t), different values, later in file order
+    df = pl.concat([base, dup]).sample(fraction=1.0, shuffle=False)
+    for _ in range(5):
+        kept = add_flags(df, 50, 40).filter(~pl.col("flag_duplicate"))
+        assert len(kept) == 2000 and (kept["sog"] == 10.0).all()
+
