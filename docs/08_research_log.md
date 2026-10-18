@@ -126,3 +126,24 @@ Dated entries. Keep failed attempts.
 - **New finding: motion-only learning gives no gain over CV in the transfer waterways** (A − CV: Bornholm +1 m, −21 to +19; Skagen −21 m, −69 to +13), against −292 m in-area. CV error there is already low (583 m Bornholm, 877 m Skagen) because most traffic is straight transit through a traffic separation scheme or open water. V2 therefore has little room to improve on CV in these waters overall. The realistic test for fairway features is (a) no harm relative to A, and (b) gains in turning and bend regimes. This should shape the V2 hypotheses.
 - The in-area vessel-held-out training set falls to 89,705 windows (val now covers 6 days and 1,048 vessels). Part of the in-area unseen-vessel gap is therefore a training-size effect; a same-size random control is needed before interpreting it.
 
+## 2026-10-18 (Sun, night), feature set E: fairway context from historical traffic (VALIDATION)
+- `morva fairway` builds a flow map per region from moving track points (≥ 3 kn, one point per vessel-minute) in the region's training period: a 300 m grid × 12 course bins storing counts, course sums and position moments. A query pools a 1.5 km block and ±1 course bin, so only same-direction traffic counts. Features (no absolute coordinates): same-direction density, flow coherence, heading offset from the flow, lateral offset from the flow centroid and lane width at the anchor; flow heading change, lateral offset and density at the constant-velocity positions 5, 10 and 20 min ahead (13 features). Config `fairway:` in `configs/experiment.yaml`.
+- Leakage guard: a training window gets a map without the day(s) its own future covers (leave-day-out). Val and transfer windows use the full training-period map. Check: train and val feature distributions match (median |offset| 104 vs 104 m; median |heading| 3.3° vs 3.1°), and the flow bend 20 min ahead correlates equally with the actual turn on train and val (0.23 vs 0.25). When the map shows a bend > 20°, vessels turn the same way 81% (train), 82% (val), 85% (Bornholm), 70% (Skagen) of the time.
+- New feature sets: E_fairway = motion + fairway (counterpart of C), F_all_fairway = motion + vessel + fairway (counterpart of D). One seed.
+- FDE@20 (m), validation:
+
+| Model | In-area | Unseen longitude bands | Bornholm | Bornholm, unseen vessels | Skagen | Skagen, unseen vessels |
+|---|---:|---:|---:|---:|---:|---:|
+| CV | 1,563 | 1,563 | 583 | 583 | 877 | 877 |
+| A motion | 1,271 | 1,466 | 584 | 589 | 856 | 860 |
+| C + raw location | 861 | 2,552 | 1,778 | 1,945 | 1,335 | 1,292 |
+| D all (raw location) | 835 | 1,927 | 1,983 | 1,631 | 1,197 | 1,184 |
+| **E + fairway** | **795** | **1,028** | **474** | **476** | 766 | 765 |
+| F all (fairway) | 757 | 1,024 | 485 | 489 | **757** | **759** |
+
+- E − A (paired, 95% CI): in-area −476 (−509 to −444); unseen bands −438 (−477 to −401); Bornholm −110 (−138 to −89); Skagen −90 (−114 to −69). Unchanged with vessel hold-out (−113, −95). Compare C − A: −409 in-area but +1,085 / +1,194 / +479 in unseen settings.
+- **Fairway features keep and exceed the in-area gain of raw coordinates and transfer to unseen waters.** E is better than C even in-area (795 vs 861 m), so the flow map seems to be a better representation of route geometry, not only a more transferable one. In Bornholm, where motion-only learning could not beat CV, E improves on CV by 109 m (19%).
+- By past turn rate, E improves on A in every bin and every setting. Steady transit gains too (Bornholm 449 → 356 m), probably from the lateral offset to the lane centre. In unseen bands, C is worst in steady transit (2,401 m) while E is best there (737 m).
+- Vessel attributes add little once fairway context is present (F − E: −38 in-area, +11 Bornholm, −9 Skagen).
+- Caveats: validation only and one seed; the result informs the V2 hypotheses, which must be frozen before any test run. The unseen-band maps include historical traffic of the held-out band, by design: the model's weights have not seen the band, but its traffic history is treated as available context, as for the transfer waterways.
+

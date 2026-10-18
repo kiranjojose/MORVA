@@ -1,0 +1,136 @@
+{
+  "map_period_end_utc": "2026-10-01 00:00:00+00:00",
+  "config": {
+    "cell_m": 300,
+    "block_radius_cells": 2,
+    "n_dir_bins": 12,
+    "dir_radius_bins": 1,
+    "min_sog_kn": 3.0,
+    "sample_s": 60,
+    "min_points": 10,
+    "ahead_min": [
+      5,
+      10,
+      20
+    ]
+  },
+  "regions": {
+    "great_belt_oresund": {
+      "map_points": 1195713,
+      "map_days": 12,
+      "grid": [
+        546,
+        519,
+        12
+      ],
+      "by_split": [
+        {
+          "split": "excluded",
+          "windows": 983,
+          "with_flow": 963,
+          "median_abs_offset_m": 118.30465940125443,
+          "median_abs_hdg_deg": 2.3717144294398054
+        },
+        {
+          "split": "test",
+          "windows": 167533,
+          "with_flow": 161666,
+          "median_abs_offset_m": 103.13014870651827,
+          "median_abs_hdg_deg": 3.1397825385342912
+        },
+        {
+          "split": "train",
+          "windows": 238829,
+          "with_flow": 230502,
+          "median_abs_offset_m": 103.75222102712443,
+          "median_abs_hdg_deg": 3.3359707811574424
+        },
+        {
+          "split": "val",
+          "windows": 120412,
+          "with_flow": 116296,
+          "median_abs_offset_m": 104.28065510684056,
+          "median_abs_hdg_deg": 3.1160032481427606
+        }
+      ]
+    },
+    "bornholm": {
+      "map_points": 452238,
+      "map_days": 12,
+      "grid": [
+        339,
+        334,
+        12
+      ],
+      "by_split": [
+        {
+          "split": "excluded",
+          "windows": 361,
+          "with_flow": 341,
+          "median_abs_offset_m": 137.0672972926834,
+          "median_abs_hdg_deg": 2.474516607305418
+        },
+        {
+          "split": "transfer_context",
+          "windows": 80760,
+          "with_flow": 74533,
+          "median_abs_offset_m": 126.42001677709774,
+          "median_abs_hdg_deg": 2.7892395543111093
+        },
+        {
+          "split": "transfer_test",
+          "windows": 55561,
+          "with_flow": 51916,
+          "median_abs_offset_m": 123.52939144974032,
+          "median_abs_hdg_deg": 2.6329682419752203
+        },
+        {
+          "split": "transfer_val",
+          "windows": 41675,
+          "with_flow": 38258,
+          "median_abs_offset_m": 127.58907892660558,
+          "median_abs_hdg_deg": 2.630878887839117
+        }
+      ]
+    },
+    "skagen": {
+      "map_points": 698616,
+      "map_days": 12,
+      "grid": [
+        318,
+        297,
+        12
+      ],
+      "by_split": [
+        {
+          "split": "excluded",
+          "windows": 568,
+          "with_flow": 551,
+          "median_abs_offset_m": 133.68341539951876,
+          "median_abs_hdg_deg": 4.766085991876338
+        },
+        {
+          "split": "transfer_context",
+          "windows": 156175,
+          "with_flow": 148363,
+          "median_abs_offset_m": 130.14185787204306,
+          "median_abs_hdg_deg": 5.4497381635335955
+        },
+        {
+          "split": "transfer_test",
+          "windows": 97396,
+          "with_flow": 93568,
+          "median_abs_offset_m": 125.40997993438808,
+          "median_abs_hdg_deg": 5.1793909749809615
+        },
+        {
+          "split": "transfer_val",
+          "windows": 67809,
+          "with_flow": 65160,
+          "median_abs_offset_m": 122.96630144171893,
+          "median_abs_hdg_deg": 4.793060550739028
+        }
+      ]
+    }
+  }
+}

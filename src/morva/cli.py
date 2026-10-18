@@ -211,6 +211,47 @@ def cmd_windows(ws: Workspace, data_cfg, exp_cfg, args):
     print(json.dumps(summary["counts"], indent=2))
 
 
+def cmd_fairway(ws: Workspace, data_cfg, exp_cfg, args):
+    """V2: build traffic-flow maps per region from the training period and fairway features for every window."""
+    from morva.evaluation.splits import resolve_boundaries
+    from morva.features.fairway import FlowMaps, fairway_feature_names, fairway_features
+    from morva.ingestion.dma import regions
+
+    f_cfg, w = exp_cfg["fairway"], exp_cfg["windows"]
+    hist = np.load(ws.processed / "windows.npz")["hist"]
+    meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
+    split_cfg = exp_cfg["split"]
+    if ws.synthetic:
+        split_cfg = {**split_cfg, "train_end": None, "val_end": None, "test_end": None}
+    train_end, _, _ = resolve_boundaries(meta, split_cfg)
+    parts, summary = [], {"map_period_end_utc": str(train_end), "config": f_cfg, "regions": {}}
+    for box in regions(data_cfg):
+        path = ws.processed / "tracks" / f"{box['name']}.parquet"
+        sel = (meta["region"] == box["name"]).to_numpy()
+        if not path.exists() or not sel.any():
+            continue
+        points = pl.read_parquet(path, columns=["t", "mmsi", "lat", "lon", "sog", "cog"]).filter(
+            pl.col("t") < train_end)
+        maps = FlowMaps.build(points, box, f_cfg)
+        m = meta.filter(pl.Series(sel))
+        feats = fairway_features(hist[sel], m["t0"], maps, w["step_s"], w["future_steps"], f_cfg)
+        df = pl.DataFrame({"sample_id": m["sample_id"], **feats})
+        parts.append(df)
+        cover = df.with_columns(split=m["split"]).group_by("split").agg(
+            windows=pl.len(), with_flow=pl.col("flow_hdg_0").is_not_nan().sum(),
+            median_abs_offset_m=pl.col("flow_offset_0").abs().median(),
+            median_abs_hdg_deg=pl.col("flow_hdg_0").abs().median()).sort("split")
+        summary["regions"][box["name"]] = {"map_points": maps.n_points, "map_days": len(maps.by_day),
+                                           "grid": [maps.nx, maps.ny, maps.nb], "by_split": cover.to_dicts()}
+        print(f"{box['name']}: {maps.n_points:,} map points over {len(maps.by_day)} days")
+        print(cover)
+        del maps
+    out = pl.concat(parts).sort("sample_id")
+    assert out.columns[1:] == fairway_feature_names(f_cfg["ahead_min"])
+    out.write_parquet(ws.processed / "fairway_features.parquet")
+    _write_json(summary, ws.results / "tables" / "fairway_summary.json")
+
+
 def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
     from morva.evaluation.metrics import per_sample_metrics, step_errors_m, summarize
     from morva.models import baselines
@@ -355,6 +396,11 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     knots = [int(k * 60 / step) for k in g["knots_min"]]
     arrays = np.load(ws.processed / "windows.npz")
     meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
+    if any("fairway" in sets for sets in g["feature_sets"].values()):
+        path = ws.processed / "fairway_features.parquet"
+        if not path.exists():
+            sys.exit("feature sets use 'fairway': run `morva fairway` first")
+        meta = meta.join(pl.read_parquet(path), on="sample_id", how="left", maintain_order="left")
     tr = (meta["split"] == "train").to_numpy()
     ev_mask, suffix = _eval_mask(meta, args)
     if args.holdout_eval_vessels:  # train only on vessels that never appear in the evaluated windows
@@ -715,6 +761,7 @@ def main(argv=None):
     p.add_argument("--force", action="store_true", help="re-ingest files already in the ingest log")
     sub.add_parser("clean", help="quality flags, report, segmentation")
     sub.add_parser("windows", help="build prediction windows and time-block split")
+    sub.add_parser("fairway", help="V2: traffic-flow maps (training period) and fairway features per window")
     p = sub.add_parser("baselines", help="evaluate persistence / CV / CTRV")
     p.add_argument("--split", default="val", choices=["train", *EVAL_SPLITS])
     p.add_argument("--confirm-test", action="store_true")
@@ -743,7 +790,7 @@ def main(argv=None):
     ws = Workspace(args.synthetic, data_cfg, exp_cfg)
     handlers = {
         "synth": cmd_synth, "manifest": cmd_manifest, "ingest": cmd_ingest, "clean": cmd_clean,
-        "windows": cmd_windows, "baselines": cmd_baselines, "plot-tracks": cmd_plot_tracks,
+        "windows": cmd_windows, "fairway": cmd_fairway, "baselines": cmd_baselines, "plot-tracks": cmd_plot_tracks,
         "regime-eda": cmd_regime_eda, "sensitivity": cmd_sensitivity, "gbm": cmd_gbm,
         "regime-report": cmd_regime_report, "summary-figure": cmd_summary_figure,
     }

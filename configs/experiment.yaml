@@ -26,6 +26,18 @@ split:
   test_end: "2026-10-16T00:00:00"
   auto_fractions: [0.7, 0.15]   # only used if the explicit boundaries above are null
 
+fairway:
+  # V2 fairway context from historical traffic (src/morva/features/fairway.py). Maps use each region's training
+  # period only; training windows get a map without the day(s) their own future covers.
+  cell_m: 300               # grid cell size
+  block_radius_cells: 2     # pool (2r+1)^2 cells = 1.5 km x 1.5 km around each query
+  n_dir_bins: 12            # 30-degree course bins
+  dir_radius_bins: 1        # pool +-1 bin (+-45 deg) around the query course: same-direction traffic only
+  min_sog_kn: 3.0           # moving traffic only
+  sample_s: 60              # one map point per vessel per minute (density = vessel-minutes)
+  min_points: 10            # fewer pooled points -> flow features missing (density is still reported)
+  ahead_min: [5, 10, 20]    # also query at the constant-velocity positions this far ahead
+
 baselines:
   ctrv_turn_window_steps: 5      # steps of history used to estimate turn rate
   ctrv_max_turn_rate_deg_s: 3.0
@@ -47,6 +59,8 @@ gbm:
     B_vessel: [motion, vessel]
     C_location: [motion, location]
     D_all: [motion, vessel, location]
+    E_fairway: [motion, fairway]           # V2: transferable counterpart of C (no absolute coordinates)
+    F_all_fairway: [motion, vessel, fairway]   # V2: counterpart of D
   spatial:
     # Spatially held-out evaluation (H4): hold out one longitude band at a time. Training excludes every window
     # whose history or future comes within `buffer_deg` of the held-out band, so no route crosses the boundary.

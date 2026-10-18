@@ -239,3 +239,79 @@ def test_conflicting_duplicates_keep_first_in_file_order():
         kept = add_flags(df, 50, 40).filter(~pl.col("flag_duplicate"))
         assert len(kept) == 2000 and (kept["sog"] == 10.0).all()
 
+
+
+# --- V2 fairway features -------------------------------------------------------------------------------------------
+BOX = dict(name="test", lat_min=55.0, lat_max=55.4, lon_min=11.0, lon_max=11.6)
+FCFG = dict(cell_m=300, block_radius_cells=2, n_dir_bins=12, dir_radius_bins=1, min_sog_kn=3.0, sample_s=60,
+            min_points=10, ahead_min=[5, 10, 20])
+
+
+def _lane(x, y, course_deg, day=T0, mmsi0=230000000):
+    """Map points along a polyline (x, y metres from the box centre), one point per vessel-minute."""
+    from morva.features.fairway import FlowMaps
+
+    m = FlowMaps(BOX, FCFG)
+    lat, lon = from_local_xy(np.asarray(x, float), np.asarray(y, float), m.lat0, m.lon0)
+    n = len(lat)
+    return pl.DataFrame({"t": [day + timedelta(minutes=i) for i in range(n)],
+                         "mmsi": [mmsi0 + i // 50 for i in range(n)], "lat": lat, "lon": lon, "sog": [12.0] * n,
+                         "cog": np.broadcast_to(course_deg, n).astype(float)})
+
+
+def _query(maps, x, y, course_deg):
+    g, nd = maps.without(())
+    return maps.query(g, nd, np.array([x], float), np.array([y], float), np.radians([course_deg]))
+
+
+def test_fairway_offset_heading_and_opposite_lane_ignored():
+    from morva.features.fairway import FlowMaps
+
+    y = np.linspace(-8000, 8000, 800)
+    north = _lane(np.zeros_like(y), y, 0.0)
+    south = _lane(np.full_like(y, -1000.0), y, 180.0, mmsi0=231000000)  # opposite lane 1 km west
+    maps = FlowMaps.build(pl.concat([north, south]), BOX, FCFG)
+    q = _query(maps, 200.0, 0.0, 0.0)  # 200 m east of the northbound lane, heading north
+    assert abs(q["offset"][0] - 200) < 20 and abs(q["hdg"][0]) < 1 and q["width"][0] < 50
+    q = _query(maps, -500.0, 0.0, 0.0)  # between the lanes: only northbound traffic counts
+    assert abs(q["offset"][0] + 500) < 20
+    q = _query(maps, 3000.0, 0.0, 0.0)  # far from any lane
+    assert np.isnan(q["hdg"][0]) and q["logdens"][0] == 0
+
+
+def test_fairway_sees_bend_ahead():
+    from morva.features.fairway import FlowMaps, fairway_features
+
+    y1 = np.linspace(-8000, 0, 400)
+    y2 = np.linspace(0, 6000, 300)
+    lane = pl.concat([_lane(np.zeros_like(y1), y1, 0.0),
+                      _lane(y2 * np.tan(np.radians(30)), y2, 30.0, mmsi0=232000000)])
+    maps = FlowMaps.build(lane, BOX, FCFG)
+    # One window heading north at 6.48 kn (200 m/min) at y = -3000: the 20-min CV point is at y = +1000
+    hist = _window_hist(maps, -3000.0, 200 / 60)
+    f = fairway_features(hist, pl.Series([T0 + timedelta(days=5)]), maps, 60, 20, FCFG)
+    assert abs(f["flow_hdg_0"][0]) < 2 and abs(f["flow_hdg_5"][0]) < 2
+    # The lane turns to starboard ahead, so the 20-min CV point lies to port of it
+    assert 20 < f["flow_hdg_20"][0] < 35 and f["flow_offset_20"][0] < -100
+
+
+def _window_hist(maps, y_anchor, v_ms, n=20, step=60):
+    from morva.geo import KNOT_MS
+
+    y = y_anchor - v_ms * step * np.arange(n - 1, -1, -1)
+    lat, lon = from_local_xy(np.zeros(n), y, maps.lat0, maps.lon0)
+    return np.stack([lat, lon, np.full(n, v_ms / KNOT_MS), np.zeros(n)], axis=-1)[None]
+
+
+def test_fairway_training_windows_never_see_their_own_day():
+    from morva.features.fairway import FlowMaps, fairway_features
+
+    y = np.linspace(-8000, 8000, 800)
+    day1 = _lane(np.zeros_like(y), y, 0.0, day=T0)
+    day2 = _lane(np.full_like(y, 400.0), y, 0.0, day=T0 + timedelta(days=1), mmsi0=233000000)
+    maps = FlowMaps.build(pl.concat([day1, day2]), BOX, FCFG)
+    hist = _window_hist(maps, 0.0, 5.0)
+    f_day1 = fairway_features(hist, pl.Series([T0 + timedelta(hours=12)]), maps, 60, 20, FCFG)
+    f_later = fairway_features(hist, pl.Series([T0 + timedelta(days=9)]), maps, 60, 20, FCFG)
+    assert abs(f_day1["flow_offset_0"][0] + 400) < 20  # only the day-2 lane (400 m east) remains
+    assert abs(f_later["flow_offset_0"][0] + 200) < 30  # both days: centroid between the lanes

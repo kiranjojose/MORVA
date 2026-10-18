@@ -74,7 +74,9 @@ def motion_features(hist: np.ndarray, step_s: int) -> dict[str, np.ndarray]:
 
 
 def build_features(hist: np.ndarray, meta: pl.DataFrame, step_s: int, sets: list[str]) -> tuple[np.ndarray, list[str]]:
-    """sets: subset of {'motion', 'vessel', 'location'}. Returns X and column names (NaN = missing)."""
+    """sets: subset of {'motion', 'vessel', 'location', 'fairway'}. Returns X and column names (NaN = missing).
+
+    'fairway' reads the flow_* columns precomputed by `morva fairway` (see features/fairway.py) from meta."""
     cols: dict[str, np.ndarray] = {}
     if "motion" in sets:
         cols.update(motion_features(hist, step_s))
@@ -87,5 +89,10 @@ def build_features(hist: np.ndarray, meta: pl.DataFrame, step_s: int, sets: list
     if "location" in sets:
         _, _, _, th = anchor_frame(hist, step_s)
         cols.update(lat=hist[:, -1, 0], lon=hist[:, -1, 1], sin_cog=np.sin(th), cos_cog=np.cos(th))
+    if "fairway" in sets:
+        flow = [c for c in meta.columns if c.startswith("flow_")]
+        if not flow:
+            raise ValueError("feature set 'fairway' needs fairway features; run `morva fairway` first")
+        cols.update({c: meta[c].cast(pl.Float64).to_numpy() for c in flow})
     names = list(cols)
     return np.column_stack([cols[n] for n in names]).astype(np.float64), names

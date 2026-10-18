@@ -12,6 +12,7 @@ smoke:
 	uv run morva --synthetic ingest
 	uv run morva --synthetic clean
 	uv run morva --synthetic windows
+	uv run morva --synthetic fairway
 	uv run morva --synthetic baselines --split val
 	uv run morva --synthetic plot-tracks
 
