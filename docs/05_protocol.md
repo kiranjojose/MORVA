@@ -166,3 +166,47 @@ identical windows, reported separately for each setting.
 - `E_fairway − C_location` in the home area. On validation, E was better than raw coordinates even in-area
   (795 vs 861 m); this comparison is reported descriptively and makes no claim.
 
+## V2 pre-test amendment 2 (2026-10-21)
+
+> Added after amendment 1 and **before any V2 `test` or `transfer_test` model evaluation**. The frozen hypothesis
+> text and amendment 1 above are kept unchanged. This amendment changes the reporting implementation and pins a new
+> commit; it does not change model fitting, prediction generation, regime assignment, metrics or the decision rules
+> in amendment 1.
+
+**Regime-reporting coverage.** The regime-reporting implementation (`morva regime-report`) originally supported
+models A–D in the home area only. Before test-set evaluation it was extended so that the prespecified
+manoeuvring-regime analysis covers every evaluated model (A–F) in every setting: the home area, Bornholm and Skagen.
+The model list is read from the configuration; the vessel-held-out and longitude-band sections are included when
+those runs exist (longitude bands apply to the home area only); `--region` and the transfer splits are supported;
+and test splits require `--confirm-test`. The five past-only regimes, their thresholds and the threshold-sensitivity
+configurations are unchanged. The past-turn-rate bins written by every `gbm` run remain a supplementary breakdown;
+the five-regime report is the primary regime analysis.
+
+Before this amendment the change was checked on validation data and synthetic data only: the window-weighted regime
+means reproduce each run's overall FDE@20 exactly (for example, E in Bornholm: 474 m in both), all tests pass, and
+the synthetic end-to-end run includes the report for the home area and a transfer waterway.
+
+- Affected files: `src/morva/cli.py` (regime reporting only), `tests/test_core.py`, `Makefile` (smoke steps).
+- Old pinned commit: `02a2c6c`. New pinned commit: `9491f7d`, which replaces `02a2c6c` in the test-run
+  configuration of amendment 1. Code and configuration must not change again before the test run.
+
+**Additional test-run commands**, each run once after the `gbm` and `baselines` runs listed in amendment 1:
+
+| Purpose | Command |
+|---|---|
+| Regimes, home | `morva regime-report --split test --confirm-test` |
+| Regimes, each waterway | `morva regime-report --split transfer_test --region {bornholm,skagen} --confirm-test` |
+
+**V2-H2: reason for the stronger rule, and the original rule as a sensitivity analysis.** The decision rule for
+V2-H2 was strengthened in amendment 1; the claim itself, that raw coordinates (model C) do not transfer to an
+independent waterway, is unchanged. The original wording, "does not reduce mean FDE@20", would be satisfied by an
+underpowered or inconclusive result: a confidence interval that includes 0 would count as support. The amended rule
+requires positive evidence of harm (the lower CI bound of `C_location − A_motion` above 0 in both waterways), so it
+is harder, not easier, to support. The change was motivated by this weakness alone, without reference to any test
+result.
+
+The primary V2-H2 conclusion follows the amended rule. As a secondary sensitivity analysis, the report also states
+the conclusion under the original rule (supported if the upper CI bound of `C_location − A_motion` is at or above 0
+in both waterways, i.e. no detectable reduction), so readers can see whether the interpretation depends on the
+amendment.
+
