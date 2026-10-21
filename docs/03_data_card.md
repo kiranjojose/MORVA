@@ -77,6 +77,10 @@ Prediction windows by split (`results/v2/tables/split_summary.json`):
 | val / transfer_val (1–6 Oct) | 120,412 | 41,675 | 67,809 |
 | test / transfer_test (7–15 Oct, locked) | 167,533 | 55,561 | 97,396 |
 
+The locked-split counts above are dataset bookkeeping, not model evaluation. Before the V2 hypothesis freeze on
+21 October 2026, no model metrics or outcome comparisons were inspected for `test` or `transfer_test`. V2 hypotheses
+were informed only by `val` and `transfer_val`; the locked splits are their first independent evaluation.
+
 Many transfer-waterway vessels also appear in home training. In `transfer_val`, they account for 44% of Bornholm
 windows (334 of 752 vessels) and 28% of Skagen windows (286 of 797 vessels). Unseen-waterway results should
 therefore be reported both for all vessels and with every evaluated vessel removed from training.

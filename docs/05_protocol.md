@@ -90,3 +90,27 @@ longitude-band hold-out (unseen bands), and transfer val/test (unseen waterways)
 Bornholm also appear in the home area. Unseen-waterway results should therefore also be reported with the
 `--holdout-eval-vessels` option, so that neither the waterway nor the vessels have been seen.
 
+## V2 hypotheses (FROZEN 2026-10-21)
+
+> **Transparency note:** these hypotheses were drafted after inspecting V2 validation results for the home area,
+> unseen longitude bands, Bornholm and Skagen (research log, 18 Oct 2026). They are therefore
+> **validation-informed**, not fully prospective. Neither V2 `test` nor `transfer_test` model outcomes were inspected
+> before this freeze; those splits provide the first independent evaluation of these claims.
+
+- **V2-H1 (transferable fairway context):** relative to the motion-only model A, adding historical-traffic fairway
+  context (model E) reduces mean FDE@20 min in the home area and in each independent transfer waterway, Bornholm and
+  Skagen, evaluated separately.
+- **V2-H2 (raw coordinates do not transfer):** relative to model A, adding raw geographic coordinates (model C) does
+  not reduce mean FDE@20 min in either independent transfer waterway, Bornholm or Skagen, evaluated separately.
+
+The primary contrasts are `E_fairway - A_motion` for V2-H1 and `C_location - A_motion` for V2-H2. A reduction means
+a negative paired mean FDE@20 difference. Each setting is reported separately with a paired 95% bootstrap confidence
+interval; results are not pooled across waterways. Home and transfer evaluations that remove every evaluated vessel
+from training, and results by manoeuvring regime and horizon, are prespecified robustness analyses rather than
+additional headline hypotheses. Model F is exploratory: V2 does not make a confirmatory claim that vessel attributes
+improve on E.
+
+**FROZEN on 2026-10-21 06:15 UTC, before any V2 `test` or `transfer_test` model evaluation.** After this point the
+hypothesis wording, primary contrasts and evaluation settings must not change in response to test outcomes. Any test
+access or unavoidable rerun must be recorded in `docs/08_research_log.md`.
+

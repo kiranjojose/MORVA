@@ -147,3 +147,10 @@ Dated entries. Keep failed attempts.
 - Vessel attributes add little once fairway context is present (F − E: −38 in-area, +11 Bornholm, −9 Skagen).
 - Caveats: validation only and one seed; the result informs the V2 hypotheses, which must be frozen before any test run. The unseen-band maps include historical traffic of the held-out band, by design: the model's weights have not seen the band, but its traffic history is treated as available context, as for the transfer waterways.
 
+## 2026-10-21 (Wed), V2 hypothesis freeze
+- Reviewed the V2 protocol, data-card extension and all 18 Oct research-log entries before any V2 `test` or `transfer_test` model evaluation.
+- Froze two validation-informed headline hypotheses: **V2-H1**, E (motion + fairway) improves on motion-only A in-area and separately in both independent waterways; **V2-H2**, raw-location C does not improve on A in either independent waterway. The exact wording and primary contrasts are in `docs/05_protocol.md`.
+- The hypotheses are explicitly **validation-informed** by the 18 Oct `val` and `transfer_val` results, following the provenance treatment used for H4b. Locked-split row/window counts are bookkeeping only and were not used to formulate the claims.
+- Prespecified robustness reporting: repeat transfer comparisons after removing evaluated vessels from home training; report manoeuvring-regime and horizon breakdowns. These are not additional headline hypotheses. Model F remains exploratory because validation showed little consistent gain from vessel attributes beyond E.
+- **Freeze time: 2026-10-21 06:15 UTC.** No V2 `test` or `transfer_test` model outcomes had been inspected. The next permitted test access is the single recorded confirmatory run.
+
