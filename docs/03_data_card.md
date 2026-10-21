@@ -81,6 +81,11 @@ The locked-split counts above are dataset bookkeeping, not model evaluation. Bef
 21 October 2026, no model metrics or outcome comparisons were inspected for `test` or `transfer_test`. V2 hypotheses
 were informed only by `val` and `transfer_val`; the locked splits are their first independent evaluation.
 
+One input-only summary was also computed for every split, including the locked ones: `morva fairway` records, per
+split, how many windows have flow features and the median absolute flow offset and heading difference
+(`results/v2/tables/fairway_summary.json`). These describe model inputs only; no prediction errors or other outcomes
+were computed for the locked splits.
+
 Many transfer-waterway vessels also appear in home training. In `transfer_val`, they account for 44% of Bornholm
 windows (334 of 752 vessels) and 28% of Skagen windows (286 of 797 vessels). Unseen-waterway results should
 therefore be reported both for all vessels and with every evaluated vessel removed from training.

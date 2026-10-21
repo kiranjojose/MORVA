@@ -114,3 +114,55 @@ improve on E.
 hypothesis wording, primary contrasts and evaluation settings must not change in response to test outcomes. Any test
 access or unavoidable rerun must be recorded in `docs/08_research_log.md`.
 
+## V2 pre-test amendment (2026-10-21)
+
+> Added after the freeze above and **before any V2 `test` or `transfer_test` model evaluation**. It does not change
+> the wording of V2-H1, the primary contrasts or the evaluation settings. It makes the decision rules, the test-run
+> configuration and the robustness analyses explicit, and states V2-H2 in a falsifiable form. The frozen text above
+> is kept unchanged so the original freeze remains visible.
+
+**Decision rules.** All intervals are paired, vessel-grouped bootstrap 95% CIs of the mean FDE@20 min difference on
+identical windows, reported separately for each setting.
+
+- **V2-H1** is supported only if the upper CI bound of `E_fairway − A_motion` is below 0 in all three settings:
+  home, Bornholm and Skagen. Because every setting must succeed, no multiple-comparison correction is applied. If
+  only some settings succeed, V2-H1 is reported as not supported, with the per-setting results.
+- **V2-H2** is tested in the stronger form that raw coordinates make prediction worse in an independent waterway:
+  it is supported only if the lower CI bound of `C_location − A_motion` is above 0 in both Bornholm and Skagen. A
+  result whose CI includes 0 does not support V2-H2. This replaces the weaker reading of "does not reduce", which an
+  inconclusive result would satisfy.
+
+**Test-run configuration.**
+
+- Code and configuration are those of commit `02a2c6c` (unchanged at the freeze commit `da2ed78`): split, fairway
+  map settings, feature sets and GBM settings.
+- All models are trained once on the train block (19–30 Sep) only. Fairway maps use the training period of each
+  region only. Nothing is retrained or re-tuned on validation data.
+- The headline results use seed 0 (the configuration seed). Seeds 1 and 2 are run for the primary settings and
+  reported as a stability check only; they do not decide the hypotheses.
+- Each command below is run once with `--confirm-test`, and each run is recorded in `docs/08_research_log.md`.
+
+| Purpose | Command |
+|---|---|
+| Baselines, home | `morva baselines --split test --confirm-test` |
+| Baselines, each waterway | `morva baselines --split transfer_test --region {bornholm,skagen} --confirm-test` |
+| V2-H1 / V2-H2, home | `morva gbm --split test --seeds 0 1 2 --confirm-test` |
+| V2-H1 / V2-H2, each waterway | `morva gbm --split transfer_test --region {bornholm,skagen} --seeds 0 1 2 --confirm-test` |
+| Robustness: unseen vessels, home | `morva gbm --split test --holdout-eval-vessels --confirm-test` |
+| Robustness: unseen vessels, each waterway | `morva gbm --split transfer_test --region {bornholm,skagen} --holdout-eval-vessels --confirm-test` |
+| Robustness: unseen longitude bands | `morva gbm --split test --spatial-holdout --confirm-test` |
+
+**Robustness analyses (prespecified, not headline hypotheses).**
+
+- Removing every evaluated vessel from training, in the home area and in each waterway.
+- Unseen longitude bands within the home area, the V2 counterpart of V1-H4. The band's historical traffic remains in
+  its fairway map by design; only the model weights have not seen the band.
+- Breakdowns by past turn rate (the turn-rate bins written by every `gbm` run) and by horizon (errors at 5, 10 and
+  20 min). The five-regime report from V1 is not extended for V2.
+
+**Exploratory, not confirmatory.**
+
+- `F_all_fairway − E_fairway` (vessel attributes beyond fairway context), as already stated above.
+- `E_fairway − C_location` in the home area. On validation, E was better than raw coordinates even in-area
+  (795 vs 861 m); this comparison is reported descriptively and makes no claim.
+
