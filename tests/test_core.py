@@ -315,3 +315,12 @@ def test_fairway_training_windows_never_see_their_own_day():
     f_later = fairway_features(hist, pl.Series([T0 + timedelta(days=9)]), maps, 60, 20, FCFG)
     assert abs(f_day1["flow_offset_0"][0] + 400) < 20  # only the day-2 lane (400 m east) remains
     assert abs(f_later["flow_offset_0"][0] + 200) < 30  # both days: centroid between the lanes
+
+
+def test_regime_report_compares_every_feature_set_with_motion_only():
+    from morva.cli import regime_comparisons
+
+    sets = ["A_motion", "B_vessel", "C_location", "D_all", "E_fairway", "F_all_fairway"]
+    comps = regime_comparisons(sets)
+    assert comps[0] == ("A_motion", "cv")
+    assert [b for b, a in comps[1:]] == sets[1:] and all(a == "A_motion" for _, a in comps[1:])

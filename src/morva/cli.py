@@ -568,8 +568,17 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     print("\n".join(lines))
 
 
+def regime_comparisons(sets: list[str]) -> list[tuple[str, str]]:
+    """Paired contrasts reported by regime: motion-only vs CV, then every other feature set vs motion-only."""
+    return [("A_motion", "cv")] + [(n, "A_motion") for n in sets if n != "A_motion"]
+
+
 def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
-    """E2-E4 by past-only manoeuvring regime, with threshold sensitivity (reads stored runs for `--split`)."""
+    """Results by past-only manoeuvring regime, with threshold sensitivity, for every configured feature set.
+
+    Reads the stored per-sample runs for `--split` (and `--region`). The vessel-held-out and longitude-band sections
+    are included when those runs exist; longitude bands only apply to the home area.
+    """
     from dataclasses import replace
 
     import matplotlib
@@ -587,33 +596,43 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
         turn_label_reliable,
     )
 
+    _check_test_lock(args)
     w, ev = exp_cfg["windows"], exp_cfg["evaluation"]
+    gbm_sets = list(exp_cfg["gbm"]["feature_sets"])
     meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
-    split = args.split
-    mask = (meta["split"] == split).to_numpy()
+    mask, run_name = _eval_mask(meta, args)
+    run_name = f"{args.split}{run_name}"
     hist, m = np.load(ws.processed / "windows.npz")["hist"][mask], meta.filter(pl.Series(mask))
 
-    def latest(pattern):
+    def latest(pattern, required=True):
         runs = sorted((ws.results / "runs").glob(pattern))
         if not runs:
-            sys.exit(f"no run matching {pattern}; run it first")
-        return pl.read_parquet(runs[-1] / "per_sample.parquet"), runs[-1].name
+            if required:
+                sys.exit(f"no run matching {pattern}; run it first")
+            return None, None
+        df = pl.read_parquet(runs[-1] / "per_sample.parquet")
+        missing = [n for n in gbm_sets if "_gbm_" in pattern and f"fde_{n}" not in df.columns]
+        if missing:
+            sys.exit(f"{runs[-1].name} lacks feature sets {missing}; re-run it with the current config")
+        return df, runs[-1].name
 
-    GBM_SETS = ("A_motion", "B_vessel", "C_location", "D_all")  # noqa: N806
     BASE = ("persistence", "ctrv", "ctrv_damped", "kalman_cv")  # noqa: N806
-    gbm, gbm_run = latest(f"*_gbm_{split}")
-    held, held_run = latest(f"*_gbm_{split}_vesselheldout")
-    spat, spat_run = latest(f"*_gbm_{split}_spatialheldout")
-    base, base_run = latest(f"*_baselines_{split}")
+    gbm, gbm_run = latest(f"*_gbm_{run_name}")
+    base, base_run = latest(f"*_baselines_{run_name}")
+    held, held_run = latest(f"*_gbm_{run_name}_vesselheldout", required=False)
+    spat, spat_run = latest(f"*_gbm_{run_name}_spatialheldout", required=False)
     base_w = base.pivot(on="model", index="sample_id", values="fde_m")
     fde = (m.select("sample_id", "mmsi")
-           .join(gbm.select("sample_id", pl.selectors.starts_with("fde_")), on="sample_id")
-           .join(base_w.select("sample_id", *BASE).rename({c: f"fde_{c}" for c in BASE}), on="sample_id")
-           .join(held.select("sample_id", *[pl.col(f"fde_{n}").alias(f"held_{n}") for n in GBM_SETS]),
-                 on="sample_id")
-           .join(spat.select("sample_id", *[pl.col(f"fde_{n}").alias(f"spat_{n}") for n in GBM_SETS]),
-                 on="sample_id"))
-    assert len(fde) == len(m), f"per-sample results do not cover all {split} windows"
+           .join(gbm.select("sample_id", *[f"fde_{n}" for n in ("cv", *gbm_sets)]), on="sample_id")
+           .join(base_w.select("sample_id", *BASE).rename({c: f"fde_{c}" for c in BASE}), on="sample_id"))
+    held_out = []
+    for title, pre, df in ((f"Vessel-held-out training (all {run_name} vessels unseen)", "held_", held),
+                           ("Spatially held-out (longitude band unseen in training, 0.05° buffer)", "spat_", spat)):
+        if df is not None:
+            fde = fde.join(df.select("sample_id", *[pl.col(f"fde_{n}").alias(f"{pre}{n}") for n in gbm_sets]),
+                           on="sample_id")
+            held_out.append((title, pre))
+    assert len(fde) == len(m), f"per-sample results do not cover all {run_name} windows"
     groups = fde["mmsi"].to_numpy()
     col = lambda c: fde[c].to_numpy()  # noqa: E731
 
@@ -623,18 +642,20 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
     reliable = turn_label_reliable(v, p0)
     ws.processed.mkdir(parents=True, exist_ok=True)
     pl.DataFrame({"sample_id": m["sample_id"], "regime": reg, "turn_label_reliable": reliable, **v}).write_parquet(
-        ws.processed / f"regimes_{split}.parquet")
+        ws.processed / f"regimes_{run_name}.parquet")
 
-    models = ["persistence", "cv", "ctrv", "ctrv_damped", "kalman_cv", "A_motion", "B_vessel", "C_location", "D_all"]
-    comps = [("A_motion", "cv"), ("B_vessel", "A_motion"), ("C_location", "A_motion"), ("D_all", "A_motion")]
+    models = ["persistence", "cv", "ctrv", "ctrv_damped", "kalman_cv", *gbm_sets]
+    comps = regime_comparisons(gbm_sets)
     fmt = lambda s: f"{s['mean']:+.0f} ({s['ci95_lo']:+.0f} to {s['ci95_hi']:+.0f})"  # noqa: E731
 
     def paired(prefix_b, b, prefix_a, a, sel):
-        return summarize(col(f"{prefix_b}{b}")[sel] - col(f"{prefix_a}{a}")[sel], groups[sel], ev["n_bootstrap"],
+        pa = "fde_" if a == "cv" else prefix_a  # CV is the same forecast in every training setting
+        return summarize(col(f"{prefix_b}{b}")[sel] - col(f"{pa}{a}")[sel], groups[sel], ev["n_bootstrap"],
                          ev["seed"])
 
-    lines = ["# Results by past-only manoeuvring regime (validation, preliminary)", "",
-             f"Regime parameters: {p0.label()}. Runs: `{gbm_run}`, `{held_run}`, `{spat_run}`, `{base_run}`.", "",
+    runs_used = ", ".join(f"`{r}`" for r in (gbm_run, held_run, spat_run, base_run) if r)
+    lines = [f"# Results by past-only manoeuvring regime ({run_name})", "",
+             f"Regime parameters: {p0.label()}. Runs: {runs_used}.", "",
              "## Mean FDE@20 min (m)", "",
              "| regime | windows | share | vessels | turn label reliable | " + " | ".join(models) + " |",
              "|---|---|---|---|---|" + "---|" * len(models)]
@@ -648,25 +669,20 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
         lines.append(f"| {r} | {sel.sum():,} | {sel.mean():.1%} | {len(np.unique(groups[sel]))} | {rel} | "
                      + " | ".join(f"{rows[-1][mm]:.0f}" for mm in models) + " |")
 
+    header = "| regime | " + " | ".join(f"{b} − {a}" for b, a in comps) + " |"
     lines += ["", "## Paired ΔFDE@20 min by regime (m, 95% CI, vessel bootstrap; negative = first model better)", "",
-              "| regime | " + " | ".join(f"{b} − {a}" for b, a in comps) + " |", "|---|" + "---|" * len(comps)]
+              header, "|---|" + "---|" * len(comps)]
     for r in REGIMES:
         sel = reg == r
         if sel.any():
             lines.append(f"| {r} | " + " | ".join(fmt(paired("fde_", b, "fde_", a, sel)) for b, a in comps) + " |")
 
-    for title, pre in ((f"Vessel-held-out training (all {split} vessels unseen)", "held_"),
-                       ("Spatially held-out (longitude band unseen in training, 0.05° buffer)", "spat_")):
-        lines += ["", f"## {title}: paired ΔFDE@20 min by regime", "",
-                  "| regime | A_motion − cv | B_vessel − A_motion | C_location − A_motion | D_all − A_motion |",
-                  "|---|---|---|---|---|"]
+    for title, pre in held_out:
+        lines += ["", f"## {title}: paired ΔFDE@20 min by regime", "", header, "|---|" + "---|" * len(comps)]
         for r in REGIMES:
             sel = reg == r
             if sel.any():
-                cells = [fmt(summarize(col(f"{pre}A_motion")[sel] - col("fde_cv")[sel], groups[sel],
-                                       ev["n_bootstrap"], ev["seed"]))]
-                cells += [fmt(paired(pre, b, pre, "A_motion", sel)) for b in ("B_vessel", "C_location", "D_all")]
-                lines.append(f"| {r} | " + " | ".join(cells) + " |")
+                lines.append(f"| {r} | " + " | ".join(fmt(paired(pre, b, pre, a, sel)) for b, a in comps) + " |")
 
     # Threshold sensitivity: vary one parameter at a time; also 'sustained turning'
     configs = [("primary", p0, False)] + [(f"{k}={x:g}", replace(p0, **{k: type(getattr(p0, k))(x)}), False)
@@ -680,44 +696,51 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
             if sel.sum() < 30:
                 continue
             row = {"config": name, "regime": r, "windows": int(sel.sum()), "share": float(sel.mean()),
-                   "fde_cv": float(col("fde_cv")[sel].mean()), "fde_A": float(col("fde_A_motion")[sel].mean()),
-                   "fde_D": float(col("fde_D_all")[sel].mean())}
+                   **{f"fde_{mm}": float(col(f"fde_{mm}")[sel].mean()) for mm in ("cv", *gbm_sets)}}
             for b, a in comps:
                 d = paired("fde_", b, "fde_", a, sel)
                 row[f"d_{b}_vs_{a}"], row[f"d_{b}_vs_{a}_lo"], row[f"d_{b}_vs_{a}_hi"] = d["mean"], d["ci95_lo"], d[
                     "ci95_hi"]
             sens.append(row)
     sens_df = pl.DataFrame(sens)
-    sens_df.write_csv(ws.results / "tables" / f"regime_sensitivity_{split}.csv")
-    ci_excl0 = sens_df.filter(pl.col("d_C_location_vs_A_motion_hi") < 0).height
-    lines += ["", f"## Threshold sensitivity (`regime_sensitivity_{split}.csv`)", "",
-              f"{len(configs)} configurations (primary, one-at-a-time changes, sustained turning). Location "
-              f"context (C − A) improves FDE with a 95% CI excluding zero in {ci_excl0} of {sens_df.height} "
-              "regime×config cells.",
-              "", "| config | " + " | ".join(REGIMES) + " |", "|---|" + "---|" * len(REGIMES)]
-    for name, *_ in configs:
-        sub = {r["regime"]: r for r in sens_df.filter(pl.col("config") == name).to_dicts()}
-        lines.append(f"| {name} | " + " | ".join(
-            f"n={sub[r]['windows']:,}, C−A {sub[r]['d_C_location_vs_A_motion']:+.0f}" if r in sub else "–"
-            for r in REGIMES) + " |")
+    sens_df.write_csv(ws.results / "tables" / f"regime_sensitivity_{run_name}.csv")
+    lines += ["", f"## Threshold sensitivity (`regime_sensitivity_{run_name}.csv`)", ""]
+    if sens_df.is_empty():
+        lines.append("No regime × configuration cell has the 30 windows needed for a sensitivity estimate.")
+    else:
+        lines += [f"{len(configs)} configurations (primary, one-at-a-time changes, sustained turning), "
+                  f"{sens_df.height} regime×config cells. Cells where the 95% CI lies entirely below 0 (first model "
+                  "better) / entirely above 0 (first model worse):", "",
+                  "| comparison | CI below 0 | CI above 0 |", "|---|---|---|"]
+        for b, a in comps:
+            hi, lo = sens_df[f"d_{b}_vs_{a}_hi"], sens_df[f"d_{b}_vs_{a}_lo"]
+            lines.append(f"| {b} − {a} | {int((hi < 0).sum())} | {int((lo > 0).sum())} |")
+        key = [c for c in ("C_location", "E_fairway") if c in gbm_sets]
+        lines += ["", "| config | " + " | ".join(REGIMES) + " |", "|---|" + "---|" * len(REGIMES)]
+        for name, *_ in configs:
+            sub = {r["regime"]: r for r in sens_df.filter(pl.col("config") == name).to_dicts()}
+            lines.append(f"| {name} | " + " | ".join(
+                (f"n={sub[r]['windows']:,}, " + ", ".join(f"{k[0]}−A {sub[r][f'd_{k}_vs_A_motion']:+.0f}" for k in key))
+                if r in sub else "–" for r in REGIMES) + " |")
 
-    out = ws.results / "tables" / f"regimes_{split}.md"
+    out = ws.results / "tables" / f"regimes_{run_name}.md"
     out.write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
 
-    show = ["cv", "A_motion", "B_vessel", "C_location", "D_all"]
-    fig, ax = plt.subplots(figsize=(8, 4.5))
+    show = ["cv", *gbm_sets]
+    width = 0.8 / len(show)
+    fig, ax = plt.subplots(figsize=(9, 4.5))
     x = np.arange(len(rows))
     for i, mm in enumerate(show):
-        ax.bar(x + (i - 2) * 0.16, [r[mm] for r in rows], width=0.16, label=mm)
+        ax.bar(x + (i - (len(show) - 1) / 2) * width, [r[mm] for r in rows], width=width, label=mm)
     counts = {r: int((reg == r).sum()) for r in REGIMES}
     ax.set_xticks(x, [f"{r['regime']}\n(n={counts[r['regime']]:,})" for r in rows], fontsize=8)
     ax.set_ylabel("Mean FDE at 20 min (m)")
-    ax.set_title(f"Prediction error by past-only manoeuvring regime ({split})")
+    ax.set_title(f"Prediction error by past-only manoeuvring regime ({run_name})")
     ax.legend(fontsize=8)
     ax.grid(axis="y", alpha=0.3)
     fig.tight_layout()
-    fig.savefig(ws.results / "figures" / f"regime_fde_{split}.png", dpi=150)
+    fig.savefig(ws.results / "figures" / f"regime_fde_{run_name}.png", dpi=150)
     plt.close(fig)
 
 
@@ -782,7 +805,9 @@ def main(argv=None):
     p = sub.add_parser("summary-figure", help="3-panel generalisation figure from stored runs")
     p.add_argument("--split", default="test", choices=["val", "test"])
     p = sub.add_parser("regime-report", help="results by past-only manoeuvring regime + threshold sensitivity")
-    p.add_argument("--split", default="val", choices=["val", "test"])
+    p.add_argument("--split", default="val", choices=list(EVAL_SPLITS))
+    p.add_argument("--region", choices=region_names, help="report one region only (default: all in the split)")
+    p.add_argument("--confirm-test", action="store_true")
     sub.add_parser("regime-eda", help="figures supporting the manoeuvring-regime definition (train+val only)")
 
     args = ap.parse_args(argv)

@@ -14,6 +14,12 @@ smoke:
 	uv run morva --synthetic windows
 	uv run morva --synthetic fairway
 	uv run morva --synthetic baselines --split val
+	uv run morva --synthetic gbm --split val
+	uv run morva --synthetic gbm --split val --holdout-eval-vessels
+	uv run morva --synthetic regime-report --split val
+	uv run morva --synthetic baselines --split transfer_val --region bornholm
+	uv run morva --synthetic gbm --split transfer_val --region bornholm
+	uv run morva --synthetic regime-report --split transfer_val --region bornholm
 	uv run morva --synthetic plot-tracks
 
 # Provenance record (checksum, size) for every raw file; existing manifests are kept
