@@ -48,17 +48,129 @@ spatially held-out controls.
 - Port, berth and anchorage context, and low-speed or harbour-specific modelling.
 - Chart-based context that does not need traffic history: bathymetry and coastline constraints.
 - Other countries, seasons and waterway types, including waters with sparse traffic history.
-- Uncertainty and multiple plausible futures (V3 below).
+- Uncertainty, longer horizons and transfer to another country (V3 below).
 
-## V3 — Uncertainty and interaction
+## V3 — Reliable forecasts in new waters (planned 22 Oct 2026)
 
-- Produce calibrated trajectory intervals or multiple plausible futures.
-- Compare quantile, conformal and probabilistic output formulations.
-- Add neighbouring-vessel features and encounter geometry.
-- Evaluate calibration and route validity, not displacement error alone.
+V2 showed that fairway context makes forecasts *better* in waters the model has never seen. V3 asks whether they are
+*trustworthy* there: honest uncertainty, longer horizons and transfer to another country. These are research
+questions in their own right and also the questions behind any later product decision. The study stays
+research-led, with the V1/V2 discipline: a split set before data are inspected, hypotheses frozen before the test,
+and one test run.
+
+### Scope
+
+- **In:** calibrated prediction intervals; horizons up to 60 minutes; transfer to another country (USA); how much
+  traffic history a flow map needs; junction ambiguity (exploratory).
+- **Out (later versions):** neighbouring-vessel interaction moves to V4; behaviour-deviation screening moves to V5.
+  Finland is deferred: its open data (Digitraffic, CC BY 4.0) has no historical archive and would need weeks of live
+  recording, so it is a possible V3b.
+
+### Research questions
+
+| | Question | Why |
+|---|---|---|
+| RQ1 | Can the residual model give calibrated 80% and 90% prediction intervals, and do they stay calibrated in independent waterways and another country? | A forecast without honest uncertainty cannot support a decision |
+| RQ2 | Does fairway context's advantage over motion-only grow with horizon (20 → 60 min)? | Lane knowledge should matter more the further ahead the forecast goes |
+| RQ3 | Does a model trained in Denmark, using the US waterway's own flow map, improve on motion-only in the USA? | Transfer across countries, traffic cultures and receiver networks |
+| RQ4 | How many days of traffic history does a flow map need (1, 3, 7, all map days)? | How quickly a new area can be supported |
+| RQ5 (exploratory) | Near junctions, do features describing several same-direction branches improve on the averaged flow? | The known weakness of V2 |
+
+### Data and split (historical, time runs forward)
+
+All test periods are untouched: their files are **not downloaded until the V3 hypotheses are frozen**. Models are
+trained in the Danish home area only.
+
+| Region | Map history / training | Validation | Test (locked) |
+|---|---|---|---|
+| Denmark: home (training area) | 19 Sep–6 Oct 2026 (train) | 7–15 Oct 2026 (spent V2 test days) | 16–29 Oct 2026 |
+| Denmark: Bornholm, Skagen | 19 Sep–6 Oct 2026 (map only) | 7–15 Oct 2026 | 16–29 Oct 2026 |
+| USA: Puget Sound | 19 Sep–6 Oct 2025 (map only) | 7–15 Oct 2025 | 16–29 Oct 2025 |
+| USA: Houston Ship Channel (optional) | 19 Sep–6 Oct 2025 (map only) | 7–15 Oct 2025 | 16–29 Oct 2025 |
+| Norway: Bergen/Fedje (optional) | as Denmark, if Kystverket HAIS data are recent enough | | |
+
+- **Validation days are used for two separate purposes:** 7–11 Oct for model selection, and 12–15 Oct as the
+  calibration set for the prediction intervals. The two must not overlap.
+- **USA data:** NOAA/BOEM Marine Cadastre daily files for 2025 (`ais-2025-MM-DD.csv.zst`, about 230 MB each, already
+  sampled at one minute). The catalogue lists no access constraints; the stated use is "coastal and ocean planning,
+  not for navigation", and the data are provided as is. That is sufficient for research. Commercial use is not
+  addressed explicitly and must be confirmed with NOAA before any product use.
+- **USA boxes (provisional, to be confirmed by a one-day traffic count on a map-period day before any model is run):**
+  Puget Sound with Admiralty Inlet, about 47.0–48.3° N, 123.2–122.2° W (traffic separation schemes, ferries, narrow
+  sounds); Houston Ship Channel with Galveston Bay, about 29.2–29.8° N, 95.3–94.6° W (a narrow dredged channel with
+  heavy tanker traffic).
+- **Year difference:** US data are from 2025 and Danish data from 2026. Each region uses its own forward-in-time split
+  and its own flow map, so the comparison stays internally consistent; the difference is reported as a limitation.
+- **Norway** joins only if a small test order from Kystverket HAIS shows data for the same 2026 periods and terms
+  that allow research use.
+
+### Models
+
+- **Point forecasts:** A, C, E and F as in V2 (same learner and hyperparameters), as references.
+- **Uncertainty:** the residual model trained for quantiles of the along-track and cross-track corrections at each
+  horizon point, then conformal calibration on the calibration days, so interval coverage is honest whenever new data
+  resemble the calibration data. Whether that holds in new waters is RQ1. Primary analysis uses the Danish
+  calibration only; recalibration on a few local validation days is a descriptive secondary analysis.
+- **Junction features (exploratory):** number of distinct same-direction flow directions ahead and the angle between
+  them.
+
+### Prediction task
+
+20-minute history and 60-minute future at one-minute resolution (V2 used 20 minutes). Errors are reported at 5, 10,
+20, 30, 45 and 60 minutes. Windows need gap-safe 60-minute futures, so there will be fewer windows than in V2.
+
+### Metrics
+
+| Kind | Metrics |
+|---|---|
+| Accuracy | ADE; FDE at 5, 10, 20, 30, 45 and 60 min; median, 90th and 99th percentile |
+| Uncertainty | Coverage of the 80% and 90% intervals; interval width; pinball loss |
+| Plausibility | Share of forecast points in cells with no historical traffic (off-lane rate) |
+| Data needs | E's error as a function of map history (1, 3, 7, all days) |
+| Cost | Flow-map build time; prediction time per 1,000 windows |
+
+All confidence intervals remain paired and vessel-grouped.
+
+### Draft hypotheses (to be refined on validation, then frozen before the test)
+
+- **V3-H1 (calibration):** conformal 80% and 90% intervals have coverage within 3 percentage points of nominal at 20 and
+  60 minutes in the home area, Bornholm and Skagen.
+- **V3-H2 (cross-country transfer):** E improves on A in Puget Sound at 20 and 60 minutes.
+- **V3-H3 (horizon):** in the independent waterways (Bornholm, Skagen, Puget Sound), E's relative improvement over A
+  is larger at 60 minutes than at 20.
+- **Descriptive:** interval coverage in Puget Sound with and without local recalibration; Houston and Norway if
+  included; map-history curve; junction features.
+
+### Engineering needed
+
+1. Windows with 60-minute futures and multi-horizon reporting.
+2. A source adapter for Marine Cadastre CSV (field names, numeric vessel-type codes mapped to ship groups,
+   transceiver class, `.zst` files), and one for Kystverket HAIS if Norway is included.
+3. A quantile residual model and a conformal-calibration module.
+4. Coverage, interval-width and off-lane metrics in run summaries, tables and figures.
+5. A configurable map-history window for RQ4.
+6. Processing one region at a time, as in V2, to keep memory in bounds.
+
+### Order of work
+
+1. **Data feasibility:** download US map-period and validation days only; one-day traffic count to confirm the boxes;
+   Norway test order (by the author).
+2. **Set the V3 split** in the configuration before any validation analysis.
+3. **Infrastructure:** 60-minute windows, the US adapter, quantile model and calibration; tests and synthetic smoke run.
+4. **Validation:** point and interval results in Denmark and the USA; map-history curve; junction features.
+5. **Freeze V3 hypotheses**, with decision rules, primary seed and exact test commands, as in V2.
+6. **Download the test periods and run the single test pass**; record every run.
+7. **Write-up and product decision point:** does the model transfer to another country, are its intervals honest, and
+   is the gain large enough at 30–60 minutes to matter for a real use, such as estimating a vessel's position when
+   its AIS is stale?
+
+## V4 — Neighbouring vessels and interaction
+
+- Add neighbouring-vessel features and encounter geometry without future leakage.
+- Evaluate whether interaction context improves forecasts in close-quarters situations.
 - Measure compute, latency and degradation under missing observations.
 
-## V4 — Behaviour deviation research
+## V5 — Behaviour deviation research
 
 Prediction residuals may support behavioural-deviation screening, but this is a separate task:
 
