@@ -1,0 +1,2010 @@
+{
+  "split": "test",
+  "region": null,
+  "git": "e0437e9",
+  "config": {
+    "knots_min": [
+      5,
+      10,
+      15,
+      20
+    ],
+    "seed": 0,
+    "feature_sets": {
+      "A_motion": [
+        "motion"
+      ],
+      "B_vessel": [
+        "motion",
+        "vessel"
+      ],
+      "C_location": [
+        "motion",
+        "location"
+      ],
+      "D_all": [
+        "motion",
+        "vessel",
+        "location"
+      ],
+      "E_fairway": [
+        "motion",
+        "fairway"
+      ],
+      "F_all_fairway": [
+        "motion",
+        "vessel",
+        "fairway"
+      ]
+    },
+    "spatial": {
+      "lon_edges": [
+        10.4,
+        11.05,
+        11.7,
+        12.35,
+        13.0
+      ],
+      "buffer_deg": 0.05
+    }
+  },
+  "fit": {
+    "folds": [
+      {
+        "lon": [
+          10.4,
+          11.05
+        ],
+        "train_windows": 129191,
+        "eval_windows": 67534,
+        "models": {
+          "A_motion": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 129191,
+            "fit_s": 29.2,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "B_vessel": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "ship_group",
+              "length",
+              "width",
+              "draught"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 129191,
+            "fit_s": 29.1,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "C_location": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "lat",
+              "lon",
+              "sin_cog",
+              "cos_cog"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 129191,
+            "fit_s": 30.1,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "D_all": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "ship_group",
+              "length",
+              "width",
+              "draught",
+              "lat",
+              "lon",
+              "sin_cog",
+              "cos_cog"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 129191,
+            "fit_s": 30.3,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "E_fairway": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "flow_logdens_0",
+              "flow_coher_0",
+              "flow_hdg_0",
+              "flow_offset_0",
+              "flow_width_0",
+              "flow_logdens_5",
+              "flow_hdg_5",
+              "flow_offset_5",
+              "flow_logdens_10",
+              "flow_hdg_10",
+              "flow_offset_10",
+              "flow_logdens_20",
+              "flow_hdg_20",
+              "flow_offset_20"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 129191,
+            "fit_s": 32.8,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "F_all_fairway": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "ship_group",
+              "length",
+              "width",
+              "draught",
+              "flow_logdens_0",
+              "flow_coher_0",
+              "flow_hdg_0",
+              "flow_offset_0",
+              "flow_width_0",
+              "flow_logdens_5",
+              "flow_hdg_5",
+              "flow_offset_5",
+              "flow_logdens_10",
+              "flow_hdg_10",
+              "flow_offset_10",
+              "flow_logdens_20",
+              "flow_hdg_20",
+              "flow_offset_20"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 129191,
+            "fit_s": 34.9,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          }
+        }
+      },
+      {
+        "lon": [
+          11.05,
+          11.7
+        ],
+        "train_windows": 164145,
+        "eval_windows": 29201,
+        "models": {
+          "A_motion": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 164145,
+            "fit_s": 29.8,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "B_vessel": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "ship_group",
+              "length",
+              "width",
+              "draught"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 164145,
+            "fit_s": 30.8,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "C_location": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "lat",
+              "lon",
+              "sin_cog",
+              "cos_cog"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 164145,
+            "fit_s": 31.3,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "D_all": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "ship_group",
+              "length",
+              "width",
+              "draught",
+              "lat",
+              "lon",
+              "sin_cog",
+              "cos_cog"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 164145,
+            "fit_s": 32.9,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "E_fairway": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "flow_logdens_0",
+              "flow_coher_0",
+              "flow_hdg_0",
+              "flow_offset_0",
+              "flow_width_0",
+              "flow_logdens_5",
+              "flow_hdg_5",
+              "flow_offset_5",
+              "flow_logdens_10",
+              "flow_hdg_10",
+              "flow_offset_10",
+              "flow_logdens_20",
+              "flow_hdg_20",
+              "flow_offset_20"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 164145,
+            "fit_s": 35.6,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "F_all_fairway": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "ship_group",
+              "length",
+              "width",
+              "draught",
+              "flow_logdens_0",
+              "flow_coher_0",
+              "flow_hdg_0",
+              "flow_offset_0",
+              "flow_width_0",
+              "flow_logdens_5",
+              "flow_hdg_5",
+              "flow_offset_5",
+              "flow_logdens_10",
+              "flow_hdg_10",
+              "flow_offset_10",
+              "flow_logdens_20",
+              "flow_hdg_20",
+              "flow_offset_20"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 164145,
+            "fit_s": 36.5,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          }
+        }
+      },
+      {
+        "lon": [
+          11.7,
+          12.35
+        ],
+        "train_windows": 218439,
+        "eval_windows": 9585,
+        "models": {
+          "A_motion": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 218439,
+            "fit_s": 32.9,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "B_vessel": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "ship_group",
+              "length",
+              "width",
+              "draught"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 218439,
+            "fit_s": 34.8,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "C_location": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "lat",
+              "lon",
+              "sin_cog",
+              "cos_cog"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 218439,
+            "fit_s": 36.5,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "D_all": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "ship_group",
+              "length",
+              "width",
+              "draught",
+              "lat",
+              "lon",
+              "sin_cog",
+              "cos_cog"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 218439,
+            "fit_s": 45.4,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "E_fairway": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "flow_logdens_0",
+              "flow_coher_0",
+              "flow_hdg_0",
+              "flow_offset_0",
+              "flow_width_0",
+              "flow_logdens_5",
+              "flow_hdg_5",
+              "flow_offset_5",
+              "flow_logdens_10",
+              "flow_hdg_10",
+              "flow_offset_10",
+              "flow_logdens_20",
+              "flow_hdg_20",
+              "flow_offset_20"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 218439,
+            "fit_s": 43.5,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "F_all_fairway": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "ship_group",
+              "length",
+              "width",
+              "draught",
+              "flow_logdens_0",
+              "flow_coher_0",
+              "flow_hdg_0",
+              "flow_offset_0",
+              "flow_width_0",
+              "flow_logdens_5",
+              "flow_hdg_5",
+              "flow_offset_5",
+              "flow_logdens_10",
+              "flow_hdg_10",
+              "flow_offset_10",
+              "flow_logdens_20",
+              "flow_hdg_20",
+              "flow_offset_20"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 218439,
+            "fit_s": 42.8,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          }
+        }
+      },
+      {
+        "lon": [
+          12.35,
+          13.0
+        ],
+        "train_windows": 144220,
+        "eval_windows": 61213,
+        "models": {
+          "A_motion": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 144220,
+            "fit_s": 28.4,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "B_vessel": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "ship_group",
+              "length",
+              "width",
+              "draught"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 144220,
+            "fit_s": 30.1,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "C_location": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "lat",
+              "lon",
+              "sin_cog",
+              "cos_cog"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 144220,
+            "fit_s": 30.6,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "D_all": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "ship_group",
+              "length",
+              "width",
+              "draught",
+              "lat",
+              "lon",
+              "sin_cog",
+              "cos_cog"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 144220,
+            "fit_s": 32.0,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "E_fairway": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "flow_logdens_0",
+              "flow_coher_0",
+              "flow_hdg_0",
+              "flow_offset_0",
+              "flow_width_0",
+              "flow_logdens_5",
+              "flow_hdg_5",
+              "flow_offset_5",
+              "flow_logdens_10",
+              "flow_hdg_10",
+              "flow_offset_10",
+              "flow_logdens_20",
+              "flow_hdg_20",
+              "flow_offset_20"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 144220,
+            "fit_s": 34.5,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          },
+          "F_all_fairway": {
+            "features": [
+              "sog",
+              "sog_mean",
+              "sog_std",
+              "dsog_2",
+              "turn_2",
+              "dsog_5",
+              "turn_5",
+              "dsog_10",
+              "turn_10",
+              "dsog_19",
+              "turn_19",
+              "cog_jitter",
+              "fd_speed_ratio",
+              "along_m2",
+              "cross_m2",
+              "along_m5",
+              "cross_m5",
+              "along_m10",
+              "cross_m10",
+              "along_m19",
+              "cross_m19",
+              "ship_group",
+              "length",
+              "width",
+              "draught",
+              "flow_logdens_0",
+              "flow_coher_0",
+              "flow_hdg_0",
+              "flow_offset_0",
+              "flow_width_0",
+              "flow_logdens_5",
+              "flow_hdg_5",
+              "flow_offset_5",
+              "flow_logdens_10",
+              "flow_hdg_10",
+              "flow_offset_10",
+              "flow_logdens_20",
+              "flow_hdg_20",
+              "flow_offset_20"
+            ],
+            "dropped_all_missing": [],
+            "train_windows": 144220,
+            "fit_s": 35.0,
+            "n_iter": {
+              "0_along": 400,
+              "0_cross": 400,
+              "1_along": 400,
+              "1_cross": 400,
+              "2_along": 400,
+              "2_cross": 400,
+              "3_along": 400,
+              "3_cross": 400
+            }
+          }
+        }
+      }
+    ]
+  },
+  "metrics": {
+    "cv": {
+      "ade_m": {
+        "mean": 633.6783287297538,
+        "ci95_lo": 576.2720281039767,
+        "ci95_hi": 690.7775419511861,
+        "median": 273.38668550459636,
+        "p90": 1699.142536193359,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": 1565.8815678176052,
+        "ci95_lo": 1424.5652497339304,
+        "ci95_hi": 1705.5169089881929,
+        "median": 753.661275843421,
+        "p90": 4105.093415854028,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_5min_m": {
+        "mean": 158.17696060380308,
+        "ci95_lo": 142.70775048877186,
+        "ci95_hi": 173.40631016257808,
+        "median": 43.644205848757906,
+        "p90": 452.0196340460063,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_10min_m": {
+        "mean": 502.22814011108795,
+        "ci95_lo": 455.6415504407622,
+        "ci95_hi": 547.5983513184843,
+        "median": 164.55916846182618,
+        "p90": 1442.9783844881408,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_20min_m": {
+        "mean": 1565.8815678176052,
+        "ci95_lo": 1424.5652497339304,
+        "ci95_hi": 1705.5169089881929,
+        "median": 753.661275843421,
+        "p90": 4105.093415854028,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "A_motion": {
+      "ade_m": {
+        "mean": 608.7520501543142,
+        "ci95_lo": 557.3901408923767,
+        "ci95_hi": 656.3645553448092,
+        "median": 307.5609479420387,
+        "p90": 1548.7489601171685,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": 1482.64934265265,
+        "ci95_lo": 1367.4589060563983,
+        "ci95_hi": 1593.5802505064767,
+        "median": 834.3006582189427,
+        "p90": 3647.070536071913,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_5min_m": {
+        "mean": 148.97234979502696,
+        "ci95_lo": 134.8371770836971,
+        "ci95_hi": 163.10833752782355,
+        "median": 44.81389583808127,
+        "p90": 405.4827458792858,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_10min_m": {
+        "mean": 488.3601823521543,
+        "ci95_lo": 443.98575308344465,
+        "ci95_hi": 529.9383453167341,
+        "median": 188.70492787552635,
+        "p90": 1335.4913119597738,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_20min_m": {
+        "mean": 1482.64934265265,
+        "ci95_lo": 1367.4589060563983,
+        "ci95_hi": 1593.5802505064767,
+        "median": 834.3006582189427,
+        "p90": 3647.070536071913,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "B_vessel": {
+      "ade_m": {
+        "mean": 603.8716881611423,
+        "ci95_lo": 550.1339811533637,
+        "ci95_hi": 654.8474322253236,
+        "median": 311.4738307957181,
+        "p90": 1531.4283077712637,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": 1458.1476164072017,
+        "ci95_lo": 1335.1628726987822,
+        "ci95_hi": 1578.5474448024952,
+        "median": 831.5992507910855,
+        "p90": 3610.024923847781,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_5min_m": {
+        "mean": 149.87783791771503,
+        "ci95_lo": 134.7886733943164,
+        "ci95_hi": 164.50134238813868,
+        "median": 46.84125478839195,
+        "p90": 400.6011131754176,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_10min_m": {
+        "mean": 490.4648998031988,
+        "ci95_lo": 443.8053574074681,
+        "ci95_hi": 533.8361438411835,
+        "median": 195.55036588860628,
+        "p90": 1318.8285931346416,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_20min_m": {
+        "mean": 1458.1476164072017,
+        "ci95_lo": 1335.1628726987822,
+        "ci95_hi": 1578.5474448024952,
+        "median": 831.5992507910855,
+        "p90": 3610.024923847781,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "C_location": {
+      "ade_m": {
+        "mean": 1039.2507475383863,
+        "ci95_lo": 993.4671277288145,
+        "ci95_hi": 1089.5214488725612,
+        "median": 876.9225026907119,
+        "p90": 1989.549649739564,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": 2572.164834539209,
+        "ci95_lo": 2458.876268776779,
+        "ci95_hi": 2698.154754660773,
+        "median": 2206.260589872446,
+        "p90": 4841.170719955038,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_5min_m": {
+        "mean": 188.32658239703275,
+        "ci95_lo": 173.82653818357832,
+        "ci95_hi": 202.28685644389148,
+        "median": 101.4344555911597,
+        "p90": 436.178969178484,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_10min_m": {
+        "mean": 804.6579257633443,
+        "ci95_lo": 765.389304820476,
+        "ci95_hi": 846.6879725462854,
+        "median": 663.4689214611051,
+        "p90": 1626.2847797176166,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_20min_m": {
+        "mean": 2572.164834539209,
+        "ci95_lo": 2458.876268776779,
+        "ci95_hi": 2698.154754660773,
+        "median": 2206.260589872446,
+        "p90": 4841.170719955038,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "D_all": {
+      "ade_m": {
+        "mean": 839.9533747422721,
+        "ci95_lo": 786.4826110150353,
+        "ci95_hi": 891.9955216516311,
+        "median": 655.4768274935367,
+        "p90": 1700.1882250570961,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": 1954.3148059980226,
+        "ci95_lo": 1836.370445030238,
+        "ci95_hi": 2073.4809774966734,
+        "median": 1583.4770658507045,
+        "p90": 3921.8352670827744,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_5min_m": {
+        "mean": 188.93333408748452,
+        "ci95_lo": 172.24293732993613,
+        "ci95_hi": 206.38256438796427,
+        "median": 99.88736031026232,
+        "p90": 448.390013864501,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_10min_m": {
+        "mean": 697.218283024531,
+        "ci95_lo": 648.8530795841657,
+        "ci95_hi": 742.1305008717427,
+        "median": 496.2168699394183,
+        "p90": 1525.7628135323282,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_20min_m": {
+        "mean": 1954.3148059980226,
+        "ci95_lo": 1836.370445030238,
+        "ci95_hi": 2073.4809774966734,
+        "median": 1583.4770658507045,
+        "p90": 3921.8352670827744,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "E_fairway": {
+      "ade_m": {
+        "mean": 423.93834759654635,
+        "ci95_lo": 382.10366031198754,
+        "ci95_hi": 462.680647343308,
+        "median": 185.39606283397958,
+        "p90": 1047.2740166377991,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": 1030.5515843145317,
+        "ci95_lo": 931.7064177853711,
+        "ci95_hi": 1123.080569083681,
+        "median": 455.4618711111055,
+        "p90": 2647.7138392393585,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_5min_m": {
+        "mean": 114.69783893986235,
+        "ci95_lo": 103.26919463078697,
+        "ci95_hi": 125.74604869641651,
+        "median": 39.862172014446756,
+        "p90": 256.00324726716076,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_10min_m": {
+        "mean": 338.36290336221185,
+        "ci95_lo": 305.5415060004842,
+        "ci95_hi": 369.489419794335,
+        "median": 127.48643243575675,
+        "p90": 827.8949412678826,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_20min_m": {
+        "mean": 1030.5515843145317,
+        "ci95_lo": 931.7064177853711,
+        "ci95_hi": 1123.080569083681,
+        "median": 455.4618711111055,
+        "p90": 2647.7138392393585,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "F_all_fairway": {
+      "ade_m": {
+        "mean": 422.50090225400055,
+        "ci95_lo": 378.43244083237033,
+        "ci95_hi": 461.53346905189596,
+        "median": 190.2349590407926,
+        "p90": 1042.001629338683,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": 1030.4296988926992,
+        "ci95_lo": 926.5704806277652,
+        "ci95_hi": 1126.369347903226,
+        "median": 463.42034787068224,
+        "p90": 2648.968847566586,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_5min_m": {
+        "mean": 115.06417262505396,
+        "ci95_lo": 103.30493772623925,
+        "ci95_hi": 126.34277069893803,
+        "median": 40.323250298683895,
+        "p90": 256.9068905598436,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_10min_m": {
+        "mean": 336.38624964218263,
+        "ci95_lo": 302.5141952238424,
+        "ci95_hi": 367.39678218452,
+        "median": 128.5200550357595,
+        "p90": 823.8493696791024,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "err_20min_m": {
+        "mean": 1030.4296988926992,
+        "ci95_lo": 926.5704806277652,
+        "ci95_hi": 1126.369347903226,
+        "median": 463.42034787068224,
+        "p90": 2648.968847566586,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    }
+  },
+  "paired": {
+    "A_motion - cv": {
+      "ade_m": {
+        "mean": -24.926278575439667,
+        "ci95_lo": -41.34663437373743,
+        "ci95_hi": -9.775833075368462,
+        "median": -3.15780111939128,
+        "p90": 168.8224308159885,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": -83.23222516495491,
+        "ci95_lo": -140.3796188192565,
+        "ci95_hi": -34.6714573621202,
+        "median": -9.86196234193676,
+        "p90": 481.27159337467486,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "B_vessel - cv": {
+      "ade_m": {
+        "mean": -29.80664056861145,
+        "ci95_lo": -45.216458701527515,
+        "ci95_hi": -14.087128748273122,
+        "median": -2.3716314375791683,
+        "p90": 192.68429203211676,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": -107.73395141040305,
+        "ci95_lo": -156.02302370020905,
+        "ci95_hi": -63.133972695194515,
+        "median": -7.922767751090134,
+        "p90": 524.3812712797666,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "C_location - cv": {
+      "ade_m": {
+        "mean": 405.57241880863245,
+        "ci95_lo": 363.28279298246656,
+        "ci95_hi": 450.161743384146,
+        "median": 274.86463331198286,
+        "p90": 1343.3331883703804,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": 1006.2832667216043,
+        "ci95_lo": 886.341728726942,
+        "ci95_hi": 1131.3394587072346,
+        "median": 686.6231291024258,
+        "p90": 3334.7791316478297,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "D_all - cv": {
+      "ade_m": {
+        "mean": 206.2750460125183,
+        "ci95_lo": 177.42402331354967,
+        "ci95_hi": 236.33411402896704,
+        "median": 171.86935941875458,
+        "p90": 812.5304669647288,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": 388.43323818041785,
+        "ci95_lo": 312.89342356503613,
+        "ci95_hi": 464.95374700067674,
+        "median": 329.46642113602593,
+        "p90": 1879.3685904564948,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "E_fairway - cv": {
+      "ade_m": {
+        "mean": -209.7399811332075,
+        "ci95_lo": -230.94412475004412,
+        "ci95_hi": -188.69035033509164,
+        "median": -47.85585875493486,
+        "p90": 78.43146327913288,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": -535.3299835030733,
+        "ci95_lo": -590.9397493488623,
+        "ci95_hi": -482.2599515870347,
+        "median": -152.7642763117235,
+        "p90": 233.5959863670221,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "F_all_fairway - cv": {
+      "ade_m": {
+        "mean": -211.17742647575335,
+        "ci95_lo": -231.2423946283511,
+        "ci95_hi": -190.88479086937758,
+        "median": -48.09549207420628,
+        "p90": 90.428005590688,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": -535.4518689249057,
+        "ci95_lo": -585.713375634888,
+        "ci95_hi": -483.63888318551074,
+        "median": -153.79325476183735,
+        "p90": 280.7744469339928,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "B_vessel - A_motion": {
+      "ade_m": {
+        "mean": -4.8803619931717845,
+        "ci95_lo": -13.675586335599636,
+        "ci95_hi": 5.755062698951165,
+        "median": -0.33981340222547374,
+        "p90": 138.83276698721542,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": -24.501726245448157,
+        "ci95_lo": -52.81369441057677,
+        "ci95_hi": 13.207504489465427,
+        "median": -1.7892462023102667,
+        "p90": 434.1073546672313,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "C_location - A_motion": {
+      "ade_m": {
+        "mean": 430.4986973840721,
+        "ci95_lo": 397.4912365509741,
+        "ci95_hi": 464.9875633000849,
+        "median": 276.38091213894677,
+        "p90": 1290.4775423005913,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": 1089.5154918865592,
+        "ci95_lo": 1003.7436498031225,
+        "ci95_hi": 1185.1129719714274,
+        "median": 730.556483026804,
+        "p90": 3201.207316459078,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "D_all - A_motion": {
+      "ade_m": {
+        "mean": 231.20132458795794,
+        "ci95_lo": 212.1198212475508,
+        "ci95_hi": 250.9284353544331,
+        "median": 180.22210372563683,
+        "p90": 750.9432460471628,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": 471.6654633453727,
+        "ci95_lo": 423.58867035637746,
+        "ci95_hi": 518.8952483201425,
+        "median": 382.74982307829,
+        "p90": 1728.5364424556426,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "E_fairway - A_motion": {
+      "ade_m": {
+        "mean": -184.8137025577678,
+        "ci95_lo": -201.82097696458942,
+        "ci95_hi": -169.53942629288665,
+        "median": -56.20071288206975,
+        "p90": 87.63233970710178,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": -452.09775833811835,
+        "ci95_lo": -493.96925319698795,
+        "ci95_hi": -415.59527888548155,
+        "median": -174.7637493144231,
+        "p90": 300.9024387631256,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    },
+    "F_all_fairway - A_motion": {
+      "ade_m": {
+        "mean": -186.25114790031367,
+        "ci95_lo": -204.05804583849942,
+        "ci95_hi": -169.6106507934256,
+        "median": -56.632485692540996,
+        "p90": 102.74903985016573,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      },
+      "fde_m": {
+        "mean": -452.21964375995077,
+        "ci95_lo": -500.350837515226,
+        "ci95_hi": -404.1856529852378,
+        "median": -177.78106069058978,
+        "p90": 360.460904461329,
+        "n_samples": 167533,
+        "n_vessels": 1209
+      }
+    }
+  },
+  "fde_by_turn_bin": [
+    {
+      "turn_bin": "0\u20130.5",
+      "n": 80479,
+      "cv": 1165.5897415181557,
+      "A_motion": 1153.1511861335416,
+      "B_vessel": 1152.9840909670268,
+      "C_location": 2438.4430979217786,
+      "D_all": 1766.9587393190764,
+      "E_fairway": 747.9814132329443,
+      "F_all_fairway": 756.9102009635087
+    },
+    {
+      "turn_bin": "0.5\u20131",
+      "n": 18387,
+      "cv": 1563.2839261026456,
+      "A_motion": 1483.0924231499741,
+      "B_vessel": 1422.2428287130176,
+      "C_location": 2731.7497096761913,
+      "D_all": 1968.9843894758192,
+      "E_fairway": 993.928906354661,
+      "F_all_fairway": 983.2757462053023
+    },
+    {
+      "turn_bin": "1\u20132",
+      "n": 18793,
+      "cv": 1735.9675739107265,
+      "A_motion": 1637.3664378006954,
+      "B_vessel": 1567.3619329389082,
+      "C_location": 2775.8703029758867,
+      "D_all": 2078.569702904302,
+      "E_fairway": 1125.967379378858,
+      "F_all_fairway": 1101.6323288316498
+    },
+    {
+      "turn_bin": "2\u20135",
+      "n": 25608,
+      "cv": 1774.570910109206,
+      "A_motion": 1717.1545268599539,
+      "B_vessel": 1671.0730853877924,
+      "C_location": 2801.8791732472646,
+      "D_all": 2065.7348501661154,
+      "E_fairway": 1122.8947694855967,
+      "F_all_fairway": 1110.711414170286
+    },
+    {
+      "turn_bin": "5\u201310",
+      "n": 10000,
+      "cv": 2401.8362704228753,
+      "A_motion": 2172.6117415759363,
+      "B_vessel": 2101.562300087054,
+      "C_location": 2544.098175087916,
+      "D_all": 2274.6467370185987,
+      "E_fairway": 1628.5245848994252,
+      "F_all_fairway": 1629.6405364595032
+    },
+    {
+      "turn_bin": "10\u2013inf",
+      "n": 14266,
+      "cv": 2642.7607708879996,
+      "A_motion": 2232.4813980196996,
+      "B_vessel": 2248.854878302546,
+      "C_location": 2459.8284741464663,
+      "D_all": 2404.112449347715,
+      "E_fairway": 1961.2078754802258,
+      "F_all_fairway": 1976.2815029700369
+    }
+  ],
+  "fde_by_ship_group": [
+    {
+      "ship_group": "cargo",
+      "n": 68935,
+      "cv": 993.9248634382337,
+      "A_motion": 1003.4985363003883,
+      "B_vessel": 972.3342573374398,
+      "C_location": 2416.5216777676433,
+      "D_all": 1548.5765687445748,
+      "E_fairway": 607.311138874788,
+      "F_all_fairway": 586.2456114271644
+    },
+    {
+      "ship_group": "passenger",
+      "n": 40449,
+      "cv": 2603.005766666878,
+      "A_motion": 2368.2567905332558,
+      "B_vessel": 2388.9406624084622,
+      "C_location": 3147.536287060589,
+      "D_all": 2853.288527007218,
+      "E_fairway": 1679.7862606301353,
+      "F_all_fairway": 1746.1333827905132
+    },
+    {
+      "ship_group": "tanker",
+      "n": 22913,
+      "cv": 1160.2676825247254,
+      "A_motion": 1152.489995281973,
+      "B_vessel": 1133.654909342623,
+      "C_location": 2700.2833641749785,
+      "D_all": 1752.080907312635,
+      "E_fairway": 657.5258891661771,
+      "F_all_fairway": 633.4961413494774
+    },
+    {
+      "ship_group": "service",
+      "n": 22116,
+      "cv": 1981.44537767407,
+      "A_motion": 1761.139959612464,
+      "B_vessel": 1675.5754682740683,
+      "C_location": 2260.289216827124,
+      "D_all": 1968.2358184033599,
+      "E_fairway": 1471.0632955585213,
+      "F_all_fairway": 1428.0897918320056
+    },
+    {
+      "ship_group": "other",
+      "n": 11929,
+      "cv": 1373.9348454086671,
+      "A_motion": 1384.7931451480206,
+      "B_vessel": 1341.7033997470062,
+      "C_location": 1904.2203785815425,
+      "D_all": 1651.3994118189437,
+      "E_fairway": 1162.775728104908,
+      "F_all_fairway": 1182.0974468520528
+    },
+    {
+      "ship_group": "unknown",
+      "n": 1191,
+      "cv": 1456.857960499351,
+      "A_motion": 1299.1853613129258,
+      "B_vessel": 1336.7589307578921,
+      "C_location": 2056.4904734188776,
+      "D_all": 1573.4275611194178,
+      "E_fairway": 1150.3379989960156,
+      "F_all_fairway": 1165.9252342319403
+    }
+  ],
+  "vessel_novelty": {
+    "unseen_vessels": {
+      "windows": 54180,
+      "vessels": 589,
+      "B_vessel - A_motion": {
+        "mean": -21.056402270082977,
+        "ci95_lo": -28.175981641441997,
+        "ci95_hi": -13.268126073192565,
+        "median": -2.6007079060239917,
+        "p90": 161.01390049685742,
+        "n_samples": 54180,
+        "n_vessels": 589
+      },
+      "C_location - A_motion": {
+        "mean": 1365.8371448288162,
+        "ci95_lo": 1295.4143392802223,
+        "ci95_hi": 1442.8757295083155,
+        "median": 1115.537079473759,
+        "p90": 3341.7649978919494,
+        "n_samples": 54180,
+        "n_vessels": 589
+      },
+      "D_all - A_motion": {
+        "mean": 571.8481808946873,
+        "ci95_lo": 544.6957974637489,
+        "ci95_hi": 602.9107550759988,
+        "median": 494.0661317328925,
+        "p90": 1617.7930549823666,
+        "n_samples": 54180,
+        "n_vessels": 589
+      },
+      "E_fairway - A_motion": {
+        "mean": -409.16439899183723,
+        "ci95_lo": -431.9728223334544,
+        "ci95_hi": -386.1216041233001,
+        "median": -167.11805487278704,
+        "p90": 149.70285884939938,
+        "n_samples": 54180,
+        "n_vessels": 589
+      },
+      "F_all_fairway - A_motion": {
+        "mean": -423.1614639430101,
+        "ci95_lo": -447.83385517187764,
+        "ci95_hi": -398.46356259711104,
+        "median": -174.21530576024526,
+        "p90": 165.41498629454836,
+        "n_samples": 54180,
+        "n_vessels": 589
+      },
+      "A_motion - cv": {
+        "mean": 3.4966892770559515,
+        "ci95_lo": -10.681058296482806,
+        "ci95_hi": 15.057853956298613,
+        "median": 1.1819171480629223,
+        "p90": 276.3390461752703,
+        "n_samples": 54180,
+        "n_vessels": 589
+      }
+    },
+    "seen_vessels": {
+      "windows": 113353,
+      "vessels": 620,
+      "B_vessel - A_motion": {
+        "mean": -26.148508006718576,
+        "ci95_lo": -68.7099294638174,
+        "ci95_hi": 24.72113504160512,
+        "median": -1.2810216014397042,
+        "p90": 631.7683549822294,
+        "n_samples": 113353,
+        "n_vessels": 620
+      },
+      "C_location - A_motion": {
+        "mean": 957.440406477161,
+        "ci95_lo": 848.8525577911154,
+        "ci95_hi": 1085.252772295383,
+        "median": 572.0388044421707,
+        "p90": 3104.6026031978063,
+        "n_samples": 113353,
+        "n_vessels": 620
+      },
+      "D_all - A_motion": {
+        "mean": 423.78054069822736,
+        "ci95_lo": 359.2373567844553,
+        "ci95_hi": 492.202658551939,
+        "median": 329.3529416272248,
+        "p90": 1811.236748748768,
+        "n_samples": 113353,
+        "n_vessels": 620
+      },
+      "E_fairway - A_motion": {
+        "mean": -472.61886858117765,
+        "ci95_lo": -528.8901123381131,
+        "ci95_hi": -420.9510514336041,
+        "median": -179.13108400683177,
+        "p90": 400.2072966019806,
+        "n_samples": 113353,
+        "n_vessels": 620
+      },
+      "F_all_fairway - A_motion": {
+        "mean": -466.1087528482136,
+        "ci95_lo": -531.6027437735721,
+        "ci95_hi": -400.1648617597028,
+        "median": -179.70634015282405,
+        "p90": 496.3373612840677,
+        "n_samples": 113353,
+        "n_vessels": 620
+      },
+      "A_motion - cv": {
+        "mean": -124.68655442371427,
+        "ci95_lo": -201.080381476323,
+        "ci95_hi": -56.9713764996428,
+        "median": -17.423509462473277,
+        "p90": 634.0667945492144,
+        "n_samples": 113353,
+        "n_vessels": 620
+      }
+    }
+  },
+  "holdout_eval_vessels": false,
+  "train_windows": 163998,
+  "spatial_holdout": true,
+  "seed_fde": {}
+}

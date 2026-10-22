@@ -156,3 +156,45 @@ Dated entries. Keep failed attempts.
 - **Pre-test amendment (21 Oct, before any test access):** added explicit decision rules (V2-H1 needs the CI upper bound below 0 in home, Bornholm and Skagen; V2-H2 is tested in the stronger form "C − A has a CI lower bound above 0 in both waterways"), pinned the test configuration (commit `02a2c6c`, train-only fitting, seed 0 headline with seeds 1–2 for stability, exact commands), added unseen longitude bands as a prespecified robustness analysis, disclosed the input-only fairway coverage summaries for the locked splits, and listed E − C in-area as exploratory. See `docs/05_protocol.md`, "V2 pre-test amendment". The frozen hypothesis text is unchanged.
 - **Pre-test amendment 2 (21 Oct, before any test access):** extended `regime-report` from models A–D in the home area to all six models in the home area, Bornholm and Skagen (reporting only; regimes, thresholds, metrics and decision rules unchanged). Checked on validation: regime means reproduce each run's overall FDE exactly; reports written for `val`, `transfer_val` Bornholm and Skagen. The in-area vessel-held-out validation run was re-run with E and F because the report refused the older A–D run. Pinned commit moves from `02a2c6c` to `9491f7d`. Recorded the reason for the stronger V2-H2 rule (the original rule could be met by an inconclusive result) and added the original rule as a secondary sensitivity analysis. See `docs/05_protocol.md`, "V2 pre-test amendment 2".
 
+## 2026-10-21 (Wed, 20:51–22:05 UTC), V2 TEST RUN COMPLETE
+- Single confirmatory pass, exactly as listed in `docs/05_protocol.md` amendments 1 and 2, at commit `e0437e9` (code and configuration identical to pinned `9491f7d`). The four commits up to `e0437e9` were pushed before the run. Each command was run once, all exited 0; no reruns.
+
+| Start (UTC) | End | Command |
+|---|---|---|
+| 20:51:36 | 20:51:47 | `baselines --split test` |
+| 20:51:47 | 20:51:55 | `baselines --split transfer_test --region bornholm` |
+| 20:51:55 | 20:52:04 | `baselines --split transfer_test --region skagen` |
+| 20:52:04 | 21:08:15 | `gbm --split test --seeds 0 1 2` |
+| 21:08:15 | 21:25:56 | `gbm --split transfer_test --region bornholm --seeds 0 1 2` |
+| 21:25:56 | 21:41:06 | `gbm --split transfer_test --region skagen --seeds 0 1 2` |
+| 21:41:06 | 21:43:53 | `gbm --split test --holdout-eval-vessels` |
+| 21:43:53 | 21:47:35 | `gbm --split transfer_test --region bornholm --holdout-eval-vessels` |
+| 21:47:35 | 21:51:22 | `gbm --split transfer_test --region skagen --holdout-eval-vessels` |
+| 21:51:22 | 22:05:01 | `gbm --split test --spatial-holdout` |
+| 22:05:01 | 22:05:04 | `regime-report --split test` |
+| 22:05:04 | 22:05:06 | `regime-report --split transfer_test --region bornholm` |
+| 22:05:06 | 22:05:09 | `regime-report --split transfer_test --region skagen` |
+
+All with `--confirm-test`. Run folders `results/v2/runs/20261021T2*`; tables in `results/v2/tables/*test*`.
+
+- **V2-H1 SUPPORTED.** `E_fairway − A_motion`, paired FDE@20 (m, 95% CI): home −490 (−523 to −457); Bornholm −127 (−157 to −106); Skagen −95 (−123 to −74). Upper bound below 0 in all three settings.
+- **V2-H2 SUPPORTED** under the amended (primary) rule. `C_location − A_motion`: Bornholm +1,231 (+1,142 to +1,320); Skagen +476 (+429 to +528). Lower bound above 0 in both waterways. Sensitivity: also supported under the original rule.
+- FDE@20 (m), seed 0:
+
+| Model | Home | Bornholm | Skagen |
+|---|---:|---:|---:|
+| CV | 1,566 | 569 | 846 |
+| A motion | 1,292 | 585 | 844 |
+| B + vessel | 1,152 | 592 | 822 |
+| C + raw location | 872 | 1,816 | 1,320 |
+| D all (raw location) | 851 | 2,026 | 1,183 |
+| E + fairway | 802 | 459 | 749 |
+| F all (fairway) | 768 | 470 | 740 |
+
+- Validation and test agree closely (E − A val/test: −476/−490, −110/−127, −90/−95; C − A in waterways: +1,194/+1,231, +479/+476).
+- Seed stability (FDE@20, seeds 0/1/2): A and E vary by at most 2 m in every setting. C is unstable in the transfer waterways (Bornholm 1,816/1,816/2,218; Skagen 1,320/1,279/1,229), consistent with tree extrapolation outside the training coordinate range. The headline uses seed 0 as prespecified.
+- Robustness (prespecified, not headline). E − A: home with unseen vessels −453 (−476 to −427); Bornholm with unseen vessels −126 (−152 to −106); Skagen with unseen vessels −103 (−132 to −81); home with unseen longitude bands −452 (−494 to −416). C − A in unseen longitude bands +1,090 (+1,004 to +1,185), reproducing the V1 H4b result on new data.
+- Regimes (primary regime analysis, A–F). E − A has a CI below 0 in every regime and setting except Skagen low-speed (+9, −15 to +32). C − A is below 0 in every home regime, but above 0 in steady, turning and speed-changing in both waterways. Threshold sensitivity: E − A has a CI below 0 in 50/50 cells (home), 50/50 (Bornholm) and 40/41 (Skagen, one cell above 0); C − A is above 0 in 32 (Bornholm) and 31 (Skagen) cells and below 0 in none.
+- Exploratory (descriptive, no claim): home E − C −70 m; F − E home −35, Bornholm +11, Skagen −10 m.
+- The test and transfer_test splits are now spent. Any further development uses validation data only and is reported as post hoc.
+
