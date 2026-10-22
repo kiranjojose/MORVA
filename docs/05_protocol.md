@@ -210,3 +210,9 @@ the conclusion under the original rule (supported if the upper CI bound of `C_lo
 in both waterways, i.e. no detectable reduction), so readers can see whether the interpretation depends on the
 amendment.
 
+## Hypothesis naming in combined documents (added 2026-10-22, after both test runs)
+
+The V1 hypotheses above are written H1–H4b and the V2 hypotheses V2-H1 and V2-H2. In documents covering both stages
+(README, results, summary) the V1 hypotheses are referred to as V1-H1 to V1-H4b, so that, for example, V1-H2 (vessel
+context) is never confused with V2-H2 (raw-coordinate negative transfer). The frozen text above is unchanged.
+

@@ -1,6 +1,8 @@
-# When does context help vessel trajectory prediction? A controlled AIS study in Danish straits
+# When does geographic context transfer? A controlled AIS study of vessel trajectory prediction in Danish waters
 
-**Kiran Jose Puthussery · Preliminary research summary · October 2026 · MORVA V1**
+**Kiran Jose Puthussery · Preliminary research summary · 22 October 2026 · MORVA V1–V2**
+
+*An earlier version of this summary, covering V1 only, is in the repository history.*
 
 ## Motivation and research question
 
@@ -22,12 +24,16 @@ related to manoeuvrability, while waterway geometry constrains where a manoeuvre
 variables can act as shortcuts: dimensions may identify a frequently observed vessel, and raw coordinates may encode a
 memorised route. I therefore treated generalisation as part of the research question rather than as an afterthought.
 
+The study has two stages. V1 tested raw context and found that raw coordinates help locally but fail in held-out areas.
+V2 asked whether a different representation of geography, describing a vessel's relation to the local traffic flow,
+would transfer to independent waterways.
+
 AIS trajectory-prediction research now spans classical machine learning, recurrent networks, graph models and
 transformers, but reviews continue to identify data quality, heterogeneous evaluation and incomplete contextual
 information as important problems [1,2]. A comparative study across channel, archipelago and port settings also shows
 that the relative suitability of prediction methods depends on the traffic environment [3]. MORVA complements
 this literature with a controlled feature ablation, past-only manoeuvring regimes, and separate tests for familiar
-waters, unseen vessels and unseen waters.
+waters, unseen vessels, held-out areas and independent waterways.
 
 ## Data and experimental protocol
 
@@ -46,6 +52,14 @@ I split the data by complete UTC days: 19–30 September for training, 1–3 Oct
 testing. A window is assigned to a split only when its complete history and future lie inside that block. I used the
 validation period for model development and exploratory analysis, documented the resulting hypotheses, and froze them
 on 11 October before the single test evaluation. The test set contains 57,068 windows from 622 vessels.
+
+For V2, I extended the data to 27 days (19 September–15 October) and added two independent waterways processed with
+the same pipeline: Bornholm (Bornholmsgat, 54.7–55.6° N, 14.0–15.6° E) and Skagen (57.2–58.0° N, 9.6–11.2° E). I chose
+them on 18 October from a one-day traffic count on training-period data, before running any model on them. Models are
+still trained only on the home area (19–30 September). Validation now covers 1–6 October, and nine new days
+(7–15 October), downloaded after the V2 split was set, form a new locked test period. The V2 test set contains
+167,533 home windows from 1,209 vessels, 55,561 Bornholm windows from 904 vessels and 97,396 Skagen windows from
+1,011 vessels.
 
 The main metrics are average displacement error (ADE) and final displacement error at 20 minutes (FDE@20), calculated
 as geodesic distances in metres. Model differences are paired on identical samples. I estimate 95% confidence intervals
@@ -70,17 +84,31 @@ I trained four feature sets on otherwise identical targets and samples:
 - **C — location:** motion plus latitude, longitude and course orientation;
 - **D — all:** motion, vessel and location variables.
 
+V2 adds two feature sets without absolute position:
+
+- **E — fairway:** motion plus fourteen fairway features;
+- **F — vessel and fairway:** motion plus vessel attributes and fairway features.
+
+The fairway features come from a flow map of each waterway, built from that waterway's own AIS in the training period:
+where moving vessels sailed and in which direction, on a 300 m grid with 30° course bins. For a vessel, only
+same-direction traffic within 1.5 km is pooled, so the opposite lane of a traffic separation scheme is ignored. The
+features describe the vessel's lateral offset from the lane and its heading relative to it, the lane's width, density
+and coherence, and how the lane bends at the positions a constant-velocity forecast would reach after 5, 10 and 20
+minutes. No external chart data is used. To stop a training sample from seeing its own future path, each training
+window uses a map built without the day or days its future covers.
+
 For interpretation, each sample is assigned to one of five manoeuvring regimes using only the final 10 minutes of its
 observed history: low-speed, steady transit, turning, speed-changing or combined turning and speed-changing. I repeated
 the analysis across alternative turn, speed, low-speed and lookback thresholds so that the conclusion would not depend
 on one arbitrary definition.
 
-## Test results
+## V1 results: raw context
 
-**Table 1. Mean FDE@20 (m) on the test period.** “Unseen vessels” removes every test vessel from training. “Unseen
-waters” predicts each longitude band using a model trained outside that band with a buffer.
+**Table 1. Mean FDE@20 (m) on the V1 test period (4–6 October).** “Unseen vessels” removes every test vessel from
+training. “Held-out longitude bands” predicts each band of the home area using a model trained outside that band with
+a buffer.
 
-| Model | In-area | Unseen vessels | Unseen waters |
+| Model | Home | Home: unseen vessels | Home: held-out longitude bands |
 |---|---:|---:|---:|
 | Constant velocity | 1,554 | 1,554 | 1,554 |
 | A: motion only | 1,267 | 1,429 | 1,465 |
@@ -110,30 +138,70 @@ from transferable manoeuvring physics.
 
 The spatial hold-out produces the most important negative result. When the longitude band being predicted is absent
 from training, raw location makes FDE@20 **1,127 m worse** than motion alone. The location model has learned useful
-local corrections, but those corrections are attached to absolute coordinates and are applied incorrectly in unseen
-waters. My original H4 predicted that the geographic benefit would decrease but remain positive; the test evidence
-rejects it. A validation-informed H4b—that raw-coordinate context would not transfer—was supported on the test period
-and is reported separately for transparency.
+local corrections, but those corrections are attached to absolute coordinates and are applied incorrectly in held-out
+areas. My original V1-H4 predicted that the geographic benefit would decrease but remain positive; the test evidence
+rejects it. A validation-informed V1-H4b—that raw-coordinate context would not transfer—was supported on the test
+period and is reported separately for transparency.
 
-![Test FDE at 20 minutes in the three generalisation settings](../results/figures/generalisation_test.png)
+![V1 test FDE at 20 minutes in the three generalisation settings](../results/figures/generalisation_test.png)
+
+## V2 results: fairway context in independent waterways
+
+After validation, I froze two hypotheses on 21 October. V2-H1 predicted that fairway context (E) would improve on the
+motion-only model (A) at home and in each waterway; V2-H2 predicted that raw coordinates (C) would make prediction
+worse than A in both waterways. Before the test run I added two amendments. The first made the decision rules
+explicit and strengthened V2-H2: originally "C does not reduce error", which an inconclusive result would satisfy, it
+now required the lower bound of the 95% confidence interval for C − A to exceed zero. The second extended the
+regime report to all six models. No test results were inspected before either amendment. The hypotheses were decided
+on one prespecified seed; two further seeds were a sensitivity check.
+
+**Table 2. Mean FDE@20 (m) on the V2 test period (7–15 October).** Models trained on the home area only.
+
+| Model | Home | Home: held-out longitude bands | Independent waterway: Bornholm | Independent waterway: Skagen |
+|---|---:|---:|---:|---:|
+| Constant velocity | 1,566 | 1,566 | 569 | 846 |
+| A: motion only | 1,292 | 1,483 | 585 | 844 |
+| C: + raw location | 872 | 2,572 | 1,816 | 1,320 |
+| E: + fairway context | **802** | **1,031** | **459** | **749** |
+
+Both hypotheses were supported. Fairway context improved on motion-only prediction at home (−490 m), in Bornholm
+(−127 m) and in Skagen (−95 m), with all 95% confidence intervals below zero, and the improvements remained similar when
+every evaluated vessel was removed from training. Raw coordinates made prediction worse in both waterways (+1,231 m and
++476 m); the conclusion is the same under the original, weaker V2-H2 rule. Validation and test agreed within 17 m on
+the V2-H1 comparisons and within 37 m on the V2-H2 comparisons.
+
+The waterways are easier than the home area: constant velocity alone gives 569 m in Bornholm, where most traffic is
+straight transit. There, a motion-only learned model could not beat constant velocity, but fairway context could, by
+110 m (19%), mainly by reducing large errors: the 90th-percentile error fell from 1,543 m (A) to 1,028 m (E). By
+manoeuvring regime, E improved on A everywhere except low-speed traffic in Skagen, where there was no detectable
+difference. Across the regime-threshold sensitivity grid, E's confidence interval lay below zero in 140 of 150 cells;
+all ten exceptions were low-speed cells in Skagen, one of which favoured A. These cells are correlated and serve as a
+robustness check rather than independent tests. Raw-coordinate results were unstable across seeds in the waterways,
+consistent with, though not proof of, tree models extrapolating outside the coordinates seen in training.
+
+![V2 test FDE at 20 minutes: raw location vs fairway context](../results/v2/figures/transfer_test.png)
 
 ## Interpretation, limitations and next direction
 
-The study suggests that the difficult part of short-horizon vessel prediction is not simply detecting a manoeuvre. It
-is identifying how that manoeuvre relates to the waterway and when it will end. Absolute coordinates provide this
-information within a familiar region, but they are not a transferable representation of navigational context.
+Together, the two stages suggest that the difficult part of short-horizon vessel prediction is not simply detecting a
+manoeuvre. It is identifying how that manoeuvre relates to the waterway and when it will end. Absolute coordinates
+provide this information within a familiar region but attach it to places. Describing the same information relative to
+the local traffic flow kept its value in two independently evaluated Danish waterways. How geography is represented,
+not merely whether it is present, determines whether it transfers.
 
-These findings are limited to 18 days, one Danish study area and Class A AIS. The spatial folds are longitude bands,
-not independent waterways, and the learned comparison uses one gradient-boosting model family. AIS does not expose
-rudder commands, propulsion state, pilot instructions, route plans or all environmental and traffic influences. This
-work therefore evaluates statistical trajectory forecasting, not navigational intent or a safety-certified function.
+These findings are limited to three Danish settings observed over the same autumn weeks, sharing one AIS network and
+part of their traffic, and to Class A transmitters. Fairway context depends on historical traffic, so it does not apply
+to waters without AIS history; it averages diverging branches near junctions and says little about low-speed harbour
+behaviour. The learned comparison uses one gradient-boosting model family with deterministic outputs. AIS does not
+expose rudder commands, propulsion state, pilot instructions, route plans, weather, currents or all traffic
+interactions. This work evaluates statistical trajectory forecasting, not navigational intent or a safety-certified
+function, and displacement accuracy is not operational safety performance.
 
-The next research step is to replace raw coordinates with representations that have the same physical meaning across
-locations: distance and bearing to a fairway centreline, local fairway curvature, proximity to ports and anchorages,
-bathymetry, coastline constraints and historical traffic-flow fields. These representations should then be evaluated
-on genuinely different waterways, with calibrated predictive uncertainty. If prediction residuals are later used for
-anomaly screening, that will require a separate evaluation because an unusual trajectory is not automatically unsafe,
-illegal or erroneous.
+The next questions are how to represent route choice at junctions; whether chart-based context (coastline,
+bathymetry, ports and anchorages) can replace traffic history where it is sparse; whether the result holds in other
+countries, seasons and waterway types; and how to provide calibrated uncertainty where several futures are plausible.
+If prediction residuals are later used for anomaly screening, that will require a separate evaluation because an
+unusual trajectory is not automatically unsafe, illegal or erroneous.
 
 ## References
 
@@ -145,5 +213,6 @@ illegal or erroneous.
    learning and deep learning methods,” *Transportation Research Part E*, 175, 103152, 2023.
 
 **Reproducibility and provenance.** Code and documentation: <https://github.com/kiranjojose/morva>. The repository records the data manifests and checksums, experiment configuration,
-quality reports, run summaries and the failed pre-access test command. Raw DMA files are not redistributed. The test
-set is now spent; any subsequent model development is treated as post-hoc and returns to validation or new data.
+quality reports, run summaries, both hypothesis freezes and the V2 pre-test amendments, and every test command.
+Raw DMA files are not redistributed. Both test periods are now spent; any subsequent model development is treated as
+post hoc and returns to validation or new data.

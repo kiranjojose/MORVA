@@ -198,3 +198,11 @@ All with `--confirm-test`. Run folders `results/v2/runs/20261021T2*`; tables in 
 - Exploratory (descriptive, no claim): home E − C −70 m; F − E home −35, Bornholm +11, Skagen −10 m.
 - The test and transfer_test splits are now spent. Any further development uses validation data only and is reported as post hoc.
 
+## 2026-10-22 (Thu), V1–V2 write-up and corrections
+- Drafted the V1→V2 updates to the README, `06_results.md`, `04_methods.md` (new V2 section), `07_limitations.md`, `00_plan.md` and the preliminary summary, after an external review of the drafts. Setting labels now separate "held-out longitude bands" (local spatial extrapolation) from "independent waterway" (Bornholm, Skagen); V1 hypotheses are referred to as V1-H1 to V1-H4b in combined documents.
+- **Correction (feature count):** the fairway group has 14 features (5 at the anchor plus 3 at each of the 5, 10 and 20-min points), not 13 as written in the 18 Oct entry above and in the message of commit `02a2c6c`. E has 35 features and F has 39; the stored run summaries list them.
+- **Correction (sensitivity denominator):** in the 21 Oct test entry, "40/41 (Skagen, one cell above 0)" is wrong. Each setting has 50 regime × threshold cells (150 in all). In Skagen, E − A has a CI below 0 in 40 of 50 cells, a lower point estimate in 42, and a CI above 0 in one (low-speed threshold 3 kn: +37 m, +13 to +64); all 10 cells without a CI below 0 are low-speed. Overall: CI below 0 in 140 of 150 cells. The cells share windows and are a descriptive robustness check, not independent tests.
+- **Correction (validation–test agreement):** validation and test paired differences agree within 17 m for the V2-H1 comparisons but within 37 m for V2-H2 (Bornholm C − A +1,194 validation, +1,231 test). No hypothesis outcome changes.
+- **Post-test code (reporting only):** added `summary-figure --v2` (`src/morva/cli.py`, `src/morva/viz/plots.py`) to draw `results/v2/figures/transfer_test.png` from the stored test summaries. It reads saved results only; no model was fitted or evaluated, and no test outcome was recomputed.
+- Removed the tool acknowledgement section from the README.
+

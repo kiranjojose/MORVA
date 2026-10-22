@@ -756,11 +756,22 @@ def cmd_summary_figure(ws: Workspace, data_cfg, exp_cfg, args):
         return {m: v["fde_m"] for m, v in mets.items()}
 
     sp = args.split
-    panels = {"In-area": metrics(f"*_gbm_{sp}"), "Unseen vessels": metrics(f"*_gbm_{sp}_vesselheldout"),
-              "Unseen waters": metrics(f"*_gbm_{sp}_spatialheldout")}
     label = "test split, single post-freeze run" if sp == "test" else "validation"
-    out = plot_generalisation_panels(panels, ws.results / "figures" / f"generalisation_{sp}.png",
-                                     f"Learned residual model vs constant velocity (dashed), {label}")
+    if args.v2:  # V2: raw location vs fairway context, in-area, unseen bands and the independent waterways
+        from morva.viz.plots import CONTEXT_COLOURS
+
+        panels = {"Home": metrics(f"*_gbm_{sp}"), "Home: held-out bands": metrics(f"*_gbm_{sp}_spatialheldout"),
+                  "Independent: Bornholm": metrics(f"*_gbm_transfer_{sp}_bornholm"),
+                  "Independent: Skagen": metrics(f"*_gbm_transfer_{sp}_skagen")}
+        models = [("A_motion", "A  motion"), ("C_location", "C  + raw location"), ("E_fairway", "E  + fairway")]
+        out = plot_generalisation_panels(panels, ws.results / "figures" / f"transfer_{sp}.png",
+                                         f"Raw location vs fairway context, constant velocity dashed ({label})",
+                                         models=models, colours=CONTEXT_COLOURS)
+    else:
+        panels = {"In-area": metrics(f"*_gbm_{sp}"), "Unseen vessels": metrics(f"*_gbm_{sp}_vesselheldout"),
+                  "Unseen waters": metrics(f"*_gbm_{sp}_spatialheldout")}
+        out = plot_generalisation_panels(panels, ws.results / "figures" / f"generalisation_{sp}.png",
+                                         f"Learned residual model vs constant velocity (dashed), {label}")
     print(f"wrote {out.relative_to(project_path('.'))}")
 
 
@@ -804,6 +815,7 @@ def main(argv=None):
     p.add_argument("--window-gap-s", type=int, nargs="+", default=[120, 180, 300])
     p = sub.add_parser("summary-figure", help="3-panel generalisation figure from stored runs")
     p.add_argument("--split", default="test", choices=["val", "test"])
+    p.add_argument("--v2", action="store_true", help="V2 figure: raw location vs fairway context across waterways")
     p = sub.add_parser("regime-report", help="results by past-only manoeuvring regime + threshold sensitivity")
     p.add_argument("--split", default="val", choices=list(EVAL_SPLITS))
     p.add_argument("--region", choices=region_names, help="report one region only (default: all in the split)")

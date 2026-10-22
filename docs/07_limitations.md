@@ -2,13 +2,18 @@
 
 ## Geographic and temporal scope
 
-The study uses 18 days of traffic in one Danish area. Although the area contains straits, ferry routes, port approaches
-and several vessel classes, it does not represent seasonal conditions, severe weather, other traffic cultures or the
-geometry of unrelated waterways. The chronological test period is only three days later than the training period.
-Agreement between validation and test therefore supports short-term repeatability, not long-term robustness.
+V1 used 18 days of traffic in one Danish area. V2 extends this to 27 days and adds two independent waterways, Bornholm
+and Skagen, but the evidence still covers only three Danish geographic settings over the same autumn weeks. All three
+share one national AIS receiver network and navigational-data environment, and part of their traffic: in the V2
+validation period, vessels also seen in home training account for 44% of Bornholm and 28% of Skagen windows (results
+with those vessels removed from training are reported separately). Seasonal conditions, severe weather, other
+countries' traffic cultures and other waterway types (rivers, archipelagos, open ocean, busy port basins) remain
+untested. The V2 test period is one to two weeks after training; agreement between validation and test supports
+short-term repeatability, not long-term robustness.
 
-The spatial hold-out uses four longitude bands with a buffer. This is stricter than the in-area split but is not the
-same as training in one waterway and testing in a genuinely independent region. The folds also differ in traffic mix
+The longitude-band hold-out uses four bands with a buffer inside the home area. It tests local spatial extrapolation,
+which is not the same as transfer to an independent region; V2 therefore reports it separately from the two
+independent waterways. The folds also differ in traffic mix
 and sit at different positions within the coordinate range. Tree models can extrapolate particularly poorly at the
 outer bands, so the experiment measures both geographic novelty and feature-range extrapolation.
 
@@ -45,9 +50,25 @@ baseline is a constant-velocity formulation; alternative dynamic or route-condit
 differently.
 
 The location feature set contains raw latitude, longitude and course orientation. Its strong in-area result reflects
-useful local regularities, but the spatial experiment demonstrates that this representation does not transfer. It
-should not be described as learning fairway geometry or navigational understanding. Engineered features based on local
-fairway bearing, curvature, coastline, bathymetry and traffic-flow structure are still required.
+useful local regularities, but V1 and V2 show that this representation does not transfer. It should not be described
+as learning fairway geometry or navigational understanding. Only one learned model family (residual gradient boosting
+with one hyperparameter configuration) was evaluated, and the hypotheses were decided on one prespecified seed.
+
+## Fairway context (V2)
+
+The V2 fairway features are derived from historical AIS of the same waterway. They cannot be computed for waters
+without AIS history, and their quality depends on traffic volume and receiver coverage: flow features were missing for
+3.5–6.6% of test windows, and sparse areas give noisier maps. The map describes where vessels have sailed, not where
+they may sail: it contains no chart, depth, coastline or regulatory information, and recent changes to routes are not
+represented until they appear in the traffic history.
+
+The method pools all same-direction traffic in a 1.5 km block and does not choose between branches. Near junctions and
+route splits the flow direction is a mixture, and only a lower coherence value signals the ambiguity. Route choice at
+junctions is therefore not modelled.
+
+Fairway alignment says little about low-speed behaviour such as berthing, anchoring and manoeuvring in port. In the
+V2 test, fairway context gave no detectable improvement for low-speed windows in Skagen, and one threshold
+configuration favoured the motion-only model there.
 
 Vessel type, length, beam and draught are coarse proxies for manoeuvring capability. Important variables such as
 loading condition, trim, propulsion arrangement and control input are unavailable or unreliable. Vessel attributes
@@ -72,10 +93,13 @@ The current model is deterministic and does not provide calibrated uncertainty o
 junction or terminal, several trajectories may be reasonable. A single mean trajectory can be misleading even when
 its aggregate displacement error is competitive.
 
-The hypotheses were developed after validation analysis and frozen before the single test run. H1–H4 are therefore
-validation-informed rather than a preregistration made before any results were seen. H4b was explicitly added after
-the spatial validation result and received its first independent check on the test split. This provenance is recorded
-because presenting all hypotheses as fully prospective would overstate the strength of confirmation.
+The V1 hypotheses were developed after validation analysis and frozen before the single V1 test run. V1-H1–V1-H4 are
+therefore validation-informed rather than a preregistration made before any results were seen. V1-H4b was explicitly
+added after the spatial validation result and received its first independent check on the V1 test split. V2-H1 and
+V2-H2 were likewise informed by V2 validation results and frozen before the V2 test run. Two pre-test amendments made
+the decision rules and reporting coverage explicit; the stronger V2-H2 rule and the original rule produce the same
+conclusion. This provenance is recorded because presenting either stage as fully prospective would overstate the
+strength of confirmation.
 
 ## Safety, anomaly and deployment limits
 

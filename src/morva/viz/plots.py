@@ -48,26 +48,35 @@ def plot_error_vs_horizon(step_errors: dict[str, np.ndarray], step_s: int, out: 
     return out
 
 
-def plot_generalisation_panels(panels: dict[str, dict], out: Path, title: str) -> Path:
+V1_PANEL_MODELS = [("A_motion", "A  motion"), ("B_vessel", "B  + vessel"), ("C_location", "C  + location"),
+                   ("D_all", "D  all")]
+# Colour follows the kind of context: raw coordinates (orange) vs historical-traffic fairway context (aqua)
+CONTEXT_COLOURS = {"C_location": "#eb6834", "D_all": "#eb6834", "E_fairway": "#1baf7a", "F_all_fairway": "#1baf7a"}
+
+
+def plot_generalisation_panels(panels: dict[str, dict], out: Path, title: str, models=None,
+                               colours=None) -> Path:
     """Small multiples (shared x scale) of FDE@20 per learned model, one panel per evaluation setting.
 
     panels: setting -> {"cv": summary, "A_motion": summary, ...} where summary has mean / ci95_lo / ci95_hi.
-    CV is drawn as a dashed reference line; location-based models (C) are highlighted.
+    models: [(key, label)] to draw (default: V1 sets A-D). colours: key -> colour; others use the base blue.
+    CV is drawn as a dashed reference line.
     """
-    models = [("A_motion", "A  motion"), ("B_vessel", "B  + vessel"), ("C_location", "C  + location"),
-              ("D_all", "D  all")]
-    base, highlight, ink, muted = "#2a78d6", "#eb6834", "#0b0b0b", "#52514e"
+    models = models or V1_PANEL_MODELS
+    colours = colours if colours is not None else {"C_location": "#eb6834"}
+    base, ink, muted = "#2a78d6", "#0b0b0b", "#52514e"
     xmax = max(s[m]["ci95_hi"] for s in panels.values() for m, _ in models) * 1.18
-    fig, axes = plt.subplots(1, len(panels), figsize=(11, 3.4), sharex=True, sharey=True)
+    fig, axes = plt.subplots(1, len(panels), figsize=(2.75 * len(panels), 0.5 + 0.72 * len(models)),
+                             sharex=True, sharey=True)
     for ax, (setting, s) in zip(axes, panels.items(), strict=True):
         y = np.arange(len(models))[::-1]
         for yi, (m, _) in zip(y, models, strict=True):
             v = s[m]
-            color = highlight if m == "C_location" else base
+            color = colours.get(m, base)
             ax.barh(yi, v["mean"], height=0.62, color=color)
             ax.errorbar(v["mean"], yi, xerr=[[v["mean"] - v["ci95_lo"]], [v["ci95_hi"] - v["mean"]]],
                         fmt="none", ecolor=ink, elinewidth=1, capsize=2)
-            ax.text(v["ci95_hi"] + xmax * 0.015, yi, f"{v['mean']:,.0f}", va="center", fontsize=8, color=ink)
+            ax.text(v["ci95_hi"] + xmax * 0.03, yi, f"{v['mean']:,.0f}", va="center", fontsize=8, color=ink)
         cv = s["cv"]["mean"]
         ax.axvline(cv, color=muted, ls="--", lw=1.2)
         ax.text(cv, len(models) - 0.35, f" CV {cv:,.0f}", fontsize=8, color=muted, va="bottom")

@@ -22,6 +22,10 @@ reproducibility, interpretable baselines, manoeuvring regimes and transfer beyon
 
 ## V2 — Transferable navigational context
 
+**Status: experimentally complete (test run 21 Oct 2026).** Fairway context from historical traffic (model E) improved
+on motion-only prediction at home and in both independent waterways, and raw coordinates made prediction worse in both
+(V2-H1 and V2-H2 supported; `docs/06_results.md`). The plan as written before V2 follows.
+
 The V1 spatial hold-out shows that raw coordinates encode useful local knowledge but transfer poorly. V2 replaces
 absolute position with features whose meaning is consistent across waterways:
 
@@ -37,6 +41,14 @@ spatially held-out controls.
 
 **Status: split set (2026-10-18).** New locked test period 7–15 Oct 2026. Independent waterways: Bornholm
 (Bornholmsgat) and Skagen. See `docs/05_protocol.md`, "V2 split".
+
+## Next directions after V2
+
+- Junction and route-choice representation, so diverging branches are not averaged.
+- Port, berth and anchorage context, and low-speed or harbour-specific modelling.
+- Chart-based context that does not need traffic history: bathymetry and coastline constraints.
+- Other countries, seasons and waterway types, including waters with sparse traffic history.
+- Uncertainty and multiple plausible futures (V3 below).
 
 ## V3 — Uncertainty and interaction
 

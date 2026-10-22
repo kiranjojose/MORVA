@@ -69,3 +69,61 @@ lookback 5 / 10 / 15 min; plus "sustained turning" (≥ 70% of 1-min changes wit
 
 Context variables (port proximity, fairway, vessel type, traffic) are deliberately **not** part of the regime, so their
 contribution can be measured *within* a regime.
+
+## V2: fairway context from historical traffic (`src/morva/features/fairway.py`)
+
+**Feature sets.** E = A (21 motion features) + 14 fairway features = 35 features. F = E + 4 vessel features (ship
+group, length, beam, draught) = 39 features. Both use the same residual GBM, targets, hyperparameters and training
+windows as A–D. E and F contain no latitude, longitude, projected coordinates or absolute bearing: every fairway
+feature is measured relative to the vessel's own position and course.
+
+**Data source.** No external chart or fairway dataset is used. Each region's flow map is built from that region's own
+DMA AIS track points in the training period (19–30 Sep 2026): moving points only (SOG ≥ 3 kn), one point per vessel per
+minute, so density means vessel-minutes. The map is versioned by its configuration (`fairway:` in
+`configs/experiment.yaml`) and the code at the pinned commit `9491f7d`.
+
+**Flow map.** A grid of 300 m cells × 12 course bins (30° each), in a local metric projection of the region's box. Each
+(cell, bin) stores the count, the sums of sin and cos of course, and first and second moments of position within the
+cell.
+
+**Query.** For a query position and course, the map pools a 5 × 5 block of cells (1.5 km × 1.5 km) and the course bin
+of the query course ± 1 bin (about ± 45°). Only same-direction traffic contributes, so the opposite lane of a traffic
+separation scheme is ignored. No single fairway is selected: all same-direction traffic in the block is pooled.
+
+**Features.** At the last observed position (the anchor):
+
+| Feature | Meaning |
+|---|---|
+| `flow_logdens_0` | log(1 + same-direction vessel-minutes per map day) |
+| `flow_coher_0` | mean resultant length of pooled courses (1 = one clear direction) |
+| `flow_hdg_0` | flow course minus vessel course, degrees, + = flow to starboard |
+| `flow_offset_0` | vessel's offset from the flow centroid along the flow's starboard axis, metres |
+| `flow_width_0` | lateral standard deviation of the pooled traffic, metres |
+
+At the constant-velocity positions 5, 10 and 20 minutes ahead (`k` = 5, 10, 20): `flow_logdens_k`, `flow_hdg_k` and
+`flow_offset_k`, using the vessel's current course to select same-direction traffic. Features are computed only at the
+anchor and these three points, not along the observed history.
+
+**Junctions and multiple branches.** Where same-direction branches diverge inside the pooled block, their traffic is
+averaged: the flow direction is a mixture and `flow_coher_0` falls. Coherence is the model's only signal of such
+ambiguity; no branch is chosen. This is a known weakness near junctions (see limitations).
+
+**Missing coverage.** If fewer than 10 vessel-minutes are pooled, all flow features except density are missing; a
+query outside the region's box is missing entirely. The gradient-boosting model handles missing values natively. On
+the test period, flow features are present for 96.5% of home, 93.4% of Bornholm and 96.1% of Skagen windows.
+
+**Scaling.** No normalisation is applied (tree models are invariant to monotone scaling). Density is divided by the
+number of days in the map.
+
+**Leakage guard.** A window whose future falls inside the map period (a training window) receives a map built without
+the day or days its future covers, so it never sees its own future path. Validation, test and independent-waterway
+windows use the full training-period map, which contains none of their days.
+
+**Use of the independent waterways.** Bornholm and Skagen were chosen on 18 Oct from a one-day traffic count on a
+training-period day (24 Sep), before any model was run on them. The fairway method and all its settings were fixed
+before the first evaluation and were not tuned afterwards. Validation results in the waterways (`transfer_val`) were
+then inspected and informed the V2 hypotheses; their windows were never used to fit a model.
+
+**V2 split.** Train 19–30 Sep (home windows only), validation 1–6 Oct, test 7–15 Oct (locked); window counts per
+region and split are in `docs/03_data_card.md`. Hypotheses, decision rules and the primary seed (0) are in
+`docs/05_protocol.md`.
