@@ -12,6 +12,8 @@ __pycache__/
 data/raw/*
 data/interim/*
 data/processed/*
+data/v3/interim/
+data/v3/processed/
 !data/**/.gitkeep
 
 # Large run artefacts (tables, figures and run summaries are committed)
@@ -19,6 +21,8 @@ results/runs/**/*.parquet
 results/runs/**/*.npz
 results/v2/runs/**/*.parquet
 results/v2/runs/**/*.npz
+results/v3/runs/**/*.parquet
+results/v3/runs/**/*.npz
 *.pt
 
 .DS_Store

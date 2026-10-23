@@ -206,3 +206,9 @@ All with `--confirm-test`. Run folders `results/v2/runs/20261021T2*`; tables in 
 - **Post-test code (reporting only):** added `summary-figure --v2` (`src/morva/cli.py`, `src/morva/viz/plots.py`) to draw `results/v2/figures/transfer_test.png` from the stored test summaries. It reads saved results only; no model was fitted or evaluated, and no test outcome was recomputed.
 - Removed the tool acknowledgement section from the README.
 
+## 2026-10-23 (Fri), V3 data feasibility and split
+- Planned V3 (`docs/00_plan.md`): calibrated intervals, 60-minute horizons, transfer to the USA, map-history needs; interactions moved to V4, behaviour deviation to V5; Finland deferred (no historical archive).
+- US data: NOAA/BOEM Marine Cadastre 2025 daily files. Downloaded the map-period and validation days only (19 Sep–15 Oct 2025, 27 files, 6.3 GB, `data/raw/us` via the raw store); every file matches the server's byte size and passes `zstd -t`. No test-period file (16–29 Oct 2025) was downloaded. Provenance manifests for the US files follow when the US adapter exists.
+- One-day traffic count on 24 Sep 2025 (a map-period day; Class A; moving vessel-minutes) set the US boxes before any model was run: Salish Sea primary, Houston optional and reported overall and merchant-only. A Puget Sound-only box was rejected (133 moving vessels, 17 merchant).
+- **V3 split and regions set before any V3 validation analysis**, in new files `configs/v3/data.yaml` and `configs/v3/experiment.yaml` (V2 configs unchanged): train 19 Sep–6 Oct, model selection 7–11 Oct, interval calibration 12–15 Oct, test 16–29 Oct (locked), in 2026 for Danish regions and 2025 for US regions; 20-minute history and 60-minute future. Fixed: sources, regions, calendars, windows and split. Provisional until the V3 freeze: fairway, GBM and uncertainty settings. `tests/test_v3_config.py` guards the fixed parts.
+

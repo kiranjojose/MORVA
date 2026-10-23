@@ -1,0 +1,83 @@
+# V3 data configuration. Set 2026-10-23, before any V3 validation analysis (docs/00_plan.md, "V3").
+# The V1/V2 configs in configs/*.yaml are unchanged; V3 commands pass --data-config configs/v3/data.yaml.
+#
+# FIXED at this point: sources, regions (boxes) and which calendar each region uses. Changing any of them after
+# validation analysis has started must be recorded in docs/08_research_log.md.
+
+sources:
+  dma:
+    format: dma
+    provider: Danish Maritime Authority
+    url: https://www.dma.dk/safety-at-sea/navigational-information/ais-data
+    raw: data/raw                         # daily aisdk-YYYY-MM-DD.zip
+    timestamp_format: "%d/%m/%Y %H:%M:%S"  # UTC
+    keep_mobile_types: ["Class A"]
+  marinecadastre:
+    format: marinecadastre_2025
+    provider: NOAA/BOEM Marine Cadastre (Nationwide AIS 2025)
+    url: https://noaaocm.blob.core.windows.net/ais/csv2/csv2025/
+    raw: data/raw/us                      # daily ais-2025-MM-DD.csv.zst, already sampled at one minute
+    keep_transceivers: ["A"]              # Class A only, as for DMA
+    terms: >-
+      Catalogue lists no access constraints; stated use is coastal and ocean planning, not navigation; provided as
+      is. Commercial use not addressed: confirm with NOAA before any product use.
+
+paths:
+  interim: data/v3/interim
+  processed: data/v3/processed
+  manifests: data/manifests
+
+# Home area: the only area used to fit models (unchanged from V1/V2).
+aoi:
+  name: great_belt_oresund
+  source: dma
+  calendar: dk2026
+  lat_min: 54.8
+  lat_max: 56.2
+  lon_min: 10.4
+  lon_max: 13.0
+
+# Independent waterways: never used to fit model weights. Danish boxes unchanged from V2. US boxes set on 2026-10-23
+# from a one-day traffic count on 2025-09-24 (a map-period day), before any model was run on US data.
+transfer_aois:
+  - name: bornholm
+    source: dma
+    calendar: dk2026
+    lat_min: 54.7
+    lat_max: 55.6
+    lon_min: 14.0
+    lon_max: 15.6
+  - name: skagen
+    source: dma
+    calendar: dk2026
+    lat_min: 57.2
+    lat_max: 58.0
+    lon_min: 9.6
+    lon_max: 11.2
+  - name: salish_sea          # primary US area: Strait of Juan de Fuca, Admiralty Inlet, Puget Sound, Haro/Rosario
+    source: marinecadastre
+    calendar: us2025
+    lat_min: 47.0
+    lat_max: 48.8
+    lon_min: -124.7
+    lon_max: -122.2
+  - name: houston             # optional: Houston Ship Channel, Galveston Bay, offshore fairway; ~2/3 tugs and towboats
+    source: marinecadastre
+    calendar: us2025
+    optional: true
+    report_merchant_only: true
+    lat_min: 28.9
+    lat_max: 29.8
+    lon_min: -95.3
+    lon_max: -94.3
+# Norway (Bergen/Fedje via Kystverket HAIS) is added only if a test order shows data for the dk2026 calendar and
+# terms that allow research use; adding it must be logged before its validation data are analysed.
+
+quality:
+  max_implied_speed_kn: 50.0
+  max_plausible_sog_kn: 40.0
+
+segmentation:
+  gap_s: 1200
+  min_points: 20
+  min_duration_s: 1800

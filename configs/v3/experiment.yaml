@@ -1,0 +1,81 @@
+# V3 experiment configuration. Set 2026-10-23, before any V3 validation analysis (docs/00_plan.md, "V3").
+# V3 commands pass --exp-config configs/v3/experiment.yaml; V2 configs are unchanged.
+#
+# FIXED now: results_dir, windows and split. PROVISIONAL until the V3 hypothesis freeze: fairway, gbm and
+# uncertainty settings, which may be tuned on the model-selection days only.
+
+results_dir: results/v3
+
+windows:                    # FIXED
+  step_s: 60
+  obs_steps: 20             # 20-minute history (as V1/V2)
+  future_steps: 60          # 60-minute future (V1/V2: 20)
+  horizons_min: [5, 10, 20, 30, 45, 60]
+  stride_steps: 5
+  max_gap_s: 180            # no original AIS gap above 180 s anywhere in history or future
+  min_mean_sog_kn: 1.0
+
+split:                      # FIXED. Whole UTC days; a window belongs to a block only if its whole span lies inside it.
+  # Each region uses its source's calendar. Time runs forward in every calendar. Test files are not downloaded until
+  # the V3 hypotheses are frozen.
+  #   train   19 Sep - 6 Oct   model fitting (home only) and flow maps for every region
+  #   val      7 Oct - 11 Oct  model selection
+  #   calib   12 Oct - 15 Oct  interval calibration only (never used for model selection)
+  #   test    16 Oct - 29 Oct  LOCKED
+  # Home windows are labelled train / val / calib / test; transfer windows transfer_context / transfer_val /
+  # transfer_calib / transfer_test and are never used to fit a model.
+  calendars:
+    dk2026:
+      train_start: "2026-09-19T00:00:00"
+      train_end: "2026-10-07T00:00:00"
+      val_end: "2026-10-12T00:00:00"
+      calib_end: "2026-10-16T00:00:00"
+      test_end: "2026-10-30T00:00:00"
+    us2025:
+      train_start: "2025-09-19T00:00:00"
+      train_end: "2025-10-07T00:00:00"
+      val_end: "2025-10-12T00:00:00"
+      calib_end: "2025-10-16T00:00:00"
+      test_end: "2025-10-30T00:00:00"
+
+fairway:                    # PROVISIONAL (V2 settings; look-ahead extended to the 60-minute horizon)
+  cell_m: 300
+  block_radius_cells: 2
+  n_dir_bins: 12
+  dir_radius_bins: 1
+  min_sog_kn: 3.0
+  sample_s: 60
+  min_points: 10
+  ahead_min: [5, 10, 20, 30, 45, 60]
+  map_history_days: [1, 3, 7, all]   # RQ4: flow maps from the last N map-period days
+
+baselines:                  # as V2
+  ctrv_turn_window_steps: 5
+  ctrv_max_turn_rate_deg_s: 3.0
+  ctrv_min_sog_kn: 1.0
+  ctrv_damped_tau_grid_s: [30, 60, 120, 180, 300, 600]
+  kalman_q_grid: [1.0e-4, 1.0e-3, 1.0e-2, 3.0e-2, 0.1, 0.3, 1.0]
+  tuning_max_windows: 60000
+
+evaluation:
+  n_bootstrap: 1000
+  seed: 42
+
+gbm:                        # PROVISIONAL
+  knots_min: [5, 10, 15, 20, 30, 45, 60]
+  seed: 0                   # primary seed (as V2)
+  feature_sets:
+    A_motion: [motion]
+    B_vessel: [motion, vessel]
+    C_location: [motion, location]
+    D_all: [motion, vessel, location]
+    E_fairway: [motion, fairway]
+    F_all_fairway: [motion, vessel, fairway]
+  spatial:
+    lon_edges: [10.4, 11.05, 11.7, 12.35, 13.0]
+    buffer_deg: 0.05
+
+uncertainty:                # PROVISIONAL: quantile residual model + split-conformal calibration on the calib days
+  quantiles: [0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95]
+  interval_levels: [0.8, 0.9]
+  calibration: home_calib   # primary: calibrate on home calib days; local recalibration is a secondary analysis
