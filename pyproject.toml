@@ -12,6 +12,7 @@ dependencies = [
     "pyyaml>=6",
     "matplotlib>=3.9",
     "scikit-learn>=1.5",
+    "zstandard>=0.25.0",
 ]
 
 [project.optional-dependencies]

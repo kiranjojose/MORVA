@@ -24,12 +24,17 @@ class Workspace:
         def resolve(rel: str) -> Path:
             return project_path(rel) / "_synthetic" if synthetic else project_path(rel)
 
+        from morva.ingestion.sources import sources
+
         p = data_cfg["paths"]
         self.synthetic = synthetic
-        self.raw, self.interim = resolve(p["raw"]), resolve(p["interim"])
+        # One raw folder per data source (V1/V2: the DMA folder only)
+        self.raw_dirs = {name: resolve(s["raw"]) for name, s in sources(data_cfg).items()}
+        self.raw = next(iter(self.raw_dirs.values()))
+        self.interim = resolve(p["interim"])
         self.processed, self.manifests = resolve(p["processed"]), resolve(p["manifests"])
         # Each study version writes to its own results tree, so V2 never overwrites V1 tables and figures
-        self.results = resolve("results") if synthetic else project_path((exp_cfg or {}).get("results_dir", "results"))
+        self.results = resolve((exp_cfg or {}).get("results_dir", "results"))
 
 
 def _git_hash() -> str:
@@ -64,18 +69,26 @@ def _check_test_lock(args) -> None:
 
 
 def cmd_synth(ws: Workspace, data_cfg, exp_cfg, args):
-    from morva.ingestion.synthetic import generate
+    from morva.ingestion.synthetic import generate, generate_marinecadastre
 
     if not ws.synthetic:
         sys.exit("synth only writes to the synthetic workspace: run `morva --synthetic synth`")
     out = generate(ws.raw / "SYNTHETIC_aisdk-2025-01-01.csv")
     print(f"wrote {out.relative_to(project_path('.'))}")
+    if "marinecadastre" in ws.raw_dirs:  # V3 config: also a synthetic US day
+        out = generate_marinecadastre(ws.raw_dirs["marinecadastre"] / "SYNTHETIC_ais-2025-01-01.csv.zst")
+        print(f"wrote {out.relative_to(project_path('.'))}")
 
 
 def cmd_manifest(ws: Workspace, data_cfg, exp_cfg, args):
     from morva.ingestion.manifest import write_manifest
+    from morva.ingestion.sources import sources
 
-    src = data_cfg["source"]
+    all_sources = sources(data_cfg)
+    name = args.source or next(iter(all_sources))
+    if name not in all_sources:
+        sys.exit(f"unknown source '{name}'; configured: {sorted(all_sources)}")
+    src = all_sources[name]
     for f in map(Path, args.files):
         if (ws.manifests / f"{f.name}.json").exists() and not args.force:
             print(f"{f.name}: manifest exists")
@@ -84,30 +97,46 @@ def cmd_manifest(ws: Workspace, data_cfg, exp_cfg, args):
         print(f"wrote {out.relative_to(project_path('.'))}")
 
 
-def cmd_ingest(ws: Workspace, data_cfg, exp_cfg, args):
-    from morva.ingestion.dma import ingest_file
+RAW_SUFFIXES = {"dma": (".zip", ".csv"), "marinecadastre_2025": (".zst", ".csv")}
 
-    if args.files:
-        files = [Path(f) for f in args.files]
-    else:
-        # One file per day: if both aisdk-X.zip and its extracted aisdk-X.csv exist, read the CSV
-        by_stem: dict[str, Path] = {}
-        for p in sorted(ws.raw.iterdir()):
-            if p.suffix in (".zip", ".csv") and (p.stem not in by_stem or p.suffix == ".csv"):
-                by_stem[p.stem] = p
-        files = list(by_stem.values())
-    if not files:
-        sys.exit(f"no .zip/.csv files in {ws.raw}")
+
+def _raw_files(raw_dir: Path, fmt: str) -> list[Path]:
+    """One file per day: prefer an extracted .csv over its compressed original."""
+    by_stem: dict[str, Path] = {}
+    for p in sorted(raw_dir.iterdir()) if raw_dir.exists() else []:
+        stem = p.name.split(".")[0]
+        if p.is_file() or p.is_symlink():
+            if p.name.endswith(RAW_SUFFIXES[fmt]) and (stem not in by_stem or p.suffix == ".csv"):
+                by_stem[stem] = p
+    return list(by_stem.values())
+
+
+def cmd_ingest(ws: Workspace, data_cfg, exp_cfg, args):
+    from morva.ingestion import dma, marinecadastre
+    from morva.ingestion.sources import regions, sources
+
+    readers = {"dma": dma.ingest_file, "marinecadastre_2025": marinecadastre.ingest_file}
     log_path = ws.results / "tables" / "ingest_log.json"
     log = json.loads(log_path.read_text()) if log_path.exists() else {}
-    for f in files:
-        if (ws.interim / f"{f.name.split('.')[0]}.parquet").exists() and f.name in log and not args.force:
-            print(f"{f.name}: already ingested (use --force to redo)")
+    n_files = 0
+    for name, src in sources(data_cfg).items():
+        boxes = [r for r in regions(data_cfg) if r["source"] == name]
+        if not boxes:
             continue
-        rec = ingest_file(f, ws.interim, data_cfg)
-        log[f.name] = rec
-        print(f"{f.name}: {rec['rows_in_aoi']:,} rows in AOIs {rec['rows_written_by_region']}, "
-              f"{rec['exact_duplicates_removed']:,} exact duplicates removed")
+        files = [Path(f) for f in args.files] if args.files else _raw_files(ws.raw_dirs[name], src["format"])
+        n_files += len(files)
+        for f in files:
+            if (ws.interim / f"{f.name.split('.')[0]}.parquet").exists() and f.name in log and not args.force:
+                print(f"{f.name}: already ingested (use --force to redo)")
+                continue
+            rec = readers[src["format"]](f, ws.interim, src, boxes)
+            log[f.name] = rec
+            print(f"{f.name}: {rec['rows_in_aoi']:,} rows in AOIs {rec['rows_written_by_region']}, "
+                  f"{rec['exact_duplicates_removed']:,} exact duplicates removed")
+        if args.files:
+            break  # explicit files belong to the first source
+    if not n_files:
+        sys.exit(f"no raw files in {sorted(str(d) for d in ws.raw_dirs.values())}")
     _write_json(dict(sorted(log.items())), log_path)
 
 
@@ -116,8 +145,31 @@ CLEAN_COLUMNS = ["t", "mmsi", "lat", "lon", "sog", "cog", "heading", "nav_status
                  "ship_type", "length", "width", "draught", "region"]
 
 
+def _calendar_of(data_cfg: dict) -> dict[str, str]:
+    """Region -> split calendar (V3 configs only)."""
+    from morva.ingestion.sources import regions
+
+    return {r["name"]: r["calendar"] for r in regions(data_cfg)}
+
+
+def _map_periods(ws: Workspace, data_cfg, exp_cfg, meta: pl.DataFrame) -> dict[str, tuple]:
+    """Region -> (start, end) of the period whose traffic builds its flow map: the training block of its calendar
+    (V3), or everything before the train/val boundary (V1/V2)."""
+    from morva.evaluation.splits import resolve_boundaries, resolve_calendars
+    from morva.ingestion.sources import regions
+
+    split_cfg = exp_cfg["split"]
+    if "calendars" in split_cfg:
+        bounds = resolve_calendars(meta, split_cfg, _calendar_of(data_cfg), synthetic=ws.synthetic)
+        return {r: (b["train_start"], b["train_end"]) for r, b in bounds.items()}
+    if ws.synthetic:
+        split_cfg = {**split_cfg, "train_end": None, "val_end": None, "test_end": None}
+    train_end, _, _ = resolve_boundaries(meta, split_cfg)
+    return {r["name"]: (None, train_end) for r in regions(data_cfg)}
+
+
 def _region_names(data_cfg: dict) -> list[str]:
-    from morva.ingestion.dma import regions
+    from morva.ingestion.sources import regions
 
     return [r["name"] for r in regions(data_cfg)]
 
@@ -181,7 +233,13 @@ def cmd_clean(ws: Workspace, data_cfg, exp_cfg, args):
 
 
 def cmd_windows(ws: Workspace, data_cfg, exp_cfg, args):
-    from morva.evaluation.splits import assign_split, resolve_boundaries, split_summary
+    from morva.evaluation.splits import (
+        assign_calendar_split,
+        assign_split,
+        resolve_boundaries,
+        resolve_calendars,
+        split_summary,
+    )
     from morva.features.windows import build_windows
 
     w = exp_cfg["windows"]
@@ -195,43 +253,56 @@ def cmd_windows(ws: Workspace, data_cfg, exp_cfg, args):
     fut = np.concatenate([p[1] for p in parts])
     meta = pl.concat([p[2] for p in parts]).with_columns(sample_id=pl.int_range(pl.len(), dtype=pl.Int64))
     split_cfg = exp_cfg["split"]
-    if ws.synthetic:  # synthetic data has its own dates: always use proportional blocks
-        split_cfg = {**split_cfg, "train_end": None, "val_end": None, "test_end": None}
-    train_end, val_end, test_end = resolve_boundaries(meta, split_cfg)
-    meta = assign_split(meta, train_end, val_end, w["step_s"], w["obs_steps"], w["future_steps"],
-                        test_end=test_end, home_region=data_cfg["aoi"]["name"])
+    home = data_cfg["aoi"]["name"]
+    if "calendars" in split_cfg:  # V3: each region follows its own calendar, with a calibration block
+        bounds = resolve_calendars(meta, split_cfg, _calendar_of(data_cfg), synthetic=ws.synthetic)
+        meta = assign_calendar_split(meta, bounds, home, w["step_s"], w["obs_steps"], w["future_steps"])
+        summary_args = {"boundaries": bounds}
+        source = "synthetic fractions (PROVISIONAL)" if ws.synthetic else "calendars"
+    else:
+        if ws.synthetic:  # synthetic data has its own dates: always use proportional blocks
+            split_cfg = {**split_cfg, "train_end": None, "val_end": None, "test_end": None}
+        train_end, val_end, test_end = resolve_boundaries(meta, split_cfg)
+        meta = assign_split(meta, train_end, val_end, w["step_s"], w["obs_steps"], w["future_steps"],
+                            test_end=test_end, home_region=home)
+        summary_args = {"train_end": train_end, "val_end": val_end, "test_end": test_end}
+        source = "explicit" if split_cfg.get("train_end") else "auto_fractions (PROVISIONAL)"
     vessels = pl.read_parquet(ws.processed / "vessels.parquet").drop("n_points")
     meta = meta.join(vessels, on=["mmsi", "region"], how="left", maintain_order="left")
 
     np.savez_compressed(ws.processed / "windows.npz", hist=hist, fut=fut, sample_id=meta["sample_id"].to_numpy())
     meta.write_parquet(ws.processed / "windows_meta.parquet")
-    summary = split_summary(meta, train_end, val_end, test_end)
-    summary["boundaries_source"] = "explicit" if split_cfg.get("train_end") else "auto_fractions (PROVISIONAL)"
+    summary = split_summary(meta, **summary_args)
+    summary["boundaries_source"] = source
     _write_json(summary, ws.results / "tables" / "split_summary.json")
     print(json.dumps(summary["counts"], indent=2))
 
 
 def cmd_fairway(ws: Workspace, data_cfg, exp_cfg, args):
     """V2: build traffic-flow maps per region from the training period and fairway features for every window."""
-    from morva.evaluation.splits import resolve_boundaries
     from morva.features.fairway import FlowMaps, fairway_feature_names, fairway_features
-    from morva.ingestion.dma import regions
+    from morva.ingestion.sources import regions
 
     f_cfg, w = exp_cfg["fairway"], exp_cfg["windows"]
     hist = np.load(ws.processed / "windows.npz")["hist"]
     meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
-    split_cfg = exp_cfg["split"]
-    if ws.synthetic:
-        split_cfg = {**split_cfg, "train_end": None, "val_end": None, "test_end": None}
-    train_end, _, _ = resolve_boundaries(meta, split_cfg)
-    parts, summary = [], {"map_period_end_utc": str(train_end), "config": f_cfg, "regions": {}}
+    periods = _map_periods(ws, data_cfg, exp_cfg, meta)
+    parts = []
+    if "calendars" in exp_cfg["split"]:
+        summary = {"map_periods_utc": {r: [str(a), str(b)] for r, (a, b) in periods.items()}, "config": f_cfg,
+                   "regions": {}}
+    else:  # V2 layout, unchanged
+        summary = {"map_period_end_utc": str(next(iter(periods.values()))[1]), "config": f_cfg, "regions": {}}
     for box in regions(data_cfg):
         path = ws.processed / "tracks" / f"{box['name']}.parquet"
         sel = (meta["region"] == box["name"]).to_numpy()
-        if not path.exists() or not sel.any():
+        if not path.exists() or not sel.any() or box["name"] not in periods:
             continue
-        points = pl.read_parquet(path, columns=["t", "mmsi", "lat", "lon", "sog", "cog"]).filter(
-            pl.col("t") < train_end)
+        map_start, map_end = periods[box["name"]]
+        in_period = pl.col("t") < map_end
+        if map_start is not None:
+            in_period &= pl.col("t") >= map_start
+        points = pl.read_parquet(path, columns=["t", "mmsi", "lat", "lon", "sog", "cog"]).filter(in_period)
         maps = FlowMaps.build(points, box, f_cfg)
         m = meta.filter(pl.Series(sel))
         feats = fairway_features(hist[sel], m["t0"], maps, w["step_s"], w["future_steps"], f_cfg)
@@ -380,6 +451,109 @@ def cmd_sensitivity(ws: Workspace, data_cfg, exp_cfg, args):
     print(f"wrote {(ws.results / 'tables' / 'sensitivity_gaps.csv').relative_to(project_path('.'))}")
 
 
+def _load_meta(ws: Workspace, feature_groups: list[str]) -> pl.DataFrame:
+    """Window metadata, with the precomputed fairway features joined when a feature set needs them."""
+    meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
+    if "fairway" in feature_groups:
+        path = ws.processed / "fairway_features.parquet"
+        if not path.exists():
+            sys.exit("feature sets use 'fairway': run `morva fairway` first")
+        meta = meta.join(pl.read_parquet(path), on="sample_id", how="left", maintain_order="left")
+    return meta
+
+
+def cmd_intervals(ws: Workspace, data_cfg, exp_cfg, args):
+    """V3: quantile residual model + split-conformal calibration; interval coverage and width on `--split`.
+
+    Trains on home `train` windows, calibrates on home `calib` windows (or, with --local-calibration, on the
+    evaluated region's own `transfer_calib` windows) and evaluates on `--split` (optionally one `--region`).
+    """
+    from morva.evaluation.conformal import box_scores, conformal_offset, coverage, half_widths
+    from morva.evaluation.metrics import summarize
+    from morva.features.motion import build_features
+    from morva.models.quantile import QuantileResidualGBM, residual_truth
+
+    _check_test_lock(args)
+    if "uncertainty" not in exp_cfg:
+        sys.exit("`intervals` needs an `uncertainty` section (V3 config: --exp-config configs/v3/experiment.yaml)")
+    w, g, u, ev = exp_cfg["windows"], exp_cfg["gbm"], exp_cfg["uncertainty"], exp_cfg["evaluation"]
+    step = w["step_s"]
+    knots_min = list(g["knots_min"])
+    knots = [int(k * 60 / step) for k in knots_min]
+    sets = g["feature_sets"][args.feature_set]
+    arrays = np.load(ws.processed / "windows.npz")
+    hist_all, fut_all = arrays["hist"], arrays["fut"]
+    meta = _load_meta(ws, sets)
+
+    ev_mask, suffix = _eval_mask(meta, args)
+    tr = (meta["split"] == "train").to_numpy()
+    if args.local_calibration:
+        if not args.region:
+            sys.exit("--local-calibration needs --region")
+        cal = ((meta["split"] == "transfer_calib") & (meta["region"] == args.region)).to_numpy()
+        suffix += "_localcal"
+    else:
+        cal = (meta["split"] == "calib").to_numpy()
+    if not (tr.any() and cal.any() and ev_mask.any()):
+        sys.exit(f"empty block: {tr.sum()} train / {cal.sum()} calibration / {ev_mask.sum()} evaluated windows")
+
+    def X(mask):
+        return build_features(hist_all[mask], meta.filter(pl.Series(mask)), step, sets)
+
+    X_tr, cols = X(tr)
+    keep = ~np.isnan(X_tr).all(axis=0)  # a feature with no training values cannot be used
+    cols = [c for c, k in zip(cols, keep, strict=True) if k]
+    cat = [c == "ship_group" for c in cols] if "ship_group" in cols else None
+    model = QuantileResidualGBM(knots, u["quantiles"], categorical=cat, seed=g["seed"]).fit(
+        X_tr[:, keep], hist_all[tr], fut_all[tr], step)
+    p_cal = model.predict(X(cal)[0][:, keep])
+    p_ev = model.predict(X(ev_mask)[0][:, keep])
+    y_cal = residual_truth(hist_all[cal], fut_all[cal], step, knots)
+    y_ev = residual_truth(hist_all[ev_mask], fut_all[ev_mask], step, knots)
+    groups = meta.filter(pl.Series(ev_mask))["mmsi"].to_numpy()
+
+    results, lines = {}, []
+    for level in u["interval_levels"]:
+        lo_c, hi_c = model.interval(p_cal, level)
+        offset = conformal_offset(box_scores(lo_c, hi_c, y_cal), level)
+        lo, hi = model.interval(p_ev, level)
+        inside = box_scores(lo, hi, y_ev) <= offset[None, :]
+        raw = coverage(lo, hi, y_ev, np.zeros_like(offset))
+        hw = half_widths(lo, hi, offset)
+        per_knot = {}
+        for i, h in enumerate(knots_min):
+            c = summarize(inside[:, i].astype(float), groups, ev["n_bootstrap"], ev["seed"])
+            per_knot[str(h)] = {"coverage": c["mean"], "ci95_lo": c["ci95_lo"], "ci95_hi": c["ci95_hi"],
+                                "uncalibrated_coverage": float(raw[i]), "offset_m": float(offset[i]),
+                                "half_width_along_m": float(hw[i, 0]), "half_width_cross_m": float(hw[i, 1])}
+        results[str(level)] = per_knot
+    name = f"{args.split}{suffix}"
+    run_dir = ws.results / "runs" / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}_intervals_{args.feature_set}_{name}"
+    _write_json({"split": args.split, "region": args.region, "feature_set": args.feature_set,
+                 "calibration": "local transfer_calib" if args.local_calibration else "home calib",
+                 "git": _git_hash(), "config": {"uncertainty": u, "gbm_seed": g["seed"], "knots_min": knots_min},
+                 "windows": {"train": int(tr.sum()), "calibration": int(cal.sum()), "evaluated": int(ev_mask.sum()),
+                             "evaluated_vessels": int(len(np.unique(groups)))},
+                 "features": cols, "n_iter": model.n_iter(), "intervals": results}, run_dir / "summary.json")
+
+    lines = [f"# Conformal prediction boxes ({args.feature_set}; {name}; calibration: "
+             f"{'local transfer_calib' if args.local_calibration else 'home calib'})", "",
+             f"{int(tr.sum()):,} train / {int(cal.sum()):,} calibration / {int(ev_mask.sum()):,} evaluated windows "
+             f"({len(np.unique(groups))} vessels). Coverage = share of windows whose true position lies inside the "
+             "2-D box (95% CI, vessel bootstrap).", "",
+             "| level | horizon (min) | coverage | uncalibrated | half-width along (m) | half-width cross (m) |",
+             "|---|---|---|---|---|---|"]
+    for level, per_knot in results.items():
+        for h, r in per_knot.items():
+            lines.append(f"| {float(level):.0%} | {h} | {r['coverage']:.3f} ({r['ci95_lo']:.3f}–{r['ci95_hi']:.3f}) | "
+                         f"{r['uncalibrated_coverage']:.3f} | {r['half_width_along_m']:.0f} | "
+                         f"{r['half_width_cross_m']:.0f} |")
+    out = ws.results / "tables" / f"intervals_{args.feature_set}_{name}.md"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("\n".join(lines) + "\n")
+    print("\n".join(lines))
+
+
 def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     """E3/E4: residual GBM with feature-set ablation. Trains on train, evaluates on `--split` (val by default)."""
     import time
@@ -395,12 +569,7 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     step, n_fut = w["step_s"], w["future_steps"]
     knots = [int(k * 60 / step) for k in g["knots_min"]]
     arrays = np.load(ws.processed / "windows.npz")
-    meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
-    if any("fairway" in sets for sets in g["feature_sets"].values()):
-        path = ws.processed / "fairway_features.parquet"
-        if not path.exists():
-            sys.exit("feature sets use 'fairway': run `morva fairway` first")
-        meta = meta.join(pl.read_parquet(path), on="sample_id", how="left", maintain_order="left")
+    meta = _load_meta(ws, [s for sets in g["feature_sets"].values() for s in sets])
     tr = (meta["split"] == "train").to_numpy()
     ev_mask, suffix = _eval_mask(meta, args)
     if args.holdout_eval_vessels:  # train only on vessels that never appear in the evaluated windows
@@ -533,32 +702,35 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
                  "seed_fde": seed_fde}, run_dir / "summary.json")
 
     fmt = lambda s: f"{s['mean']:+.0f} ({s['ci95_lo']:+.0f} to {s['ci95_hi']:+.0f})"  # noqa: E731
+    H = n_fut * step // 60  # noqa: N806  (final horizon, minutes)
+    inner = [h for h in w["horizons_min"] if h < H]
     title = args.split + (f", {args.region}" if args.region else "") + (
         ", vessel-held-out" if args.holdout_eval_vessels else "") + (
         ", spatially held-out (longitude bands)" if args.spatial_holdout else "") + (
         f", random train subsample {args.train_subsample:,}" if args.train_subsample else "")
     lines = [f"# Residual GBM context ablation ({title}; {tr_report:,} train windows"
              f"{' (mean per fold)' if args.spatial_holdout else ''})", "",
-             "| model | ADE m (95% CI) | FDE@20 m (95% CI) | err@5 | err@10 |", "|---|---|---|---|---|"]
+             f"| model | ADE m (95% CI) | FDE@{H} m (95% CI) | " + " | ".join(f"err@{h}" for h in inner) + " |",
+             "|---|---|---|" + "---|" * len(inner)]
     for k, s in summary.items():
         lines.append(f"| {k} | {s['ade_m']['mean']:.0f} ({s['ade_m']['ci95_lo']:.0f}–{s['ade_m']['ci95_hi']:.0f}) | "
                      f"{s['fde_m']['mean']:.0f} ({s['fde_m']['ci95_lo']:.0f}–{s['fde_m']['ci95_hi']:.0f}) | "
-                     f"{s['err_5min_m']['mean']:.0f} | {s['err_10min_m']['mean']:.0f} |")
+                     + " | ".join(f"{s[f'err_{h}min_m']['mean']:.0f}" for h in inner) + " |")
     lines += ["", "Paired differences on identical windows (m, negative = first model better), vessel bootstrap:", "",
               "| comparison | ΔADE | ΔFDE |", "|---|---|---|"]
     lines += [f"| {c} | {fmt(d['ade_m'])} | {fmt(d['fde_m'])} |" for c, d in comparisons.items()]
     for title, tab in (("past turn rate (°/min)", by_turn), ("ship group", by_group)):
-        lines += ["", f"Mean FDE@20 min (m) by {title}:", "", "| " + " | ".join(tab.columns) + " |",
+        lines += ["", f"Mean FDE@{H} min (m) by {title}:", "", "| " + " | ".join(tab.columns) + " |",
                   "|" + "---|" * len(tab.columns)]
         lines += ["| " + " | ".join(f"{v:.0f}" if isinstance(v, float) else str(v) for v in r) + " |"
                   for r in tab.iter_rows()]
-    lines += ["", "ΔFDE@20 min (m) for vessels NOT seen in training vs vessels seen in training:", "",
+    lines += ["", f"ΔFDE@{H} min (m) for vessels NOT seen in training vs vessels seen in training:", "",
               "| comparison | " + " | ".join(f"{k} ({v['vessels']} vessels)" for k, v in novelty.items()) + " |",
               "|---|" + "---|" * len(novelty)]
     comps = [c for c in next(iter(novelty.values())) if " - " in c]
     lines += [f"| {c} | " + " | ".join(fmt(v[c]) for v in novelty.values()) + " |" for c in comps]
     if len(seeds) > 1:
-        lines += ["", f"FDE@20 min (m) across seeds {seeds}:", "",
+        lines += ["", f"FDE@{H} min (m) across seeds {seeds}:", "",
                   "| model | mean | sd | min | max |", "|---|---|---|---|---|"]
         for n, d in seed_fde.items():
             v = np.array(list(d.values()))
@@ -598,6 +770,7 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
 
     _check_test_lock(args)
     w, ev = exp_cfg["windows"], exp_cfg["evaluation"]
+    H = w["future_steps"] * w["step_s"] // 60  # noqa: N806  (final horizon, minutes)
     gbm_sets = list(exp_cfg["gbm"]["feature_sets"])
     meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
     mask, run_name = _eval_mask(meta, args)
@@ -656,7 +829,7 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
     runs_used = ", ".join(f"`{r}`" for r in (gbm_run, held_run, spat_run, base_run) if r)
     lines = [f"# Results by past-only manoeuvring regime ({run_name})", "",
              f"Regime parameters: {p0.label()}. Runs: {runs_used}.", "",
-             "## Mean FDE@20 min (m)", "",
+             f"## Mean FDE@{H} min (m)", "",
              "| regime | windows | share | vessels | turn label reliable | " + " | ".join(models) + " |",
              "|---|---|---|---|---|" + "---|" * len(models)]
     rows = []
@@ -670,7 +843,8 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
                      + " | ".join(f"{rows[-1][mm]:.0f}" for mm in models) + " |")
 
     header = "| regime | " + " | ".join(f"{b} − {a}" for b, a in comps) + " |"
-    lines += ["", "## Paired ΔFDE@20 min by regime (m, 95% CI, vessel bootstrap; negative = first model better)", "",
+    lines += ["", f"## Paired ΔFDE@{H} min by regime (m, 95% CI, vessel bootstrap; negative = first model better)",
+              "",
               header, "|---|" + "---|" * len(comps)]
     for r in REGIMES:
         sel = reg == r
@@ -678,7 +852,7 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
             lines.append(f"| {r} | " + " | ".join(fmt(paired("fde_", b, "fde_", a, sel)) for b, a in comps) + " |")
 
     for title, pre in held_out:
-        lines += ["", f"## {title}: paired ΔFDE@20 min by regime", "", header, "|---|" + "---|" * len(comps)]
+        lines += ["", f"## {title}: paired ΔFDE@{H} min by regime", "", header, "|---|" + "---|" * len(comps)]
         for r in REGIMES:
             sel = reg == r
             if sel.any():
@@ -735,7 +909,7 @@ def cmd_regime_report(ws: Workspace, data_cfg, exp_cfg, args):
         ax.bar(x + (i - (len(show) - 1) / 2) * width, [r[mm] for r in rows], width=width, label=mm)
     counts = {r: int((reg == r).sum()) for r in REGIMES}
     ax.set_xticks(x, [f"{r['regime']}\n(n={counts[r['regime']]:,})" for r in rows], fontsize=8)
-    ax.set_ylabel("Mean FDE at 20 min (m)")
+    ax.set_ylabel(f"Mean FDE at {H} min (m)")
     ax.set_title(f"Prediction error by past-only manoeuvring regime ({run_name})")
     ax.legend(fontsize=8)
     ax.grid(axis="y", alpha=0.3)
@@ -778,7 +952,10 @@ def cmd_summary_figure(ws: Workspace, data_cfg, exp_cfg, args):
 def main(argv=None):
     from morva.evaluation.splits import EVAL_SPLITS
 
-    region_names = _region_names(load_config("configs/data.yaml"))
+    # --region choices come from the data config actually in use
+    pre = argparse.ArgumentParser(add_help=False)
+    pre.add_argument("--data-config", default="configs/data.yaml")
+    region_names = _region_names(load_config(pre.parse_known_args(argv)[0].data_config))
 
     ap = argparse.ArgumentParser(prog="morva")
     ap.add_argument("--synthetic", action="store_true", help="use the isolated synthetic workspace")
@@ -788,6 +965,7 @@ def main(argv=None):
     sub.add_parser("synth", help="generate synthetic DMA-format AIS (smoke tests only)")
     p = sub.add_parser("manifest", help="record provenance + checksum of raw files")
     p.add_argument("files", nargs="+")
+    p.add_argument("--source", help="configured data source name (default: the first)")
     p.add_argument("--notes", default="")
     p.add_argument("--force", action="store_true", help="overwrite existing manifests")
     p = sub.add_parser("ingest", help="raw zip/csv -> AOI-filtered, de-duplicated interim parquet")
@@ -810,6 +988,13 @@ def main(argv=None):
     p.add_argument("--seeds", type=int, nargs="+", help="seeds to train (default: config seed)")
     p.add_argument("--train-subsample", type=int, help="random subsample of training windows (size control)")
     p.add_argument("--spatial-holdout", action="store_true", help="hold out one longitude band at a time (H4)")
+    p = sub.add_parser("intervals", help="V3: quantile model + conformal calibration; interval coverage on --split")
+    p.add_argument("--split", default="val", choices=list(EVAL_SPLITS))
+    p.add_argument("--region", choices=region_names, help="evaluate one region only (default: all in the split)")
+    p.add_argument("--feature-set", default="E_fairway", help="feature set from the gbm config (default E_fairway)")
+    p.add_argument("--local-calibration", action="store_true",
+                   help="calibrate on the region's own transfer_calib windows (secondary analysis)")
+    p.add_argument("--confirm-test", action="store_true")
     p = sub.add_parser("sensitivity", help="E0: retained data under different gap thresholds")
     p.add_argument("--gap-s", type=int, nargs="+", default=[600, 1200, 1800])
     p.add_argument("--window-gap-s", type=int, nargs="+", default=[120, 180, 300])
@@ -829,7 +1014,7 @@ def main(argv=None):
         "synth": cmd_synth, "manifest": cmd_manifest, "ingest": cmd_ingest, "clean": cmd_clean,
         "windows": cmd_windows, "fairway": cmd_fairway, "baselines": cmd_baselines, "plot-tracks": cmd_plot_tracks,
         "regime-eda": cmd_regime_eda, "sensitivity": cmd_sensitivity, "gbm": cmd_gbm,
-        "regime-report": cmd_regime_report, "summary-figure": cmd_summary_figure,
+        "regime-report": cmd_regime_report, "intervals": cmd_intervals, "summary-figure": cmd_summary_figure,
     }
     handlers[args.cmd](ws, data_cfg, exp_cfg, args)
 

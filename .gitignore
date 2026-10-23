@@ -27,3 +27,4 @@ results/v3/runs/**/*.npz
 
 .DS_Store
 results/_synthetic/
+results/**/_synthetic/

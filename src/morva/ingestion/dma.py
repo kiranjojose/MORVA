@@ -13,6 +13,8 @@ from pathlib import Path
 
 import polars as pl
 
+from morva.ingestion.sources import regions  # noqa: F401  (kept importable from here)
+
 # DMA header name -> canonical name. Verify against the real file header on first download.
 DMA_COLUMNS = {
     "# Timestamp": "t",
@@ -58,11 +60,6 @@ def scan_dma_csv(path: Path, timestamp_format: str) -> pl.LazyFrame:
     return _cast(lf, timestamp_format)
 
 
-def regions(data_cfg: dict) -> list[dict]:
-    """Home AOI first, then the V2 transfer waterways. Boxes must not overlap."""
-    return [data_cfg["aoi"], *data_cfg.get("transfer_aois", [])]
-
-
 def filter_aoi(lf: pl.LazyFrame, boxes: list[dict], keep_mobile_types: list[str]) -> pl.LazyFrame:
     """Keep rows inside any box and tag each with the box name in `region`."""
     region = pl.lit(None, pl.String)
@@ -74,14 +71,13 @@ def filter_aoi(lf: pl.LazyFrame, boxes: list[dict], keep_mobile_types: list[str]
         pl.col("region").is_not_null())
 
 
-def ingest_file(src: Path, out_dir: Path, data_cfg: dict) -> dict:
+def ingest_file(src: Path, out_dir: Path, source_cfg: dict, boxes: list[dict]) -> dict:
     """Convert one DMA zip/CSV to an AOI-filtered interim Parquet file.
 
     Exact full-row duplicates (identical in every column, ~half of DMA rows) carry no
     information and are removed here; their count is returned for the ingest log.
     Partial duplicates (same MMSI and time, different values) are kept for the quality stage.
     """
-    src_cfg = data_cfg["source"]
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{src.name.split('.')[0]}.parquet"
 
@@ -97,8 +93,8 @@ def ingest_file(src: Path, out_dir: Path, data_cfg: dict) -> dict:
         else:
             csv_path = src
 
-        lf = filter_aoi(scan_dma_csv(csv_path, src_cfg["timestamp_format"]), regions(data_cfg),
-                        src_cfg["keep_mobile_types"])
+        lf = filter_aoi(scan_dma_csv(csv_path, source_cfg["timestamp_format"]), boxes,
+                        source_cfg["keep_mobile_types"])
         df = lf.collect()
     unique = df.unique(maintain_order=True)
     unique.write_parquet(out_path)

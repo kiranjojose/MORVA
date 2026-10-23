@@ -115,3 +115,35 @@ def generate(out_csv: Path, n_vessels: int = 40, n_moored: int = 3, n_transfer: 
     out_csv.parent.mkdir(parents=True, exist_ok=True)
     out.write_csv(out_csv)
     return out_csv
+
+
+def generate_marinecadastre(out_zst: Path, n_vessels: int = 20, n_class_b: int = 3, seed: int = 11) -> Path:
+    """SYNTHETIC Marine Cadastre 2025-format day (`.csv.zst`, one-minute rows) in the Salish Sea V3 box, for the V3
+    smoke run. Includes Class B transmitters, which ingestion must drop."""
+    import zstandard
+
+    rng = np.random.default_rng(seed)
+    day = datetime(2025, 1, 1)
+    parts = []
+    for k in range(n_vessels + n_class_b):
+        start = day + timedelta(seconds=float(rng.uniform(0, 16 * 3600)))
+        v = _voyage(rng, 367_000_000 + k, start, rng.uniform(3, 6) * 3600, 60.0,
+                    rng.uniform(47.6, 48.3), rng.uniform(-123.6, -122.6))
+        parts.append(pl.DataFrame(v).with_columns(
+            vessel_type=pl.lit(int(rng.choice([70, 80, 60, 52]))), length=pl.lit(int(rng.integers(30, 300))),
+            transceiver=pl.lit("A" if k < n_vessels else "B")))
+    df = pl.concat(parts).sort("t")
+    out = df.select(
+        "mmsi",
+        pl.col("t").dt.strftime("%Y-%m-%d %H:%M:%S").alias("base_date_time"),
+        pl.col("lon").round(5).alias("longitude"),
+        pl.col("lat").round(5).alias("latitude"),
+        "sog", "cog", pl.col("heading").cast(pl.Int64),
+        pl.lit("SYNTHETIC").alias("vessel_name"), pl.lit(None, pl.String).alias("imo"),
+        pl.lit(None, pl.String).alias("call_sign"), "vessel_type", pl.lit(0).alias("status"), "length",
+        (pl.col("length") // 6).alias("width"), pl.lit(None, pl.Float64).alias("draft"),
+        pl.lit(None, pl.Int64).alias("cargo"), "transceiver",
+    )
+    out_zst.parent.mkdir(parents=True, exist_ok=True)
+    out_zst.write_bytes(zstandard.ZstdCompressor().compress(out.write_csv().encode()))
+    return out_zst
