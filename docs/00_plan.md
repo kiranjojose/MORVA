@@ -60,8 +60,8 @@ and one test run.
 
 ### Scope
 
-- **In:** calibrated prediction intervals; horizons up to 60 minutes; transfer to another country (USA); how much
-  traffic history a flow map needs; junction ambiguity (exploratory).
+- **In:** calibrated prediction intervals; horizons up to 60 minutes; transfer to another country (USA: Salish Sea,
+  optionally Houston); how much traffic history a flow map needs; junction ambiguity (exploratory).
 - **Out (later versions):** neighbouring-vessel interaction moves to V4; behaviour-deviation screening moves to V5.
   Finland is deferred: its open data (Digitraffic, CC BY 4.0) has no historical archive and would need weeks of live
   recording, so it is a possible V3b.
@@ -85,8 +85,8 @@ trained in the Danish home area only.
 |---|---|---|---|
 | Denmark: home (training area) | 19 Sep–6 Oct 2026 (train) | 7–15 Oct 2026 (spent V2 test days) | 16–29 Oct 2026 |
 | Denmark: Bornholm, Skagen | 19 Sep–6 Oct 2026 (map only) | 7–15 Oct 2026 | 16–29 Oct 2026 |
-| USA: Puget Sound | 19 Sep–6 Oct 2025 (map only) | 7–15 Oct 2025 | 16–29 Oct 2025 |
-| USA: Houston Ship Channel (optional) | 19 Sep–6 Oct 2025 (map only) | 7–15 Oct 2025 | 16–29 Oct 2025 |
+| USA: Salish Sea | 19 Sep–6 Oct 2025 (map only) | 7–15 Oct 2025 | 16–29 Oct 2025 |
+| USA: Houston (optional) | 19 Sep–6 Oct 2025 (map only) | 7–15 Oct 2025 | 16–29 Oct 2025 |
 | Norway: Bergen/Fedje (optional) | as Denmark, if Kystverket HAIS data are recent enough | | |
 
 - **Validation days are used for two separate purposes:** 7–11 Oct for model selection, and 12–15 Oct as the
@@ -95,10 +95,23 @@ trained in the Danish home area only.
   sampled at one minute). The catalogue lists no access constraints; the stated use is "coastal and ocean planning,
   not for navigation", and the data are provided as is. That is sufficient for research. Commercial use is not
   addressed explicitly and must be confirmed with NOAA before any product use.
-- **USA boxes (provisional, to be confirmed by a one-day traffic count on a map-period day before any model is run):**
-  Puget Sound with Admiralty Inlet, about 47.0–48.3° N, 123.2–122.2° W (traffic separation schemes, ferries, narrow
-  sounds); Houston Ship Channel with Galveston Bay, about 29.2–29.8° N, 95.3–94.6° W (a narrow dredged channel with
-  heavy tanker traffic).
+- **USA boxes (set 23 Oct 2026 from a one-day traffic count on 24 Sep 2025, a map-period day, before any model was
+  run; Class A, moving = SOG > 5 kn, counted in vessel-minutes because US data are one-minute sampled):**
+
+  | Area | Box | Moving vessels | Moving vessel-minutes | Merchant (cargo + tanker) vessels |
+  |---|---|---:|---:|---:|
+  | Salish Sea (primary) | 47.0–48.8° N, 124.7–122.2° W | 256 | 50,958 | 56 |
+  | Houston (optional) | 28.9–29.8° N, 95.3–94.3° W | 488 | 74,220 | 97 |
+  | For comparison, same calendar day in 2026: Bornholm | | 201 | 43,983 | 155 |
+  | Skagen | | 262 | 50,179 | 141 |
+
+  The Salish Sea box covers the Strait of Juan de Fuca, Admiralty Inlet, Puget Sound and parts of Haro and Rosario
+  Straits: traffic separation schemes, the Washington State Ferries network and merchant approaches. Coverage continues
+  across the Canadian border, so the box is not cut by it. A first box limited to Puget Sound (47.0–48.3° N,
+  123.2–122.2° W) was rejected: 133 moving vessels, 21,480 vessel-minutes and only 17 merchant vessels. Houston covers
+  the Houston Ship Channel, Galveston Bay and the offshore fairway. About two-thirds of its moving traffic is tugs and
+  towboats, so Houston is reported both overall and for merchant vessels only. US merchant traffic is thinner than
+  Danish, so all US results are also reported by ship group.
 - **Year difference:** US data are from 2025 and Danish data from 2026. Each region uses its own forward-in-time split
   and its own flow map, so the comparison stays internally consistent; the difference is reported as a limitation.
 - **Norway** joins only if a small test order from Kystverket HAIS shows data for the same 2026 periods and terms
@@ -135,11 +148,11 @@ All confidence intervals remain paired and vessel-grouped.
 
 - **V3-H1 (calibration):** conformal 80% and 90% intervals have coverage within 3 percentage points of nominal at 20 and
   60 minutes in the home area, Bornholm and Skagen.
-- **V3-H2 (cross-country transfer):** E improves on A in Puget Sound at 20 and 60 minutes.
-- **V3-H3 (horizon):** in the independent waterways (Bornholm, Skagen, Puget Sound), E's relative improvement over A
+- **V3-H2 (cross-country transfer):** E improves on A in the Salish Sea at 20 and 60 minutes.
+- **V3-H3 (horizon):** in the independent waterways (Bornholm, Skagen, Salish Sea), E's relative improvement over A
   is larger at 60 minutes than at 20.
-- **Descriptive:** interval coverage in Puget Sound with and without local recalibration; Houston and Norway if
-  included; map-history curve; junction features.
+- **Descriptive:** interval coverage in the Salish Sea with and without local recalibration; Houston (overall and
+  merchant-only) and Norway if included; map-history curve; junction features.
 
 ### Engineering needed
 
@@ -153,8 +166,8 @@ All confidence intervals remain paired and vessel-grouped.
 
 ### Order of work
 
-1. **Data feasibility:** download US map-period and validation days only; one-day traffic count to confirm the boxes;
-   Norway test order (by the author).
+1. **Data feasibility:** download US map-period and validation days only; one-day traffic count to confirm the boxes
+   (done 23 Oct); Norway test order (by the author).
 2. **Set the V3 split** in the configuration before any validation analysis.
 3. **Infrastructure:** 60-minute windows, the US adapter, quantile model and calibration; tests and synthetic smoke run.
 4. **Validation:** point and interval results in Denmark and the USA; map-history curve; junction features.
