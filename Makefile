@@ -37,6 +37,7 @@ smoke-v3:
 	uv run morva --synthetic $(V3) intervals --split val
 	uv run morva --synthetic $(V3) intervals --split transfer_val --region salish_sea
 	uv run morva --synthetic $(V3) intervals --split transfer_val --region salish_sea --local-calibration
+	uv run morva --synthetic $(V3) intervals --split val --sweep
 
 # Provenance record (checksum, size) for every raw file; existing manifests are kept
 manifests:

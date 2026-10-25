@@ -1,0 +1,244 @@
+{
+  "map_periods_utc": {
+    "great_belt_oresund": [
+      "2026-09-19 00:00:00+00:00",
+      "2026-10-07 00:00:00+00:00"
+    ],
+    "bornholm": [
+      "2026-09-19 00:00:00+00:00",
+      "2026-10-07 00:00:00+00:00"
+    ],
+    "skagen": [
+      "2026-09-19 00:00:00+00:00",
+      "2026-10-07 00:00:00+00:00"
+    ],
+    "salish_sea": [
+      "2025-09-19 00:00:00+00:00",
+      "2025-10-07 00:00:00+00:00"
+    ],
+    "houston": [
+      "2025-09-19 00:00:00+00:00",
+      "2025-10-07 00:00:00+00:00"
+    ]
+  },
+  "config": {
+    "cell_m": 300,
+    "block_radius_cells": 2,
+    "n_dir_bins": 12,
+    "dir_radius_bins": 1,
+    "min_sog_kn": 3.0,
+    "sample_s": 60,
+    "min_points": 10,
+    "ahead_min": [
+      5,
+      10,
+      20,
+      30,
+      45,
+      60
+    ],
+    "map_history_days": [
+      1,
+      3,
+      7,
+      "all"
+    ]
+  },
+  "regions": {
+    "great_belt_oresund": {
+      "map_points": 1812415,
+      "map_days": 18,
+      "grid": [
+        546,
+        519,
+        12
+      ],
+      "by_split": [
+        {
+          "split": "calib",
+          "windows": 66974,
+          "with_flow": 65381,
+          "median_abs_offset_m": 97.41187124394895,
+          "median_abs_hdg_deg": 3.0819840547509614
+        },
+        {
+          "split": "excluded",
+          "windows": 1542,
+          "with_flow": 1524,
+          "median_abs_offset_m": 114.26012591527024,
+          "median_abs_hdg_deg": 2.3700407515158872
+        },
+        {
+          "split": "train",
+          "windows": 316680,
+          "with_flow": 309119,
+          "median_abs_offset_m": 99.39128425960656,
+          "median_abs_hdg_deg": 3.204711976960567
+        },
+        {
+          "split": "val",
+          "windows": 80145,
+          "with_flow": 77973,
+          "median_abs_offset_m": 98.22479101935605,
+          "median_abs_hdg_deg": 3.0968332138689334
+        }
+      ]
+    },
+    "bornholm": {
+      "map_points": 684886,
+      "map_days": 18,
+      "grid": [
+        339,
+        334,
+        12
+      ],
+      "by_split": [
+        {
+          "split": "excluded",
+          "windows": 763,
+          "with_flow": 698,
+          "median_abs_offset_m": 145.5054224768103,
+          "median_abs_hdg_deg": 2.4648446061676452
+        },
+        {
+          "split": "transfer_calib",
+          "windows": 20330,
+          "with_flow": 19165,
+          "median_abs_offset_m": 123.17386835205703,
+          "median_abs_hdg_deg": 2.7546177519652417
+        },
+        {
+          "split": "transfer_context",
+          "windows": 100896,
+          "with_flow": 95211,
+          "median_abs_offset_m": 122.01439624361412,
+          "median_abs_hdg_deg": 2.6965091006549216
+        },
+        {
+          "split": "transfer_val",
+          "windows": 25021,
+          "with_flow": 24114,
+          "median_abs_offset_m": 116.2851711164156,
+          "median_abs_hdg_deg": 2.486838705894229
+        }
+      ]
+    },
+    "skagen": {
+      "map_points": 1027804,
+      "map_days": 18,
+      "grid": [
+        318,
+        297,
+        12
+      ],
+      "by_split": [
+        {
+          "split": "excluded",
+          "windows": 1067,
+          "with_flow": 1055,
+          "median_abs_offset_m": 123.37301860191928,
+          "median_abs_hdg_deg": 5.359165166135313
+        },
+        {
+          "split": "transfer_calib",
+          "windows": 39675,
+          "with_flow": 38580,
+          "median_abs_offset_m": 122.59656061998187,
+          "median_abs_hdg_deg": 5.510595413480303
+        },
+        {
+          "split": "transfer_context",
+          "windows": 196210,
+          "with_flow": 190931,
+          "median_abs_offset_m": 122.28494754826315,
+          "median_abs_hdg_deg": 5.12126578561157
+        },
+        {
+          "split": "transfer_val",
+          "windows": 44871,
+          "with_flow": 44030,
+          "median_abs_offset_m": 120.93483923681666,
+          "median_abs_hdg_deg": 4.90173174096617
+        }
+      ]
+    },
+    "salish_sea": {
+      "map_points": 924619,
+      "map_days": 18,
+      "grid": [
+        622,
+        668,
+        12
+      ],
+      "by_split": [
+        {
+          "split": "excluded",
+          "windows": 1063,
+          "with_flow": 1051,
+          "median_abs_offset_m": 107.13784347067762,
+          "median_abs_hdg_deg": 4.695807872409091
+        },
+        {
+          "split": "transfer_calib",
+          "windows": 36761,
+          "with_flow": 35699,
+          "median_abs_offset_m": 108.15014747957359,
+          "median_abs_hdg_deg": 4.556954802679513
+        },
+        {
+          "split": "transfer_context",
+          "windows": 140940,
+          "with_flow": 137347,
+          "median_abs_offset_m": 111.84147103916271,
+          "median_abs_hdg_deg": 4.387641218350268
+        },
+        {
+          "split": "transfer_val",
+          "windows": 34247,
+          "with_flow": 33412,
+          "median_abs_offset_m": 106.92817835657875,
+          "median_abs_hdg_deg": 4.782136606461222
+        }
+      ]
+    },
+    "houston": {
+      "map_points": 1649014,
+      "map_days": 18,
+      "grid": [
+        324,
+        334,
+        12
+      ],
+      "by_split": [
+        {
+          "split": "excluded",
+          "windows": 1722,
+          "with_flow": 1694,
+          "median_abs_offset_m": 47.424262956201744,
+          "median_abs_hdg_deg": 3.667565338480955
+        },
+        {
+          "split": "transfer_calib",
+          "windows": 48628,
+          "with_flow": 48072,
+          "median_abs_offset_m": 41.25748071045949,
+          "median_abs_hdg_deg": 2.863655355866257
+        },
+        {
+          "split": "transfer_context",
+          "windows": 259700,
+          "with_flow": 256898,
+          "median_abs_offset_m": 43.47239744170434,
+          "median_abs_hdg_deg": 3.2819811499954312
+        },
+        {
+          "split": "transfer_val",
+          "windows": 54432,
+          "with_flow": 53538,
+          "median_abs_offset_m": 45.65879866979891,
+          "median_abs_hdg_deg": 3.4627451618507905
+        }
+      ]
+    }
+  }
+}

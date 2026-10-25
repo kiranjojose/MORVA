@@ -1,0 +1,623 @@
+{
+  "ais-2025-09-19.csv.zst": {
+    "source": "ais-2025-09-19.csv.zst",
+    "interim": "ais-2025-09-19.parquet",
+    "rows_in_aoi": 658002,
+    "exact_duplicates_removed": 15140,
+    "rows_written": 642862,
+    "rows_written_by_region": {
+      "houston": 415290,
+      "salish_sea": 227572
+    }
+  },
+  "ais-2025-09-20.csv.zst": {
+    "source": "ais-2025-09-20.csv.zst",
+    "interim": "ais-2025-09-20.parquet",
+    "rows_in_aoi": 637638,
+    "exact_duplicates_removed": 15129,
+    "rows_written": 622509,
+    "rows_written_by_region": {
+      "houston": 407369,
+      "salish_sea": 215140
+    }
+  },
+  "ais-2025-09-21.csv.zst": {
+    "source": "ais-2025-09-21.csv.zst",
+    "interim": "ais-2025-09-21.parquet",
+    "rows_in_aoi": 746173,
+    "exact_duplicates_removed": 16456,
+    "rows_written": 729717,
+    "rows_written_by_region": {
+      "houston": 483929,
+      "salish_sea": 245788
+    }
+  },
+  "ais-2025-09-22.csv.zst": {
+    "source": "ais-2025-09-22.csv.zst",
+    "interim": "ais-2025-09-22.parquet",
+    "rows_in_aoi": 682865,
+    "exact_duplicates_removed": 15794,
+    "rows_written": 667071,
+    "rows_written_by_region": {
+      "houston": 442482,
+      "salish_sea": 224589
+    }
+  },
+  "ais-2025-09-23.csv.zst": {
+    "source": "ais-2025-09-23.csv.zst",
+    "interim": "ais-2025-09-23.parquet",
+    "rows_in_aoi": 675608,
+    "exact_duplicates_removed": 15199,
+    "rows_written": 660409,
+    "rows_written_by_region": {
+      "houston": 432622,
+      "salish_sea": 227787
+    }
+  },
+  "ais-2025-09-24.csv.zst": {
+    "source": "ais-2025-09-24.csv.zst",
+    "interim": "ais-2025-09-24.parquet",
+    "rows_in_aoi": 685765,
+    "exact_duplicates_removed": 15599,
+    "rows_written": 670166,
+    "rows_written_by_region": {
+      "houston": 439693,
+      "salish_sea": 230473
+    }
+  },
+  "ais-2025-09-25.csv.zst": {
+    "source": "ais-2025-09-25.csv.zst",
+    "interim": "ais-2025-09-25.parquet",
+    "rows_in_aoi": 716045,
+    "exact_duplicates_removed": 15778,
+    "rows_written": 700267,
+    "rows_written_by_region": {
+      "houston": 448398,
+      "salish_sea": 251869
+    }
+  },
+  "ais-2025-09-26.csv.zst": {
+    "source": "ais-2025-09-26.csv.zst",
+    "interim": "ais-2025-09-26.parquet",
+    "rows_in_aoi": 600640,
+    "exact_duplicates_removed": 15137,
+    "rows_written": 585503,
+    "rows_written_by_region": {
+      "houston": 380214,
+      "salish_sea": 205289
+    }
+  },
+  "ais-2025-09-27.csv.zst": {
+    "source": "ais-2025-09-27.csv.zst",
+    "interim": "ais-2025-09-27.parquet",
+    "rows_in_aoi": 590842,
+    "exact_duplicates_removed": 15089,
+    "rows_written": 575753,
+    "rows_written_by_region": {
+      "houston": 376812,
+      "salish_sea": 198941
+    }
+  },
+  "ais-2025-09-28.csv.zst": {
+    "source": "ais-2025-09-28.csv.zst",
+    "interim": "ais-2025-09-28.parquet",
+    "rows_in_aoi": 629975,
+    "exact_duplicates_removed": 14778,
+    "rows_written": 615197,
+    "rows_written_by_region": {
+      "houston": 413050,
+      "salish_sea": 202147
+    }
+  },
+  "ais-2025-09-29.csv.zst": {
+    "source": "ais-2025-09-29.csv.zst",
+    "interim": "ais-2025-09-29.parquet",
+    "rows_in_aoi": 681693,
+    "exact_duplicates_removed": 14542,
+    "rows_written": 667151,
+    "rows_written_by_region": {
+      "houston": 451683,
+      "salish_sea": 215468
+    }
+  },
+  "ais-2025-09-30.csv.zst": {
+    "source": "ais-2025-09-30.csv.zst",
+    "interim": "ais-2025-09-30.parquet",
+    "rows_in_aoi": 744665,
+    "exact_duplicates_removed": 14066,
+    "rows_written": 730599,
+    "rows_written_by_region": {
+      "houston": 492862,
+      "salish_sea": 237737
+    }
+  },
+  "ais-2025-10-01.csv.zst": {
+    "source": "ais-2025-10-01.csv.zst",
+    "interim": "ais-2025-10-01.parquet",
+    "rows_in_aoi": 727929,
+    "exact_duplicates_removed": 14939,
+    "rows_written": 712990,
+    "rows_written_by_region": {
+      "houston": 477730,
+      "salish_sea": 235260
+    }
+  },
+  "ais-2025-10-02.csv.zst": {
+    "source": "ais-2025-10-02.csv.zst",
+    "interim": "ais-2025-10-02.parquet",
+    "rows_in_aoi": 670351,
+    "exact_duplicates_removed": 15546,
+    "rows_written": 654805,
+    "rows_written_by_region": {
+      "houston": 439083,
+      "salish_sea": 215722
+    }
+  },
+  "ais-2025-10-03.csv.zst": {
+    "source": "ais-2025-10-03.csv.zst",
+    "interim": "ais-2025-10-03.parquet",
+    "rows_in_aoi": 639033,
+    "exact_duplicates_removed": 15167,
+    "rows_written": 623866,
+    "rows_written_by_region": {
+      "houston": 418659,
+      "salish_sea": 205207
+    }
+  },
+  "ais-2025-10-04.csv.zst": {
+    "source": "ais-2025-10-04.csv.zst",
+    "interim": "ais-2025-10-04.parquet",
+    "rows_in_aoi": 676032,
+    "exact_duplicates_removed": 14028,
+    "rows_written": 662004,
+    "rows_written_by_region": {
+      "houston": 428317,
+      "salish_sea": 233687
+    }
+  },
+  "ais-2025-10-05.csv.zst": {
+    "source": "ais-2025-10-05.csv.zst",
+    "interim": "ais-2025-10-05.parquet",
+    "rows_in_aoi": 726065,
+    "exact_duplicates_removed": 15982,
+    "rows_written": 710083,
+    "rows_written_by_region": {
+      "houston": 472085,
+      "salish_sea": 237998
+    }
+  },
+  "ais-2025-10-06.csv.zst": {
+    "source": "ais-2025-10-06.csv.zst",
+    "interim": "ais-2025-10-06.parquet",
+    "rows_in_aoi": 730568,
+    "exact_duplicates_removed": 16203,
+    "rows_written": 714365,
+    "rows_written_by_region": {
+      "houston": 476085,
+      "salish_sea": 238280
+    }
+  },
+  "ais-2025-10-07.csv.zst": {
+    "source": "ais-2025-10-07.csv.zst",
+    "interim": "ais-2025-10-07.parquet",
+    "rows_in_aoi": 677266,
+    "exact_duplicates_removed": 16040,
+    "rows_written": 661226,
+    "rows_written_by_region": {
+      "houston": 435655,
+      "salish_sea": 225571
+    }
+  },
+  "ais-2025-10-08.csv.zst": {
+    "source": "ais-2025-10-08.csv.zst",
+    "interim": "ais-2025-10-08.parquet",
+    "rows_in_aoi": 648680,
+    "exact_duplicates_removed": 13205,
+    "rows_written": 635475,
+    "rows_written_by_region": {
+      "houston": 399008,
+      "salish_sea": 236467
+    }
+  },
+  "ais-2025-10-09.csv.zst": {
+    "source": "ais-2025-10-09.csv.zst",
+    "interim": "ais-2025-10-09.parquet",
+    "rows_in_aoi": 710522,
+    "exact_duplicates_removed": 15715,
+    "rows_written": 694807,
+    "rows_written_by_region": {
+      "houston": 457518,
+      "salish_sea": 237289
+    }
+  },
+  "ais-2025-10-10.csv.zst": {
+    "source": "ais-2025-10-10.csv.zst",
+    "interim": "ais-2025-10-10.parquet",
+    "rows_in_aoi": 594131,
+    "exact_duplicates_removed": 15230,
+    "rows_written": 578901,
+    "rows_written_by_region": {
+      "houston": 381148,
+      "salish_sea": 197753
+    }
+  },
+  "ais-2025-10-11.csv.zst": {
+    "source": "ais-2025-10-11.csv.zst",
+    "interim": "ais-2025-10-11.parquet",
+    "rows_in_aoi": 728307,
+    "exact_duplicates_removed": 15819,
+    "rows_written": 712488,
+    "rows_written_by_region": {
+      "houston": 457376,
+      "salish_sea": 255112
+    }
+  },
+  "ais-2025-10-12.csv.zst": {
+    "source": "ais-2025-10-12.csv.zst",
+    "interim": "ais-2025-10-12.parquet",
+    "rows_in_aoi": 655031,
+    "exact_duplicates_removed": 12320,
+    "rows_written": 642711,
+    "rows_written_by_region": {
+      "houston": 403503,
+      "salish_sea": 239208
+    }
+  },
+  "ais-2025-10-13.csv.zst": {
+    "source": "ais-2025-10-13.csv.zst",
+    "interim": "ais-2025-10-13.parquet",
+    "rows_in_aoi": 614951,
+    "exact_duplicates_removed": 11756,
+    "rows_written": 603195,
+    "rows_written_by_region": {
+      "houston": 370731,
+      "salish_sea": 232464
+    }
+  },
+  "ais-2025-10-14.csv.zst": {
+    "source": "ais-2025-10-14.csv.zst",
+    "interim": "ais-2025-10-14.parquet",
+    "rows_in_aoi": 651600,
+    "exact_duplicates_removed": 13489,
+    "rows_written": 638111,
+    "rows_written_by_region": {
+      "houston": 396978,
+      "salish_sea": 241133
+    }
+  },
+  "ais-2025-10-15.csv.zst": {
+    "source": "ais-2025-10-15.csv.zst",
+    "interim": "ais-2025-10-15.parquet",
+    "rows_in_aoi": 743414,
+    "exact_duplicates_removed": 15529,
+    "rows_written": 727885,
+    "rows_written_by_region": {
+      "houston": 468084,
+      "salish_sea": 259801
+    }
+  },
+  "aisdk-2026-09-19.zip": {
+    "source": "aisdk-2026-09-19.zip",
+    "interim": "aisdk-2026-09-19.parquet",
+    "rows_in_aoi": 6160823,
+    "exact_duplicates_removed": 2579103,
+    "rows_written": 3581720,
+    "rows_written_by_region": {
+      "bornholm": 500632,
+      "great_belt_oresund": 1642018,
+      "skagen": 1439070
+    }
+  },
+  "aisdk-2026-09-20.zip": {
+    "source": "aisdk-2026-09-20.zip",
+    "interim": "aisdk-2026-09-20.parquet",
+    "rows_in_aoi": 6135976,
+    "exact_duplicates_removed": 2625270,
+    "rows_written": 3510706,
+    "rows_written_by_region": {
+      "bornholm": 454952,
+      "great_belt_oresund": 1612939,
+      "skagen": 1442815
+    }
+  },
+  "aisdk-2026-09-21.zip": {
+    "source": "aisdk-2026-09-21.zip",
+    "interim": "aisdk-2026-09-21.parquet",
+    "rows_in_aoi": 6508363,
+    "exact_duplicates_removed": 3140250,
+    "rows_written": 3368113,
+    "rows_written_by_region": {
+      "bornholm": 409279,
+      "great_belt_oresund": 1525964,
+      "skagen": 1432870
+    }
+  },
+  "aisdk-2026-09-22.zip": {
+    "source": "aisdk-2026-09-22.zip",
+    "interim": "aisdk-2026-09-22.parquet",
+    "rows_in_aoi": 7829181,
+    "exact_duplicates_removed": 4518143,
+    "rows_written": 3311038,
+    "rows_written_by_region": {
+      "bornholm": 390879,
+      "great_belt_oresund": 1685142,
+      "skagen": 1235017
+    }
+  },
+  "aisdk-2026-09-23.zip": {
+    "source": "aisdk-2026-09-23.zip",
+    "interim": "aisdk-2026-09-23.parquet",
+    "rows_in_aoi": 6146961,
+    "exact_duplicates_removed": 2810842,
+    "rows_written": 3336119,
+    "rows_written_by_region": {
+      "bornholm": 378679,
+      "great_belt_oresund": 1654828,
+      "skagen": 1302612
+    }
+  },
+  "aisdk-2026-09-24.zip": {
+    "source": "aisdk-2026-09-24.zip",
+    "interim": "aisdk-2026-09-24.parquet",
+    "rows_in_aoi": 6024384,
+    "exact_duplicates_removed": 2542720,
+    "rows_written": 3481664,
+    "rows_written_by_region": {
+      "bornholm": 473259,
+      "great_belt_oresund": 1701709,
+      "skagen": 1306696
+    }
+  },
+  "aisdk-2026-09-25.zip": {
+    "source": "aisdk-2026-09-25.zip",
+    "interim": "aisdk-2026-09-25.parquet",
+    "rows_in_aoi": 6042539,
+    "exact_duplicates_removed": 2589422,
+    "rows_written": 3453117,
+    "rows_written_by_region": {
+      "bornholm": 425341,
+      "great_belt_oresund": 1663481,
+      "skagen": 1364295
+    }
+  },
+  "aisdk-2026-09-26.zip": {
+    "source": "aisdk-2026-09-26.zip",
+    "interim": "aisdk-2026-09-26.parquet",
+    "rows_in_aoi": 6353642,
+    "exact_duplicates_removed": 2804710,
+    "rows_written": 3548932,
+    "rows_written_by_region": {
+      "bornholm": 472371,
+      "great_belt_oresund": 1614460,
+      "skagen": 1462101
+    }
+  },
+  "aisdk-2026-09-27.zip": {
+    "source": "aisdk-2026-09-27.zip",
+    "interim": "aisdk-2026-09-27.parquet",
+    "rows_in_aoi": 6778520,
+    "exact_duplicates_removed": 3290123,
+    "rows_written": 3488397,
+    "rows_written_by_region": {
+      "bornholm": 399215,
+      "great_belt_oresund": 1659952,
+      "skagen": 1429230
+    }
+  },
+  "aisdk-2026-09-28.zip": {
+    "source": "aisdk-2026-09-28.zip",
+    "interim": "aisdk-2026-09-28.parquet",
+    "rows_in_aoi": 6628745,
+    "exact_duplicates_removed": 3150543,
+    "rows_written": 3478202,
+    "rows_written_by_region": {
+      "bornholm": 399579,
+      "great_belt_oresund": 1653048,
+      "skagen": 1425575
+    }
+  },
+  "aisdk-2026-09-29.zip": {
+    "source": "aisdk-2026-09-29.zip",
+    "interim": "aisdk-2026-09-29.parquet",
+    "rows_in_aoi": 8022103,
+    "exact_duplicates_removed": 4647748,
+    "rows_written": 3374355,
+    "rows_written_by_region": {
+      "bornholm": 393589,
+      "great_belt_oresund": 1616949,
+      "skagen": 1363817
+    }
+  },
+  "aisdk-2026-09-30.zip": {
+    "source": "aisdk-2026-09-30.zip",
+    "interim": "aisdk-2026-09-30.parquet",
+    "rows_in_aoi": 7381386,
+    "exact_duplicates_removed": 3919785,
+    "rows_written": 3461601,
+    "rows_written_by_region": {
+      "bornholm": 381364,
+      "great_belt_oresund": 1719585,
+      "skagen": 1360652
+    }
+  },
+  "aisdk-2026-10-01.zip": {
+    "source": "aisdk-2026-10-01.zip",
+    "interim": "aisdk-2026-10-01.parquet",
+    "rows_in_aoi": 6828370,
+    "exact_duplicates_removed": 3252669,
+    "rows_written": 3575701,
+    "rows_written_by_region": {
+      "bornholm": 433225,
+      "great_belt_oresund": 1729462,
+      "skagen": 1413014
+    }
+  },
+  "aisdk-2026-10-02.zip": {
+    "source": "aisdk-2026-10-02.zip",
+    "interim": "aisdk-2026-10-02.parquet",
+    "rows_in_aoi": 6584176,
+    "exact_duplicates_removed": 3134178,
+    "rows_written": 3449998,
+    "rows_written_by_region": {
+      "bornholm": 428490,
+      "great_belt_oresund": 1655884,
+      "skagen": 1365624
+    }
+  },
+  "aisdk-2026-10-03.zip": {
+    "source": "aisdk-2026-10-03.zip",
+    "interim": "aisdk-2026-10-03.parquet",
+    "rows_in_aoi": 7147360,
+    "exact_duplicates_removed": 3749552,
+    "rows_written": 3397808,
+    "rows_written_by_region": {
+      "bornholm": 414689,
+      "great_belt_oresund": 1668268,
+      "skagen": 1314851
+    }
+  },
+  "aisdk-2026-10-04.zip": {
+    "source": "aisdk-2026-10-04.zip",
+    "interim": "aisdk-2026-10-04.parquet",
+    "rows_in_aoi": 5796962,
+    "exact_duplicates_removed": 2479193,
+    "rows_written": 3317769,
+    "rows_written_by_region": {
+      "bornholm": 468786,
+      "great_belt_oresund": 1553266,
+      "skagen": 1295717
+    }
+  },
+  "aisdk-2026-10-05.zip": {
+    "source": "aisdk-2026-10-05.zip",
+    "interim": "aisdk-2026-10-05.parquet",
+    "rows_in_aoi": 5899295,
+    "exact_duplicates_removed": 2575685,
+    "rows_written": 3323610,
+    "rows_written_by_region": {
+      "bornholm": 375036,
+      "great_belt_oresund": 1565910,
+      "skagen": 1382664
+    }
+  },
+  "aisdk-2026-10-06.zip": {
+    "source": "aisdk-2026-10-06.zip",
+    "interim": "aisdk-2026-10-06.parquet",
+    "rows_in_aoi": 6151313,
+    "exact_duplicates_removed": 2719862,
+    "rows_written": 3431451,
+    "rows_written_by_region": {
+      "bornholm": 404479,
+      "great_belt_oresund": 1575215,
+      "skagen": 1451757
+    }
+  },
+  "aisdk-2026-10-07.zip": {
+    "source": "aisdk-2026-10-07.zip",
+    "interim": "aisdk-2026-10-07.parquet",
+    "rows_in_aoi": 5909031,
+    "exact_duplicates_removed": 2695945,
+    "rows_written": 3213086,
+    "rows_written_by_region": {
+      "bornholm": 356189,
+      "great_belt_oresund": 1576622,
+      "skagen": 1280275
+    }
+  },
+  "aisdk-2026-10-08.zip": {
+    "source": "aisdk-2026-10-08.zip",
+    "interim": "aisdk-2026-10-08.parquet",
+    "rows_in_aoi": 5928834,
+    "exact_duplicates_removed": 2550285,
+    "rows_written": 3378549,
+    "rows_written_by_region": {
+      "bornholm": 392221,
+      "great_belt_oresund": 1590587,
+      "skagen": 1395741
+    }
+  },
+  "aisdk-2026-10-09.zip": {
+    "source": "aisdk-2026-10-09.zip",
+    "interim": "aisdk-2026-10-09.parquet",
+    "rows_in_aoi": 5803400,
+    "exact_duplicates_removed": 2505446,
+    "rows_written": 3297954,
+    "rows_written_by_region": {
+      "bornholm": 351709,
+      "great_belt_oresund": 1585917,
+      "skagen": 1360328
+    }
+  },
+  "aisdk-2026-10-10.zip": {
+    "source": "aisdk-2026-10-10.zip",
+    "interim": "aisdk-2026-10-10.parquet",
+    "rows_in_aoi": 5780599,
+    "exact_duplicates_removed": 2491134,
+    "rows_written": 3289465,
+    "rows_written_by_region": {
+      "bornholm": 419145,
+      "great_belt_oresund": 1539531,
+      "skagen": 1330789
+    }
+  },
+  "aisdk-2026-10-11.zip": {
+    "source": "aisdk-2026-10-11.zip",
+    "interim": "aisdk-2026-10-11.parquet",
+    "rows_in_aoi": 5572507,
+    "exact_duplicates_removed": 2315134,
+    "rows_written": 3257373,
+    "rows_written_by_region": {
+      "bornholm": 433749,
+      "great_belt_oresund": 1553695,
+      "skagen": 1269929
+    }
+  },
+  "aisdk-2026-10-12.zip": {
+    "source": "aisdk-2026-10-12.zip",
+    "interim": "aisdk-2026-10-12.parquet",
+    "rows_in_aoi": 5526659,
+    "exact_duplicates_removed": 2274206,
+    "rows_written": 3252453,
+    "rows_written_by_region": {
+      "bornholm": 420736,
+      "great_belt_oresund": 1556250,
+      "skagen": 1275467
+    }
+  },
+  "aisdk-2026-10-13.zip": {
+    "source": "aisdk-2026-10-13.zip",
+    "interim": "aisdk-2026-10-13.parquet",
+    "rows_in_aoi": 5891698,
+    "exact_duplicates_removed": 2500655,
+    "rows_written": 3391043,
+    "rows_written_by_region": {
+      "bornholm": 373196,
+      "great_belt_oresund": 1629550,
+      "skagen": 1388297
+    }
+  },
+  "aisdk-2026-10-14.zip": {
+    "source": "aisdk-2026-10-14.zip",
+    "interim": "aisdk-2026-10-14.parquet",
+    "rows_in_aoi": 6121360,
+    "exact_duplicates_removed": 2612588,
+    "rows_written": 3508772,
+    "rows_written_by_region": {
+      "bornholm": 404284,
+      "great_belt_oresund": 1713937,
+      "skagen": 1390551
+    }
+  },
+  "aisdk-2026-10-15.zip": {
+    "source": "aisdk-2026-10-15.zip",
+    "interim": "aisdk-2026-10-15.parquet",
+    "rows_in_aoi": 5768021,
+    "exact_duplicates_removed": 2442118,
+    "rows_written": 3325903,
+    "rows_written_by_region": {
+      "bornholm": 402006,
+      "great_belt_oresund": 1568387,
+      "skagen": 1355510
+    }
+  }
+}

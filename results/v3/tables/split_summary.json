@@ -1,0 +1,158 @@
+{
+  "boundaries_utc": {
+    "great_belt_oresund": {
+      "train_start": "2026-09-19 00:00:00+00:00",
+      "train_end": "2026-10-07 00:00:00+00:00",
+      "val_end": "2026-10-12 00:00:00+00:00",
+      "calib_end": "2026-10-16 00:00:00+00:00",
+      "test_end": "2026-10-30 00:00:00+00:00"
+    },
+    "bornholm": {
+      "train_start": "2026-09-19 00:00:00+00:00",
+      "train_end": "2026-10-07 00:00:00+00:00",
+      "val_end": "2026-10-12 00:00:00+00:00",
+      "calib_end": "2026-10-16 00:00:00+00:00",
+      "test_end": "2026-10-30 00:00:00+00:00"
+    },
+    "skagen": {
+      "train_start": "2026-09-19 00:00:00+00:00",
+      "train_end": "2026-10-07 00:00:00+00:00",
+      "val_end": "2026-10-12 00:00:00+00:00",
+      "calib_end": "2026-10-16 00:00:00+00:00",
+      "test_end": "2026-10-30 00:00:00+00:00"
+    },
+    "salish_sea": {
+      "train_start": "2025-09-19 00:00:00+00:00",
+      "train_end": "2025-10-07 00:00:00+00:00",
+      "val_end": "2025-10-12 00:00:00+00:00",
+      "calib_end": "2025-10-16 00:00:00+00:00",
+      "test_end": "2025-10-30 00:00:00+00:00"
+    },
+    "houston": {
+      "train_start": "2025-09-19 00:00:00+00:00",
+      "train_end": "2025-10-07 00:00:00+00:00",
+      "val_end": "2025-10-12 00:00:00+00:00",
+      "calib_end": "2025-10-16 00:00:00+00:00",
+      "test_end": "2025-10-30 00:00:00+00:00"
+    }
+  },
+  "counts": {
+    "calib": {
+      "windows": 66974,
+      "vessels": 659
+    },
+    "excluded": {
+      "windows": 6157,
+      "vessels": 557
+    },
+    "train": {
+      "windows": 316680,
+      "vessels": 1766
+    },
+    "transfer_calib": {
+      "windows": 145394,
+      "vessels": 1900
+    },
+    "transfer_context": {
+      "windows": 697746,
+      "vessels": 4273
+    },
+    "transfer_val": {
+      "windows": 158571,
+      "vessels": 2154
+    },
+    "val": {
+      "windows": 80145,
+      "vessels": 742
+    }
+  },
+  "vessel_overlap_with_train": {
+    "calib": 416,
+    "transfer_calib": 322,
+    "transfer_val": 429,
+    "val": 492
+  },
+  "counts_by_region": {
+    "calib/great_belt_oresund": {
+      "windows": 66974,
+      "vessels": 659
+    },
+    "excluded/bornholm": {
+      "windows": 763,
+      "vessels": 59
+    },
+    "excluded/great_belt_oresund": {
+      "windows": 1542,
+      "vessels": 112
+    },
+    "excluded/houston": {
+      "windows": 1722,
+      "vessels": 201
+    },
+    "excluded/salish_sea": {
+      "windows": 1063,
+      "vessels": 102
+    },
+    "excluded/skagen": {
+      "windows": 1067,
+      "vessels": 84
+    },
+    "train/great_belt_oresund": {
+      "windows": 316680,
+      "vessels": 1766
+    },
+    "transfer_calib/bornholm": {
+      "windows": 20330,
+      "vessels": 439
+    },
+    "transfer_calib/houston": {
+      "windows": 48628,
+      "vessels": 711
+    },
+    "transfer_calib/salish_sea": {
+      "windows": 36761,
+      "vessels": 371
+    },
+    "transfer_calib/skagen": {
+      "windows": 39675,
+      "vessels": 527
+    },
+    "transfer_context/bornholm": {
+      "windows": 100896,
+      "vessels": 1424
+    },
+    "transfer_context/houston": {
+      "windows": 259700,
+      "vessels": 1308
+    },
+    "transfer_context/salish_sea": {
+      "windows": 140940,
+      "vessels": 776
+    },
+    "transfer_context/skagen": {
+      "windows": 196210,
+      "vessels": 1647
+    },
+    "transfer_val/bornholm": {
+      "windows": 25021,
+      "vessels": 558
+    },
+    "transfer_val/houston": {
+      "windows": 54432,
+      "vessels": 776
+    },
+    "transfer_val/salish_sea": {
+      "windows": 34247,
+      "vessels": 375
+    },
+    "transfer_val/skagen": {
+      "windows": 44871,
+      "vessels": 659
+    },
+    "val/great_belt_oresund": {
+      "windows": 80145,
+      "vessels": 742
+    }
+  },
+  "boundaries_source": "calendars"
+}

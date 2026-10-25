@@ -221,3 +221,25 @@ All with `--confirm-test`. Run folders `results/v2/runs/20261021T2*`; tables in 
   - V2 regression: rebuilding the real V2 windows and flow features with the new code reproduces the committed V2 split and fairway summaries byte for byte.
   - Provenance manifests written for the 27 US files. The map-history option (`map_history_days`, RQ4) is configured but not yet implemented.
 
+## 2026-10-24/25, V3 VALIDATION (model selection 7–11 Oct; calibration 12–15 Oct used only inside `intervals`)
+- Built V3 data at `6e3e38c`: 27 DMA and 27 Marine Cadastre days; windows per region on its own calendar; no test windows exist (latest labelled window ends 15 Oct). Validation windows: home 80,145; Bornholm 25,021; Skagen 44,871; Salish Sea 34,247; Houston 54,432.
+- Code added before the runs (uncommitted at run time): `intervals --sweep` (fit once, evaluate home and every waterway with home and local calibration); quantiles reduced to the 80%/90% bounds [0.05, 0.1, 0.9, 0.95] to halve fitting time.
+- Runs: baselines (5), models A–F (5), interval sweeps for E and A. Paused once on 23 Oct at 09:46 UTC after the Bornholm model run to free the machine; resumed 24 Oct 23:47 UTC with the remaining commands only. No run was repeated.
+- **Point forecasts, mean error at 20 / 60 min (m):**
+
+| Setting | CV | A motion | C raw location | E fairway | E − A at 60 (95% CI) | C − A at 60 | E vs A, 20 / 60 min |
+|---|---|---|---|---|---|---|---|
+| Home | 1,589 / 7,983 | 1,285 / 5,817 | 835 / 2,956 | 783 / 3,420 | −2,397 (−2,643 to −2,172) | −2,861 | −39% / −41% |
+| Bornholm | 531 / 3,283 | 552 / 3,696 | 2,118 / 9,553 | 410 / 2,416 | −1,280 (−1,422 to −1,154) | +5,857 | −26% / −35% |
+| Skagen | 891 / 4,940 | 883 / 4,807 | 1,484 / 6,984 | 762 / 3,935 | −872 (−1,059 to −713) | +2,177 | −14% / −18% |
+| Salish Sea | 2,716 / 11,347 | 2,200 / 7,547 | 3,329 / 13,537 | 1,798 / 6,368 | −1,179 (−1,357 to −1,014) | +5,990 | −18% / −16% |
+| Houston | 1,509 / 6,086 | 1,286 / 4,580 | 2,032 / 9,049 | 1,256 / 4,768 | +187 (+103 to +305) | +4,469 | −2% / +4% |
+
+- Fairway context transfers to the USA on validation: in the Salish Sea E improves on A by 18% at 20 min and 16% at 60 min. In Houston it does not help: E is slightly worse than A at 60 min. Houston merchant-only (cargo and tanker, 6,697 windows): FDE@60 CV 7,817, A 7,888, E 7,836; for service craft (tugs and towboats, 35,695 windows) E is worse than A (4,302 vs 4,016 m).
+- Raw coordinates fail in every independent waterway, including both US areas (C − A +2,177 to +5,990 m at 60 min).
+- New in-area observation: at 60 min raw location beats fairway context at home (2,956 vs 3,420 m), whereas at 20 min E is better (783 vs 835 m).
+- E's relative gain over A grows with horizon in Bornholm (26 → 35%) and Skagen (14 → 18%) but not in the Salish Sea (18 → 16%), so draft V3-H3 is not supported on validation.
+- **Intervals (conformal boxes; coverage on validation days):** home calibration gives nominal coverage at home (E: 80% boxes 79.5% at 20 min and 79.1% at 60; 90% boxes 89.7% and 89.4%). It does not transfer: Bornholm over-covers (E 86% / 83% for 80% boxes), Skagen under-covers at 60 min (69%), and the US areas under-cover badly (Salish Sea 61% / 58%; Houston 50% / 38%). Local calibration on the region's own four calibration days restores near-nominal coverage everywhere (E, 80% boxes at 20 / 60 min: Bornholm 80.0 / 81.2%, Skagen 79.3 / 79.7%, Salish Sea 78.2 / 78.8%, Houston 77.7 / 79.4%; 90% boxes 88.7–91.2%).
+- Fairway context makes intervals much narrower than motion-only at the same coverage (home 80% boxes at 20 min: half-widths 876 / 796 m for E vs 1,400 / 1,599 m for A). With home calibration, E's narrower boxes under-cover more in the US than A's (Houston 80% at 60 min: E 38%, A 78%).
+- Draft V3-H1 (home calibration within ±3 points at home, Bornholm and Skagen) is not supported on validation: it holds at home only. These results are validation-informed and will shape the V3 hypotheses before the freeze. Map-history (RQ4) and junction features (RQ5) are not yet run.
+

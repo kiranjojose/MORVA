@@ -463,10 +463,13 @@ def _load_meta(ws: Workspace, feature_groups: list[str]) -> pl.DataFrame:
 
 
 def cmd_intervals(ws: Workspace, data_cfg, exp_cfg, args):
-    """V3: quantile residual model + split-conformal calibration; interval coverage and width on `--split`.
+    """V3: quantile residual model + split-conformal calibration; interval coverage and width.
 
-    Trains on home `train` windows, calibrates on home `calib` windows (or, with --local-calibration, on the
-    evaluated region's own `transfer_calib` windows) and evaluates on `--split` (optionally one `--region`).
+    Trains once on home `train` windows. By default, calibrates on home `calib` windows (or, with
+    --local-calibration, on the evaluated region's own `transfer_calib` windows) and evaluates `--split` (optionally
+    one `--region`). With --sweep, the same fitted model is evaluated on the home `--split` windows and on every
+    transfer region's `transfer_<split>` windows, each with home calibration and, for transfer regions, also with
+    local calibration.
     """
     from morva.evaluation.conformal import box_scores, conformal_offset, coverage, half_widths
     from morva.evaluation.metrics import summarize
@@ -476,6 +479,8 @@ def cmd_intervals(ws: Workspace, data_cfg, exp_cfg, args):
     _check_test_lock(args)
     if "uncertainty" not in exp_cfg:
         sys.exit("`intervals` needs an `uncertainty` section (V3 config: --exp-config configs/v3/experiment.yaml)")
+    if args.sweep and (args.region or args.local_calibration or args.split.startswith("transfer_")):
+        sys.exit("--sweep takes a home split (val or test) and covers every region and calibration itself")
     w, g, u, ev = exp_cfg["windows"], exp_cfg["gbm"], exp_cfg["uncertainty"], exp_cfg["evaluation"]
     step = w["step_s"]
     knots_min = list(g["knots_min"])
@@ -484,18 +489,37 @@ def cmd_intervals(ws: Workspace, data_cfg, exp_cfg, args):
     arrays = np.load(ws.processed / "windows.npz")
     hist_all, fut_all = arrays["hist"], arrays["fut"]
     meta = _load_meta(ws, sets)
+    split, region = meta["split"], meta["region"]
+    home_cal = (split == "calib").to_numpy()
 
-    ev_mask, suffix = _eval_mask(meta, args)
-    tr = (meta["split"] == "train").to_numpy()
-    if args.local_calibration:
-        if not args.region:
-            sys.exit("--local-calibration needs --region")
-        cal = ((meta["split"] == "transfer_calib") & (meta["region"] == args.region)).to_numpy()
-        suffix += "_localcal"
+    # Evaluation targets: (name, evaluated windows, calibration windows, calibration label, region)
+    if args.sweep:
+        targets = [(args.split, (split == args.split).to_numpy(), home_cal, "home calib", None)]
+        for r in sorted(set(region.filter(split == f"transfer_{args.split}"))):
+            ev_r = ((split == f"transfer_{args.split}") & (region == r)).to_numpy()
+            local = ((split == "transfer_calib") & (region == r)).to_numpy()
+            targets.append((f"transfer_{args.split}_{r}", ev_r, home_cal, "home calib", r))
+            targets.append((f"transfer_{args.split}_{r}_localcal", ev_r, local, "local transfer_calib", r))
     else:
-        cal = (meta["split"] == "calib").to_numpy()
-    if not (tr.any() and cal.any() and ev_mask.any()):
-        sys.exit(f"empty block: {tr.sum()} train / {cal.sum()} calibration / {ev_mask.sum()} evaluated windows")
+        ev_mask, suffix = _eval_mask(meta, args)
+        if args.local_calibration:
+            if not args.region:
+                sys.exit("--local-calibration needs --region")
+            targets = [(f"{args.split}{suffix}_localcal", ev_mask,
+                        ((split == "transfer_calib") & (region == args.region)).to_numpy(),
+                        "local transfer_calib", args.region)]
+        else:
+            targets = [(f"{args.split}{suffix}", ev_mask, home_cal, "home calib", args.region)]
+    tr = (split == "train").to_numpy()
+    if args.sweep:  # a region without local calibration windows only loses its secondary analysis
+        skipped = [t[0] for t in targets if t[3].startswith("local") and not t[2].any()]
+        for name in skipped:
+            print(f"{name}: no transfer_calib windows in this region; local calibration skipped")
+        targets = [t for t in targets if t[0] not in skipped]
+    empty = [t[0] for t in targets if not (t[1].any() and t[2].any())]
+    if not tr.any() or empty:
+        sys.exit(f"empty blocks: {int(tr.sum())} train windows; targets without evaluated or calibration windows: "
+                 f"{empty}")
 
     def X(mask):
         return build_features(hist_all[mask], meta.filter(pl.Series(mask)), step, sets)
@@ -506,52 +530,59 @@ def cmd_intervals(ws: Workspace, data_cfg, exp_cfg, args):
     cat = [c == "ship_group" for c in cols] if "ship_group" in cols else None
     model = QuantileResidualGBM(knots, u["quantiles"], categorical=cat, seed=g["seed"]).fit(
         X_tr[:, keep], hist_all[tr], fut_all[tr], step)
-    p_cal = model.predict(X(cal)[0][:, keep])
-    p_ev = model.predict(X(ev_mask)[0][:, keep])
-    y_cal = residual_truth(hist_all[cal], fut_all[cal], step, knots)
-    y_ev = residual_truth(hist_all[ev_mask], fut_all[ev_mask], step, knots)
-    groups = meta.filter(pl.Series(ev_mask))["mmsi"].to_numpy()
+    print(f"fitted {len(model.models)} quantile models on {int(tr.sum()):,} train windows")
+    stamp = f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}"
+    cache: dict[int, tuple] = {}
 
-    results, lines = {}, []
-    for level in u["interval_levels"]:
-        lo_c, hi_c = model.interval(p_cal, level)
-        offset = conformal_offset(box_scores(lo_c, hi_c, y_cal), level)
-        lo, hi = model.interval(p_ev, level)
-        inside = box_scores(lo, hi, y_ev) <= offset[None, :]
-        raw = coverage(lo, hi, y_ev, np.zeros_like(offset))
-        hw = half_widths(lo, hi, offset)
-        per_knot = {}
-        for i, h in enumerate(knots_min):
-            c = summarize(inside[:, i].astype(float), groups, ev["n_bootstrap"], ev["seed"])
-            per_knot[str(h)] = {"coverage": c["mean"], "ci95_lo": c["ci95_lo"], "ci95_hi": c["ci95_hi"],
-                                "uncalibrated_coverage": float(raw[i]), "offset_m": float(offset[i]),
-                                "half_width_along_m": float(hw[i, 0]), "half_width_cross_m": float(hw[i, 1])}
-        results[str(level)] = per_knot
-    name = f"{args.split}{suffix}"
-    run_dir = ws.results / "runs" / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}_intervals_{args.feature_set}_{name}"
-    _write_json({"split": args.split, "region": args.region, "feature_set": args.feature_set,
-                 "calibration": "local transfer_calib" if args.local_calibration else "home calib",
-                 "git": _git_hash(), "config": {"uncertainty": u, "gbm_seed": g["seed"], "knots_min": knots_min},
-                 "windows": {"train": int(tr.sum()), "calibration": int(cal.sum()), "evaluated": int(ev_mask.sum()),
-                             "evaluated_vessels": int(len(np.unique(groups)))},
-                 "features": cols, "n_iter": model.n_iter(), "intervals": results}, run_dir / "summary.json")
+    def predict(mask):  # each block is predicted once, even when it serves several targets
+        key = hash(mask.tobytes())
+        if key not in cache:
+            cache[key] = (model.predict(X(mask)[0][:, keep]), residual_truth(hist_all[mask], fut_all[mask], step,
+                                                                              knots))
+        return cache[key]
 
-    lines = [f"# Conformal prediction boxes ({args.feature_set}; {name}; calibration: "
-             f"{'local transfer_calib' if args.local_calibration else 'home calib'})", "",
-             f"{int(tr.sum()):,} train / {int(cal.sum()):,} calibration / {int(ev_mask.sum()):,} evaluated windows "
-             f"({len(np.unique(groups))} vessels). Coverage = share of windows whose true position lies inside the "
-             "2-D box (95% CI, vessel bootstrap).", "",
-             "| level | horizon (min) | coverage | uncalibrated | half-width along (m) | half-width cross (m) |",
-             "|---|---|---|---|---|---|"]
-    for level, per_knot in results.items():
-        for h, r in per_knot.items():
-            lines.append(f"| {float(level):.0%} | {h} | {r['coverage']:.3f} ({r['ci95_lo']:.3f}–{r['ci95_hi']:.3f}) | "
-                         f"{r['uncalibrated_coverage']:.3f} | {r['half_width_along_m']:.0f} | "
-                         f"{r['half_width_cross_m']:.0f} |")
-    out = ws.results / "tables" / f"intervals_{args.feature_set}_{name}.md"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text("\n".join(lines) + "\n")
-    print("\n".join(lines))
+    for name, ev_mask, cal, cal_label, reg in targets:
+        p_cal, y_cal = predict(cal)
+        p_ev, y_ev = predict(ev_mask)
+        groups = meta.filter(pl.Series(ev_mask))["mmsi"].to_numpy()
+        results = {}
+        for level in u["interval_levels"]:
+            lo_c, hi_c = model.interval(p_cal, level)
+            offset = conformal_offset(box_scores(lo_c, hi_c, y_cal), level)
+            lo, hi = model.interval(p_ev, level)
+            inside = box_scores(lo, hi, y_ev) <= offset[None, :]
+            raw = coverage(lo, hi, y_ev, np.zeros_like(offset))
+            hw = half_widths(lo, hi, offset)
+            per_knot = {}
+            for i, h in enumerate(knots_min):
+                c = summarize(inside[:, i].astype(float), groups, ev["n_bootstrap"], ev["seed"])
+                per_knot[str(h)] = {"coverage": c["mean"], "ci95_lo": c["ci95_lo"], "ci95_hi": c["ci95_hi"],
+                                    "uncalibrated_coverage": float(raw[i]), "offset_m": float(offset[i]),
+                                    "half_width_along_m": float(hw[i, 0]), "half_width_cross_m": float(hw[i, 1])}
+            results[str(level)] = per_knot
+        counts = {"train": int(tr.sum()), "calibration": int(cal.sum()), "evaluated": int(ev_mask.sum()),
+                  "evaluated_vessels": int(len(np.unique(groups)))}
+        run_dir = ws.results / "runs" / f"{stamp}_intervals_{args.feature_set}_{name}"
+        _write_json({"split": args.split, "target": name, "region": reg, "feature_set": args.feature_set,
+                     "calibration": cal_label, "git": _git_hash(),
+                     "config": {"uncertainty": u, "gbm_seed": g["seed"], "knots_min": knots_min},
+                     "windows": counts, "features": cols, "n_iter": model.n_iter(), "intervals": results},
+                    run_dir / "summary.json")
+        lines = [f"# Conformal prediction boxes ({args.feature_set}; {name}; calibration: {cal_label})", "",
+                 f"{counts['train']:,} train / {counts['calibration']:,} calibration / {counts['evaluated']:,} "
+                 f"evaluated windows ({counts['evaluated_vessels']} vessels). Coverage = share of windows whose true "
+                 "position lies inside the 2-D box (95% CI, vessel bootstrap).", "",
+                 "| level | horizon (min) | coverage | uncalibrated | half-width along (m) | half-width cross (m) |",
+                 "|---|---|---|---|---|---|"]
+        for level, per_knot in results.items():
+            for h, r in per_knot.items():
+                lines.append(f"| {float(level):.0%} | {h} | {r['coverage']:.3f} ({r['ci95_lo']:.3f}–"
+                             f"{r['ci95_hi']:.3f}) | {r['uncalibrated_coverage']:.3f} | "
+                             f"{r['half_width_along_m']:.0f} | {r['half_width_cross_m']:.0f} |")
+        out = ws.results / "tables" / f"intervals_{args.feature_set}_{name}.md"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text("\n".join(lines) + "\n")
+        print("\n".join(lines[:1] + lines[4:]))
 
 
 def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
@@ -994,6 +1025,8 @@ def main(argv=None):
     p.add_argument("--feature-set", default="E_fairway", help="feature set from the gbm config (default E_fairway)")
     p.add_argument("--local-calibration", action="store_true",
                    help="calibrate on the region's own transfer_calib windows (secondary analysis)")
+    p.add_argument("--sweep", action="store_true",
+                   help="fit once; evaluate the home split and every transfer region (home and local calibration)")
     p.add_argument("--confirm-test", action="store_true")
     p = sub.add_parser("sensitivity", help="E0: retained data under different gap thresholds")
     p.add_argument("--gap-s", type=int, nargs="+", default=[600, 1200, 1800])
