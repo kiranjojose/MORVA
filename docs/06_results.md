@@ -228,3 +228,99 @@ C − A in held-out longitude bands is +1,090 m (+1,004 to +1,185), reproducing 
 - Bornholm: motion-only learning does not improve on CV (A − CV +16 m), whereas E does (E − CV −110 m, −144 to −86).
 
 The V2 test period is now spent. Further development uses validation data only and is reported as post hoc.
+
+---
+
+# V3 VALIDATION RESULTS — not confirmatory test evidence
+
+Models are trained on the Danish home area (19 Sep–6 Oct 2026). Validation uses the model-selection days 7–11 Oct (2026
+for Danish regions, 2025 for US regions); 12–15 Oct are used only to calibrate prediction boxes. The locked test period,
+16–29 Oct, has not been downloaded. Forecasts cover 60 minutes. Each region's flow map is built from its own AIS in the
+training period, so a waterway contributes local traffic history but no model-training windows. These results informed
+the draft V3 hypotheses and are provisional. Sources: `results/v3/tables/`.
+
+## Point forecasts: mean error at 20 and 60 minutes (m)
+
+FDE denotes the final (60-minute) error; the 20-minute value is the error at 20 minutes.
+
+| Setting | Windows | CV | A motion | C raw location | E fairway | F vessel + fairway |
+|---|---:|---:|---:|---:|---:|---:|
+| Home | 80,145 | 1,589 / 7,983 | 1,285 / 5,817 | 835 / 2,956 | 783 / 3,420 | 744 / 3,126 |
+| Bornholm | 25,021 | 531 / 3,283 | 552 / 3,696 | 2,118 / 9,553 | 410 / 2,416 | 419 / 2,438 |
+| Skagen | 44,871 | 891 / 4,940 | 883 / 4,807 | 1,484 / 6,984 | 762 / 3,935 | 753 / 3,883 |
+| Salish Sea | 34,247 | 2,716 / 11,347 | 2,200 / 7,547 | 3,329 / 13,537 | 1,798 / 6,368 | 1,819 / 6,911 |
+| Houston | 54,432 | 1,509 / 6,086 | 1,286 / 4,580 | 2,032 / 9,049 | 1,256 / 4,768 | 1,231 / 5,044 |
+
+Paired differences on identical windows (m, 95% CI, vessel bootstrap; negative = first model better):
+
+| Setting | E − A at 20 min | E − A at 60 min | C − A at 20 min | C − A at 60 min |
+|---|---|---|---|---|
+| Home | not computed | −2,397 (−2,643 to −2,172) | not computed | −2,861 (−3,151 to −2,612) |
+| Bornholm | not computed | −1,280 (−1,422 to −1,154) | not computed | +5,857 (+5,386 to +6,336) |
+| Skagen | not computed | −872 (−1,059 to −713) | not computed | +2,177 (+1,963 to +2,413) |
+| Salish Sea | −402 (−458 to −356) | −1,179 (−1,357 to −1,014) | +1,128 (+965 to +1,325) | +5,990 (+5,006 to +7,028) |
+| Houston | −30 (−55 to −3) | +187 (+103 to +305) | +746 (+689 to +806) | +4,469 (+4,144 to +4,785) |
+
+Paired 20-minute differences were added to the reporting on 25 Oct and computed by repeating the Salish Sea and Houston
+validation runs (identical point results); the other settings were not repeated.
+
+**Houston by ship group (mean FDE at 60 min, m):**
+
+| Group | Windows | CV | A motion | E fairway |
+|---|---:|---:|---:|---:|
+| service | 35,695 | 5,513 | 4,016 | 4,302 |
+| unknown | 6,812 | 6,900 | 4,567 | 4,683 |
+| tanker | 5,035 | 7,795 | 7,835 | 7,875 |
+| passenger | 2,658 | 8,468 | 4,536 | 4,142 |
+| other | 2,570 | 4,911 | 3,878 | 4,121 |
+| cargo | 1,662 | 7,883 | 8,048 | 7,716 |
+| merchant (cargo + tanker) | 6,697 | 7,817 | 7,888 | 7,836 |
+
+## Prediction boxes: coverage of conformal 2-D boxes (model E)
+
+Coverage is the share of validation windows whose true position lies inside the box; it is aggregate (marginal)
+coverage, not calibration for every ship type, regime or location.
+
+| Setting | Calibration | 80% box, 20 min | 80% box, 60 min | 90% box, 20 min | 90% box, 60 min |
+|---|---|---|---|---|---|
+| Home | home | 79.5% (78.7%–80.5%) | 79.1% (77.8%–80.5%) | 89.7% (89.0%–90.4%) | 89.4% (88.4%–90.3%) |
+| Bornholm | home | 86.0% (85.1%–86.9%) | 83.3% (82.1%–84.4%) | 92.7% (92.1%–93.2%) | 91.5% (90.6%–92.3%) |
+| Bornholm | local | 80.0% (79.0%–81.0%) | 81.2% (79.9%–82.4%) | 90.4% (89.8%–91.1%) | 91.2% (90.3%–92.0%) |
+| Skagen | home | 76.7% (74.9%–78.3%) | 69.3% (67.5%–71.0%) | 86.6% (85.3%–87.7%) | 81.3% (79.9%–82.5%) |
+| Skagen | local | 79.3% (77.5%–80.9%) | 79.7% (78.0%–81.2%) | 89.7% (88.5%–90.7%) | 89.1% (88.0%–90.2%) |
+| Salish Sea | home | 61.0% (57.9%–64.3%) | 58.1% (54.9%–61.3%) | 74.6% (71.8%–77.5%) | 72.6% (69.5%–75.6%) |
+| Salish Sea | local | 78.2% (74.9%–81.7%) | 78.8% (75.3%–82.1%) | 88.9% (86.6%–91.2%) | 89.1% (86.3%–91.5%) |
+| Houston | home | 49.6% (48.2%–51.0%) | 38.4% (36.6%–40.4%) | 71.1% (69.8%–72.4%) | 57.5% (56.0%–59.1%) |
+| Houston | local | 77.7% (76.0%–79.1%) | 79.4% (78.0%–80.7%) | 88.7% (87.3%–89.7%) | 89.8% (88.9%–90.7%) |
+
+Half-widths of the 90% box at 60 min (along / cross-track, m), local calibration except at home:
+
+| Setting | E fairway | A motion |
+|---|---|---|
+| Home | 5,406 / 5,240 | 8,724 / 9,522 |
+| Bornholm | 3,848 / 3,966 | 7,054 / 10,061 |
+| Skagen | 6,411 / 5,991 | 8,139 / 9,070 |
+| Salish Sea | 11,263 / 10,198 | 12,648 / 11,844 |
+| Houston | 8,884 / 7,973 | 8,053 / 7,374 |
+
+## Provisional findings
+
+- **Point skill transfers to the Salish Sea but only weakly and briefly to Houston.** Fairway context has lower mean
+  error than motion-only in Bornholm, Skagen and the Salish Sea at 20 and 60 minutes, with confidence intervals below
+  zero at 60 minutes in all three and at 20 minutes in the Salish Sea (the only one of the three with a 20-minute paired
+  interval). In Houston the gain is small at 20 minutes (E − A −30 m, −55 to −3) and reverses by 60 minutes. The Houston
+  shortfall is concentrated in a service-craft-dominated sample, which suggests a mismatch between the current
+  traffic-flow representation and heterogeneous local operations; this is an interpretation of the subgroup pattern, not
+  a demonstrated cause.
+- **Raw coordinates are worse than motion-only in every independent waterway**, including both US areas.
+- **Point skill and uncertainty calibration transfer differently.** Home-calibrated boxes are close to nominal at home
+  but not elsewhere: they over-cover in Bornholm and under-cover in Skagen at 60 minutes and strongly in both US areas.
+  Four days of local calibration restore approximately nominal aggregate coverage in every waterway without retraining
+  the model.
+- **Calibration is not usefulness.** At 60 minutes the boxes are many kilometres wide even when calibrated.
+- **Timing caveat:** in validation the calibration days (12–15 Oct) come after the evaluated days (7–11 Oct), whereas a
+  deployed system can calibrate only on past data. The test period (16–29 Oct) follows its calibration days as in
+  deployment.
+- At home, raw location beats fairway context at 60 minutes, while fairway context is better at 20 minutes.
+
+These results are validation-informed. The V3 test period remains locked and untouched.

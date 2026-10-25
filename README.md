@@ -100,6 +100,16 @@ Fairway-relative context retained predictive value in two independently evaluate
 in other countries, seasons and waterway types is untested. The hypotheses, both pre-test amendments and every test
 command are recorded in the [protocol](docs/05_protocol.md) and [research log](docs/08_research_log.md).
 
+## V3 in progress: longer horizons and reliable transfer
+
+Validation experiments extend the forecast horizon to 60 minutes and add two US waterways, the Salish Sea and
+Houston, with flow maps built from each waterway's own AIS and the model still trained only in Danish waters. On
+validation, fairway context transferred to the Salish Sea (16% lower error than motion-only at 60 minutes). In
+service-craft-dominated Houston it helped only slightly at 20 minutes and was worse than motion-only at 60. Prediction boxes calibrated in Danish waters were close to nominal coverage there but
+not in other waters (58% coverage for nominal 80% boxes in the Salish Sea at 60 minutes); four days of local
+calibration restored approximately nominal aggregate coverage everywhere. These findings are provisional: the V3 test
+period is locked and has not been evaluated. Details are in [docs/06_results.md](docs/06_results.md).
+
 ## V1 result: raw location helps in familiar waters only
 
 ![V1 test FDE at 20 minutes in three evaluation settings](results/figures/generalisation_test.png)
