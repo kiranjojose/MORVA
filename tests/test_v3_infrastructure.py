@@ -104,3 +104,20 @@ def test_quantile_model_shapes_order_and_level_check():
     assert lo.shape == (n, 3, 2) and (hi >= lo).all()
     with pytest.raises(ValueError):
         m.interval(pred, 0.9)  # 0.05 / 0.95 not fitted
+
+
+def test_paired_summaries_cover_every_horizon_and_match_direct_computation():
+    from morva.evaluation.metrics import paired_summaries, per_sample_metrics, summarize
+
+    rng = np.random.default_rng(3)
+    err_a = np.abs(rng.normal(500, 100, (300, 60))).cumsum(axis=1)  # [windows, steps], 1-min steps to 60 min
+    err_b = err_a * 0.8
+    groups = rng.integers(0, 40, 300)
+    horizons = [5, 10, 20, 30, 45, 60]
+    pa, pb = per_sample_metrics(err_a, 60, horizons), per_sample_metrics(err_b, 60, horizons)
+    out = paired_summaries(pb, pa, groups, 200, 0)
+    assert set(out) == {"ade_m", "fde_m", *(f"err_{h}min_m" for h in horizons)}
+    for mk in ("ade_m", "fde_m", "err_20min_m"):
+        assert out[mk] == summarize(pb[mk] - pa[mk], groups, 200, 0)
+    assert out["err_20min_m"]["mean"] == pytest.approx((err_b[:, 19] - err_a[:, 19]).mean())
+    assert out["err_60min_m"] == out["fde_m"]  # the final horizon is the FDE

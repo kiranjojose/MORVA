@@ -44,3 +44,10 @@ def summarize(metric: np.ndarray, groups, n_boot=1000, seed=0) -> dict:
         "median": float(np.median(metric)), "p90": float(np.quantile(metric, 0.9)),
         "n_samples": int(len(metric)), "n_vessels": int(len(np.unique(groups))),
     }
+
+
+def paired_summaries(per_b: dict[str, np.ndarray], per_a: dict[str, np.ndarray], groups, n_boot=1000,
+                     seed=0) -> dict[str, dict]:
+    """Paired difference b - a on identical windows for every metric both share (ADE, final error and the error
+    at each reported horizon), each with a vessel-grouped bootstrap CI. Negative = b better."""
+    return {mk: summarize(per_b[mk] - per_a[mk], groups, n_boot, seed) for mk in per_b if mk in per_a}

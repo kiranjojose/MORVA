@@ -26,6 +26,22 @@ Paired differences on identical windows (m, negative = first model better), vess
 | E_fairway - A_motion | -616 (-691 to -546) | -1179 (-1357 to -1014) |
 | F_all_fairway - A_motion | -455 (-587 to -341) | -636 (-1048 to -248) |
 
+Paired error differences at earlier horizons (m, 95% CI, vessel bootstrap):
+
+| comparison | Δerr@5 | Δerr@10 | Δerr@20 | Δerr@30 | Δerr@45 |
+|---|---|---|---|---|---|
+| A_motion - cv | -34 (-41 to -27) | -116 (-146 to -84) | -515 (-654 to -371) | -1143 (-1419 to -828) | -2425 (-3022 to -1805) |
+| B_vessel - cv | -28 (-35 to -21) | -101 (-135 to -68) | -424 (-541 to -297) | -997 (-1286 to -677) | -1712 (-2228 to -1198) |
+| C_location - cv | +79 (+62 to +98) | +255 (+189 to +338) | +613 (+342 to +940) | +587 (+89 to +1169) | +1036 (+82 to +2144) |
+| D_all - cv | +34 (+22 to +48) | +191 (+131 to +262) | +14 (-172 to +229) | -129 (-490 to +281) | -486 (-1082 to +149) |
+| E_fairway - cv | -79 (-93 to -64) | -280 (-327 to -229) | -918 (-1071 to -756) | -1801 (-2122 to -1454) | -3336 (-3991 to -2698) |
+| F_all_fairway - cv | -79 (-92 to -64) | -278 (-326 to -226) | -896 (-1044 to -734) | -1694 (-2016 to -1369) | -3080 (-3721 to -2468) |
+| B_vessel - A_motion | +6 (+3 to +9) | +15 (+5 to +25) | +92 (+38 to +151) | +146 (+15 to +283) | +713 (+482 to +921) |
+| C_location - A_motion | +113 (+101 to +127) | +371 (+323 to +428) | +1128 (+965 to +1325) | +1730 (+1459 to +2061) | +3461 (+2922 to +4053) |
+| D_all - A_motion | +68 (+61 to +76) | +307 (+267 to +354) | +530 (+438 to +628) | +1015 (+832 to +1191) | +1939 (+1632 to +2250) |
+| E_fairway - A_motion | -45 (-53 to -37) | -164 (-189 to -139) | -402 (-458 to -356) | -658 (-755 to -569) | -911 (-1030 to -803) |
+| F_all_fairway - A_motion | -44 (-52 to -37) | -162 (-188 to -137) | -381 (-440 to -329) | -551 (-659 to -456) | -655 (-868 to -471) |
+
 Mean FDE@60 min (m) by past turn rate (°/min):
 
 | turn_bin | n | cv | A_motion | B_vessel | C_location | D_all | E_fairway | F_all_fairway |

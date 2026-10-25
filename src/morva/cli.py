@@ -589,7 +589,7 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     """E3/E4: residual GBM with feature-set ablation. Trains on train, evaluates on `--split` (val by default)."""
     import time
 
-    from morva.evaluation.metrics import per_sample_metrics, step_errors_m, summarize
+    from morva.evaluation.metrics import paired_summaries, per_sample_metrics, step_errors_m, summarize
     from morva.features.motion import SHIP_GROUP_CODES, build_features
     from morva.models import baselines
     from morva.models.gbm import ResidualGBM
@@ -686,9 +686,8 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     summary = {k: {mk: summarize(v, groups, ev["n_bootstrap"], ev["seed"]) for mk, v in p.items()}
                for k, p in per.items()}
 
-    def paired(a, b):
-        return {mk: summarize(per[b][mk] - per[a][mk], groups, ev["n_bootstrap"], ev["seed"])
-                for mk in ("ade_m", "fde_m")}
+    def paired(a, b):  # ADE, final error and every reported horizon
+        return paired_summaries(per[b], per[a], groups, ev["n_bootstrap"], ev["seed"])
 
     names = list(g["feature_sets"])
     comparisons = {f"{n} - cv": paired("cv", n) for n in names}
@@ -722,7 +721,9 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     run_dir = ws.results / "runs" / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}_gbm_{args.split}{suffix}"
     run_dir.mkdir(parents=True, exist_ok=True)
     per_sample = pl.DataFrame({"sample_id": m_ev["sample_id"], **{f"fde_{k}": e[:, -1] for k, e in errs.items()},
-                               **{f"ade_{k}": e.mean(axis=1) for k, e in errs.items()}})
+                               **{f"ade_{k}": e.mean(axis=1) for k, e in errs.items()},
+                               **{f"err{h}_{k}": p[f"err_{h}min_m"] for k, p in per.items()
+                                  for h in w["horizons_min"] if f"err_{h}min_m" in p}})
     per_sample.write_parquet(run_dir / "per_sample.parquet")
     _write_json({"split": args.split, "region": args.region, "git": _git_hash(), "config": exp_cfg["gbm"],
                  "fit": fit_info,
@@ -750,6 +751,11 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     lines += ["", "Paired differences on identical windows (m, negative = first model better), vessel bootstrap:", "",
               "| comparison | ΔADE | ΔFDE |", "|---|---|---|"]
     lines += [f"| {c} | {fmt(d['ade_m'])} | {fmt(d['fde_m'])} |" for c, d in comparisons.items()]
+    if inner:
+        lines += ["", "Paired error differences at earlier horizons (m, 95% CI, vessel bootstrap):", "",
+                  "| comparison | " + " | ".join(f"Δerr@{h}" for h in inner) + " |", "|---|" + "---|" * len(inner)]
+        lines += [f"| {c} | " + " | ".join(fmt(d[f"err_{h}min_m"]) for h in inner) + " |"
+                  for c, d in comparisons.items()]
     for title, tab in (("past turn rate (°/min)", by_turn), ("ship group", by_group)):
         lines += ["", f"Mean FDE@{H} min (m) by {title}:", "", "| " + " | ".join(tab.columns) + " |",
                   "|" + "---|" * len(tab.columns)]
