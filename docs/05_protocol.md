@@ -216,3 +216,111 @@ The V1 hypotheses above are written H1–H4b and the V2 hypotheses V2-H1 and V2-
 (README, results, summary) the V1 hypotheses are referred to as V1-H1 to V1-H4b, so that, for example, V1-H2 (vessel
 context) is never confused with V2-H2 (raw-coordinate negative transfer). The frozen text above is unchanged.
 
+## V3 hypotheses (FROZEN 2026-10-26)
+
+> **Status:** frozen before test access. Drafted on 25 Oct 2026 after the V3 validation runs (research log,
+> 24/25 Oct), edited and frozen on 26 Oct, so these hypotheses are **validation-informed**, not preregistered before
+> model development. No V3 test data had been downloaded or inspected at the freeze. The draft V3-H1 to V3-H3 in
+> `docs/00_plan.md` are replaced as described under "Changes from the plan".
+
+**Setting and models.** As fixed in `configs/v3/`: models trained on the home area, 19 Sep–6 Oct 2026; flow maps
+from each region's own training block; the locked test period is 16–29 Oct (2026 for Danish regions, 2025 for US
+regions). E = motion + fairway, A = motion only, C = motion + raw location. Hypotheses are decided on seed 0. All
+confidence intervals are paired and vessel-grouped (1,000 bootstrap resamples), as in V2.
+
+**Primary hypotheses**
+
+- **V3-H1 (cross-country transfer):** in the Salish Sea, E improves on A at 20 and 60 minutes.
+  *Decision rule:* the upper bound of the 95% CI of the paired difference E − A is below 0 at both horizons.
+  *Validation:* −402 m at 20 min (−458 to −356); −1,179 m at 60 min (−1,357 to −1,014).
+- **V3-H2 (raw coordinates across countries):** in the Salish Sea, C is worse than A at 20 and 60 minutes.
+  *Decision rule:* the lower bound of the 95% CI of C − A is above 0 at both horizons.
+  *Validation:* +1,128 m at 20 min (+965 to +1,325) and +5,990 m at 60 min (+5,006 to +7,028).
+- **V3-H3 (local calibration):** conformal boxes from model E, calibrated on the evaluated region's own calibration
+  days (12–15 Oct), have **marginal empirical coverage** within 3 percentage points of nominal for 80% and 90% boxes
+  at 20 and 60 minutes in each of Bornholm, Skagen and the Salish Sea.
+  *Decision rule:* all 12 point estimates (3 regions × 2 levels × 2 horizons) lie within ±3 points of nominal.
+  Coverage means aggregate (marginal) coverage over all windows of a region, not coverage within ship types, regimes
+  or locations.
+  *Validation:* 78.2–81.2% for 80% boxes and 88.9–91.2% for 90% boxes.
+- **V3-H4 (home calibration at home):** home-calibrated E boxes have coverage within 3 percentage points of nominal
+  for 80% and 90% boxes at 20 and 60 minutes in the home area. This is marginal empirical coverage, not a claim of
+  conditional or operational calibration.
+  *Decision rule:* all 4 point estimates within ±3 points. *Validation:* 79.5, 79.1, 89.7 and 89.4%.
+
+**Prespecified descriptive analyses (no confirmatory claim)**
+
+- Home-calibrated coverage in each independent waterway, to show how much calibration shifts between waters
+  (validation: from 38% to 86% for 80% boxes).
+- Houston: E vs A overall, merchant-only (cargo and tanker) and by ship group. Validation showed a small benefit at
+  20 min (−30 m, −55 to −3) that reversed at 60 min (+187 m, +103 to +305).
+- E vs A at 20 and 60 minutes in Bornholm and Skagen, with the relative gain at each horizon.
+- Interval half-widths of E vs A at equal coverage (local calibration).
+- Home area: C vs E at 20 and 60 minutes (validation: E better at 20, C better at 60).
+- Absolute interval half-widths as well as coverage, because nominal coverage does not establish operational utility.
+- In validation, the calibration days (12–15 Oct) follow the evaluated model-selection days (7–11 Oct). In the locked
+  test evaluation (16–29 Oct), the calibration days precede the evaluated days, as they would in deployment.
+
+**Changes from the plan (all made after validation, before any test access)**
+
+- *Plan V3-H1* (home-calibrated coverage within ±3 points at home, Bornholm and Skagen) is split. Coverage at home
+  becomes V3-H4. Coverage in new waters becomes V3-H3 with **local** calibration, because validation showed that home
+  calibration does not transfer (Bornholm over-covers, Skagen under-covers at 60 min, the US areas under-cover
+  strongly). Home-calibrated coverage in new waters is kept as a descriptive analysis.
+- *Plan V3-H2* (E improves on A in the Salish Sea at 20 and 60 min) is kept as V3-H1.
+- *Plan V3-H3* (E's relative gain is larger at 60 than at 20 minutes in the independent waterways) is dropped as a
+  hypothesis: validation contradicted it in the Salish Sea (18% → 16%). It becomes descriptive.
+- *New* V3-H2 extends the V2 raw-coordinate result to another country. At the freeze it was strengthened to require
+  negative transfer at both 20 and 60 minutes after the 20-minute paired intervals were computed on validation, using
+  the reporting-only per-horizon intervals added in `0eed614`.
+- Map-history (RQ4) and junction features (RQ5) are dropped from V3. The map-history option is configured but not
+  implemented, and no junction representation exists. Adding either after inspecting the main validation results
+  would expand the study and delay the locked test. They remain future exploratory work and will not be run on the
+  V3 validation or test splits as part of this protocol.
+
+## V3 frozen implementation and test pass
+
+**Completed prerequisite:** paired confidence intervals at every forecast horizon were added on 25 Oct in commit
+`0eed614`. The pinned code for the test run is `ba7032c`, a later commit containing that reporting change.
+
+**Pinned code and configuration:** commit `ba7032c`. This includes the per-horizon paired-difference reporting added
+in `0eed614` and the V3 validation write-up. The only subsequent change before test access is this protocol freeze;
+model code, feature definitions, configurations, regions, splits, hypotheses and decision rules must not change.
+
+**Data preparation (run once, before the test pass).** Download DMA daily files 2026-10-16 to 2026-10-29 and Marine
+Cadastre daily files 2025-10-16 to 2025-10-29; verify each against the provider's byte size and archive integrity;
+record manifests (`morva manifest`, with `--source marinecadastre` for US files). Then run, with the V3
+configurations: `ingest`, `clean`, `windows`, `fairway`. This rebuilds all splits from the same code and
+configuration. Training windows, flow maps and model settings are unchanged; windows at the 15/16 Oct boundary may
+change slightly because tracks no longer end at the data boundary. The train, validation and calibration window
+counts are recorded before and after, and any difference is reported. Test-period data become available only after
+DMA publishes 29 Oct (expected about 1 Nov 2026); the test pass runs once all 28 test files are present.
+
+The following 12 commands form one test pass. They are run once, in this order, from the repository root. Every command
+uses the frozen V3 data and experiment configurations. `--confirm-test` is required and each start/end time, exit
+status and output run directory is recorded in `docs/08_research_log.md`.
+
+```bash
+uv run morva --data-config configs/v3/data.yaml --exp-config configs/v3/experiment.yaml baselines --split test --confirm-test
+uv run morva --data-config configs/v3/data.yaml --exp-config configs/v3/experiment.yaml baselines --split transfer_test --region bornholm --confirm-test
+uv run morva --data-config configs/v3/data.yaml --exp-config configs/v3/experiment.yaml baselines --split transfer_test --region skagen --confirm-test
+uv run morva --data-config configs/v3/data.yaml --exp-config configs/v3/experiment.yaml baselines --split transfer_test --region salish_sea --confirm-test
+uv run morva --data-config configs/v3/data.yaml --exp-config configs/v3/experiment.yaml baselines --split transfer_test --region houston --confirm-test
+uv run morva --data-config configs/v3/data.yaml --exp-config configs/v3/experiment.yaml gbm --split test --confirm-test
+uv run morva --data-config configs/v3/data.yaml --exp-config configs/v3/experiment.yaml gbm --split transfer_test --region bornholm --confirm-test
+uv run morva --data-config configs/v3/data.yaml --exp-config configs/v3/experiment.yaml gbm --split transfer_test --region skagen --confirm-test
+uv run morva --data-config configs/v3/data.yaml --exp-config configs/v3/experiment.yaml gbm --split transfer_test --region salish_sea --confirm-test
+uv run morva --data-config configs/v3/data.yaml --exp-config configs/v3/experiment.yaml gbm --split transfer_test --region houston --confirm-test
+uv run morva --data-config configs/v3/data.yaml --exp-config configs/v3/experiment.yaml intervals --split test --feature-set E_fairway --sweep --confirm-test
+uv run morva --data-config configs/v3/data.yaml --exp-config configs/v3/experiment.yaml intervals --split test --feature-set A_motion --sweep --confirm-test
+```
+
+The `intervals --sweep` commands evaluate the home test split and every configured transfer region with both home and
+local calibration; they therefore cover V3-H3, V3-H4 and the prespecified interval comparisons without separate
+region commands. Seed 0 is the only confirmatory point-model seed. No test-time tuning, rerun after a successful
+command, model selection or threshold adjustment is permitted. A failed command may be rerun only after its cause is
+documented and only if no result from that command was produced or inspected.
+
+**FROZEN on 2026-10-26 before downloading or inspecting any V3 test-period data.** The test and `transfer_test` splits
+are now available only for the single pass above. All later analyses are post-freeze and must be labelled exploratory.
+
