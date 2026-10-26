@@ -1,0 +1,10 @@
+{
+  "file": "aisdk-2026-10-22.zip",
+  "provider": "Danish Maritime Authority",
+  "source_url": "https://www.dma.dk/safety-at-sea/navigational-information/ais-data",
+  "size_bytes": 603020410,
+  "sha256": "e285d48405394f78d2ad52e6034c1d9d93d36b36d1287b0679b749344b43b528",
+  "recorded_utc": "2026-10-26T08:24:44+00:00",
+  "license_note": "Check provider terms before redistribution. Raw data is not committed.",
+  "notes": "DMA daily file, V3 LOCKED TEST period (2026-10-16..2026-10-29); downloaded 2026-10-26 after the V3 freeze (126dda2); not ingested until all 14 Danish test files are present"
+}
