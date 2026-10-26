@@ -89,9 +89,9 @@ significant improvement of several hundred metres may be useful for regional tra
 close-quarters navigation. The project has not yet established an operational accuracy requirement with VTS operators,
 navigators or ports.
 
-The current model is deterministic and does not provide calibrated uncertainty or multiple plausible futures. Near a
-junction or terminal, several trajectories may be reasonable. A single mean trajectory can be misleading even when
-its aggregate displacement error is competitive.
+The V1/V2 point model is deterministic. V3 adds calibrated rectangular prediction boxes, but these still do not
+represent several distinct route alternatives. Near a junction or terminal, multiple futures may be reasonable, and
+a mean trajectory or a single axis-aligned box can remain misleading despite competitive aggregate metrics.
 
 The V1 hypotheses were developed after validation analysis and frozen before the single V1 test run. V1-H1–V1-H4 are
 therefore validation-informed rather than a preregistration made before any results were seen. V1-H4b was explicitly
@@ -112,3 +112,46 @@ by legitimate manoeuvring, weather, traffic avoidance, receiver loss or data err
 test sensitivity to constructed patterns, but cannot demonstrate detection of real incidents, unsafe behaviour or
 illegal activity. Any anomaly extension needs a separate taxonomy, credible labels, human review and evaluation of
 false alarms.
+
+## V3 limitations (provisional before the locked test pass)
+
+These points follow from the frozen design and validation analysis. They describe the evidential boundary before any
+V3 test outcome is known and must be revisited after the single locked test pass.
+
+1. **A single model-training area.** All learned parameters come from the Danish home area. Bornholm, Skagen, the
+   Salish Sea and Houston provide geographic evaluation, but only the Salish Sea is the primary cross-country setting;
+   Houston is a descriptive stress test. The design does not establish transfer across countries generally, other
+   seasons or every type of waterway.
+2. **The countries are observed in different years.** Danish calendars use 2026 and US calendars use 2025. Matching
+   month and day preserves the within-region temporal ordering, but does not control year-specific traffic, weather,
+   regulation, receiver coverage or operational changes.
+3. **The source resolutions differ.** The Marine Cadastre archive is nominally one-minute sampled, while DMA retains
+   much denser reports. Observed median in-region intervals are about 79–80 seconds in the US areas and 10 seconds in
+   the Danish areas; US 90th percentiles are about 181–183 seconds. Because MORVA rejects any window containing a gap
+   above 180 seconds, retained US windows preferentially represent better-covered vessels and periods. Cross-country
+   comparisons therefore combine geographic shift with a source-resolution and selection shift.
+4. **Transfer requires local traffic history.** Model weights never train on the transfer regions, but each fairway
+   map is constructed from that region's historical AIS. The method is therefore not zero-local-data transfer and
+   cannot be applied as evaluated where suitable traffic history is unavailable.
+5. **Calibration is marginal and consumes local labels.** Reported coverage is aggregated over a region's windows; it
+   does not guarantee coverage within each ship group, regime, route or location. The locally calibrated analysis also
+   requires four days of recent trajectories with known futures. Its stability under seasonal or operational change
+   has not been established.
+6. **Validation calibration is temporally reversed.** The validation outcomes cover 7–11 October, while the calibration
+   set covers 12–15 October. This supports method development but is not a deployment-realistic chronology. In the
+   locked evaluation, calibration precedes the 16–29 October test period.
+7. **Statistical calibration is not operational usefulness.** In Salish Sea validation, the locally calibrated 90%
+   box at 60 minutes has mean half-widths of approximately 11.3 km along track and 10.2 km across track. A box can
+   achieve nominal aggregate coverage while being too broad for a practical decision; no operational width or utility
+   requirement has been established.
+8. **The Houston explanation remains an inference.** Fairway context fails to improve the 60-minute validation result
+   overall in Houston, where service craft—principally tugs and towboats—provide about two-thirds of the windows. This
+   pattern is consistent with the current flow representation being better suited to route-constrained transit, but it
+   does not demonstrate that vessel mix caused the difference.
+9. **Model and representation scope is narrow.** Point and quantile forecasts use one gradient-boosting family and one
+   prespecified primary seed. Prediction regions are axis-aligned rectangles in the vessel frame rather than
+   multimodal route alternatives. The map-history curve and explicit junction features were removed from V3 before
+   testing, so the study does not determine the minimum history needed or solve branch ambiguity.
+10. **The hypotheses are validation-informed.** V3 hypotheses and thresholds were revised after examining validation
+    results and frozen before test access. The locked test is their first independent evaluation, not a preregistration
+    made before model development.

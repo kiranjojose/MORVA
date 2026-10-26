@@ -127,3 +127,94 @@ then inspected and informed the V2 hypotheses; their windows were never used to 
 **V2 split.** Train 19–30 Sep (home windows only), validation 1–6 Oct, test 7–15 Oct (locked); window counts per
 region and split are in `docs/03_data_card.md`. Hypotheses, decision rules and the primary seed (0) are in
 `docs/05_protocol.md`.
+
+## V3: 60-minute prediction, cross-country transfer and calibrated boxes
+
+V3 is configured independently in `configs/v3/data.yaml` and `configs/v3/experiment.yaml`; the V1 and V2
+configurations are unchanged. The hypotheses and one-pass test procedure were frozen in `docs/05_protocol.md` at
+commit `126dda2`, using the code pinned there.
+
+### Prediction task and windows
+
+Each example contains 20 minutes of observed motion and 60 minutes of future motion on a one-minute grid. Point errors
+are evaluated after 5, 10, 20, 30, 45 and 60 minutes, with FDE referring to the 60-minute endpoint. Residual targets
+are fitted at 5, 10, 15, 20, 30, 45 and 60 minutes and interpolated linearly between those knots.
+
+The complete history–future span must remain inside one calendar block. Windows are rejected when an original AIS gap
+anywhere in the 80-minute span exceeds 180 seconds or when mean speed during the history is below 1 knot. Consecutive
+anchors remain five minutes apart, so observations overlap and are not statistically independent.
+
+### Sources and canonical schema
+
+Two providers feed the same internal schema through `src/morva/ingestion/sources.py`:
+
+- Danish data use the DMA adapter established in V1.
+- US data use NOAA/BOEM Marine Cadastre 2025 daily `.csv.zst` files and
+  `src/morva/ingestion/marinecadastre.py`. Provider fields for time, MMSI, position, SOG, COG, heading, dimensions,
+  draught and identity metadata are renamed to the DMA-compatible columns. Transceiver value `A` becomes `Class A`
+  and only that class is retained. Numeric AIS vessel-type codes are converted to common labels—including 70–79 as
+  cargo, 80–89 as tanker, 52 as tug and 31–32 as towing—before the shared ship-group mapping is applied. Numeric
+  navigational-status codes are likewise converted to their AIS text meanings; unrecognised values are retained as
+  strings rather than silently assigned a known status.
+
+### Regions and calendars
+
+The five regions are the Danish home area, Bornholm and Skagen on the 2026 calendar, plus the Salish Sea and Houston
+on the 2025 calendar. Each calendar contains four non-overlapping blocks:
+
+| Purpose | Dates | Home label | Transfer-region label |
+|---|---|---|---|
+| Model fitting and flow-map history | 19 Sep–6 Oct | `train` | `transfer_context` |
+| Model selection | 7–11 Oct | `val` | `transfer_val` |
+| Interval calibration | 12–15 Oct | `calib` | `transfer_calib` |
+| Locked evaluation | 16–29 Oct | `test` | `transfer_test` |
+
+Only home `train` windows fit model parameters. Transfer-region history constructs the region's flow map but never
+fits the forecasting model. A window receives a label only when its entire 80-minute span lies within that block.
+
+### Point models and V3 fairway features
+
+Feature sets A–F retain the V2 learner and hyperparameters, with seed 0 prespecified. Each region's flow map is built
+from its own context block. The anchor contributes density, coherence, heading difference, lateral offset and lane
+width. Density, heading difference and lateral offset are then queried at the constant-velocity positions 5, 10, 20,
+30, 45 and 60 minutes ahead. This produces 23 fairway features rather than V2's 14. Model E therefore contains 21
+motion plus 23 fairway features (44 total); model F adds four vessel features (48 total).
+
+### Quantile prediction boxes and conformal adjustment
+
+For every one of the seven target knots and both body-frame axes, four histogram-gradient-boosting models estimate the
+0.05, 0.10, 0.90 and 0.95 residual quantiles. Model E therefore fits 7 × 2 × 4 = 56 quantile regressors. Predicted
+quantiles are sorted along the quantile dimension before interval construction, preventing independently fitted
+quantiles from crossing. The central 80% box uses the 0.10 and 0.90 estimates on both axes; the 90% box uses 0.05 and
+0.95.
+
+Split-conformal calibration then applies a common per-knot adjustment to both axes. For calibration window `i`, knot
+`h` and axes `a` in {along, cross}, the nonconformity score is
+
+`s[i,h] = max_a(max(lower[i,h,a] − truth[i,h,a], truth[i,h,a] − upper[i,h,a]))`.
+
+For target coverage `p` and `n` calibration windows, `k = ceil((n + 1) × p)` and `q[h]` is the `k`-th smallest
+score at knot `h` (or infinity if `k > n`). The adjusted box is
+
+`[lower[i,h,a] − q[h], upper[i,h,a] + q[h]]`.
+
+Because the score takes the worse axis, the target is joint two-dimensional coverage of the future position, not
+separate marginal coverage of along- and cross-track coordinates. Under exchangeability, the construction provides a
+finite-sample marginal guarantee; overlapping windows from the same vessel weaken the literal independence premise,
+so held-out empirical coverage and vessel-grouped uncertainty are still reported. Although `q[h]` is normally a
+positive widening, the implementation treats it as a general conformal adjustment because an already conservative
+raw box can yield a negative score quantile.
+
+### Calibration and evaluation
+
+Home calibration uses `calib` windows from the Danish home area. Local calibration instead uses `transfer_calib`
+windows from the evaluated region, without changing model weights. Both versions are evaluated on identical target
+windows. In the validation study, calibration dates follow the model-selection dates; in the locked test study,
+calibration precedes evaluation, matching the intended deployment order.
+
+Point forecasts report mean, median and 90th-percentile displacement error at every horizon. Model contrasts are
+paired on identical windows and receive vessel-grouped bootstrap 95% confidence intervals with 1,000 resamples.
+Interval evaluation reports joint-box coverage with the same grouped interval and the mean along- and cross-track
+half-widths. Coverage is aggregate over all windows in a setting; it is not conditional coverage within a vessel type,
+regime or location. The pre-written `scripts/v3_decide.py` reads saved summaries and applies the frozen hypothesis
+rules mechanically; it neither fits a model nor selects a threshold.
