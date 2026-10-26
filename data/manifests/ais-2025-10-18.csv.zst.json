@@ -1,0 +1,10 @@
+{
+  "file": "ais-2025-10-18.csv.zst",
+  "provider": "NOAA/BOEM Marine Cadastre (Nationwide AIS 2025)",
+  "source_url": "https://noaaocm.blob.core.windows.net/ais/csv2/csv2025/",
+  "size_bytes": 240809381,
+  "sha256": "e730b1aae35860e638ad93a11732366195b89ff7be29eecc8c58f82c77bcd945",
+  "recorded_utc": "2026-10-26T07:48:21+00:00",
+  "license_note": "Check provider terms before redistribution. Raw data is not committed.",
+  "notes": "Marine Cadastre 2025 daily file, V3 LOCKED TEST period (2025-10-16..2025-10-29); downloaded 2026-10-26 after the V3 freeze (126dda2); not ingested until the Danish test files are published"
+}
