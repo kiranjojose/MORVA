@@ -149,16 +149,16 @@ global generalisation, real-time operational reliability or safety certification
 
 ## V3 extension (2026-10-23 onwards)
 
-V3 extends the forecast horizon and adds a second AIS source. The counts in this section describe the validation build
-through 15 October; they are intentionally labelled provisional until the post-freeze test-data build is complete.
-The V1 and V2 counts above remain the records for those stages.
+V3 extends the forecast horizon and adds a second AIS source. The counts in this section describe the final V3 build,
+made once on 1 Nov 2026 after the freeze with all 41 days per source (19 Sep–29 Oct), as specified in the frozen
+data-preparation step. The V1 and V2 counts above remain the records for those stages.
 
 | Field | Value |
 |---|---|
 | Danish source | Danish Maritime Authority daily ZIP files, 19 Sep–29 Oct 2026 |
 | US source | NOAA/BOEM Marine Cadastre 2025 daily `.csv.zst` files, 19 Sep–29 Oct 2025 |
 | Population | Class A mobile transmitters in every region |
-| Test-data access | The V3 hypotheses and commands were frozen on 26 Oct 2026 before test-file access. All 14 US test files (16–29 Oct 2025) were downloaded and manifested later that day. Danish files for 16–23 Oct 2026 were downloaded and manifested after the freeze on 26 Oct; files for 24–29 Oct will be added only after DMA publishes them |
+| Test-data access | The V3 hypotheses and commands were frozen on 26 Oct 2026 before test-file access. All 14 US test files (16–29 Oct 2025) were downloaded and manifested later that day. Danish files for 16–23 Oct 2026 were downloaded and manifested after the freeze on 26 Oct, and files for 24–29 Oct on 1 Nov after DMA published them. Every file matches the provider's byte size and passes an archive integrity test. Nothing was ingested until all 28 test files were present |
 | US terms | The catalogue states that the data support coastal and ocean planning, are not for navigation and are provided as is. It lists no access constraint, but does not expressly address commercial reuse; NOAA should therefore be consulted before product use |
 
 The five frozen geographic boxes are:
@@ -179,11 +179,11 @@ files contain observations in those Canadian waters.
 
 | Region | Rows | Passing hard flags | Segments | Vessels | Median / 90th-percentile reporting interval |
 |---|---:|---:|---:|---:|---|
-| Home | 43,812,556 | 43,289,862 | 8,492 | 2,516 | 10 s / 12 s |
-| Bornholm | 11,157,079 | 11,095,262 | 4,125 | 1,879 | 10 s / 12 s |
-| Skagen | 36,835,264 | 36,664,715 | 4,853 | 2,130 | 10 s / 12 s |
-| Salish Sea | 6,173,752 | 6,172,596 | 7,456 | 1,116 | 80 s / 183 s |
-| Houston | 11,666,364 | 11,664,565 | 10,839 | 1,648 | 79 s / 181 s |
+| Home | 66,020,611 | 65,228,292 | 12,627 | 3,089 | 10 s / 12 s |
+| Bornholm | 16,817,854 | 16,704,678 | 6,228 | 2,360 | 10 s / 12 s |
+| Skagen | 56,153,885 | 55,917,017 | 7,243 | 2,722 | 10 s / 12 s |
+| Salish Sea | 9,400,065 | 9,390,829 | 10,899 | 1,299 | 80 s / 183 s |
+| Houston | 17,589,591 | 17,586,816 | 15,602 | 1,953 | 79 s / 181 s |
 
 The Marine Cadastre archive is nominally sampled at one-minute resolution, but consecutive in-region observations in
 this build are typically 79–80 seconds apart, compared with 10 seconds for DMA. Its 90th-percentile interval is
@@ -191,18 +191,24 @@ this build are typically 79–80 seconds apart, compared with 10 seconds for DMA
 sparser US stretches preferentially: the retained US windows represent the better-covered portion of the source data,
 not the complete US traffic record. This selection should be considered when comparing US and Danish performance.
 
-Prediction windows (vessels in brackets), V3 validation build. These counts must be replaced after the frozen
-test-data preparation:
+Prediction windows (vessels in brackets), final V3 build:
 
-| Region | Training period (19 Sep–6 Oct) | Validation (7–11 Oct) | Calibration (12–15 Oct) |
-|---|---:|---:|---:|
-| Home | 316,680 (1,766), used for training | 80,145 (742) | 66,974 (659) |
-| Bornholm | 100,896 (1,424), map only | 25,021 (558) | 20,330 (439) |
-| Skagen | 196,210 (1,647), map only | 44,871 (659) | 39,675 (527) |
-| Salish Sea | 140,940 (776), map only | 34,247 (375) | 36,761 (371) |
-| Houston | 259,700 (1,308), map only | 54,432 (776) | 48,628 (711) |
+| Region | Training period (19 Sep–6 Oct) | Validation (7–11 Oct) | Calibration (12–15 Oct) | Test (16–29 Oct) |
+|---|---:|---:|---:|---:|
+| Home | 316,680 (1,766), used for training | 80,145 (742) | 66,982 (659) | 230,570 (1,466) |
+| Bornholm | 100,896 (1,424), map only | 25,021 (558) | 20,333 (439) | 76,694 (1,228) |
+| Skagen | 196,210 (1,647), map only | 44,871 (659) | 39,681 (527) | 146,955 (1,372) |
+| Salish Sea | 140,940 (776), map only | 34,247 (375) | 36,785 (371) | 110,193 (622) |
+| Houston | 259,700 (1,308), map only | 54,432 (776) | 48,671 (711) | 179,930 (1,145) |
 
-Traffic mix differs strongly between regions. In Houston, 35,695 of 54,432 validation windows (66%) come from the
-service group, principally tugs and towboats, whereas cargo and tanker vessels contribute 6,697. The Salish Sea also
-contains substantial passenger and service traffic. All US results are consequently reported by ship group as well as
-in aggregate. Flow features are available for 96–98% of validation windows in every region.
+Compared with the validation build (through 15 Oct), every training-period and validation window is unchanged, with
+the same vessel and anchor time, and the flow maps are identical. Calibration gained 84 windows and lost none (home 8,
+Bornholm 3, Skagen 6, Salish Sea 24, Houston 43). All of them are anchored at 23:00 UTC on 15 Oct (Houston 22:59–23:00),
+the last anchor whose 60-minute future fits the calibration block; tracks reach it now that the data no longer end at
+midnight on 15 Oct. This boundary effect was anticipated in the frozen protocol.
+
+Traffic mix differs strongly between regions. In Houston, 35,695 of 54,432 validation windows (66%) and 122,211 of
+179,930 test windows (68%) come from the service group, principally tugs and towboats, whereas cargo and tanker vessels
+contribute 6,697 and 22,460. The Salish Sea also contains substantial passenger and service traffic. All US results
+are consequently reported by ship group as well as in aggregate. Flow features are available for 96–98% of validation
+windows and 95–98% of test windows in every region (lowest: Bornholm test, 94.8%).

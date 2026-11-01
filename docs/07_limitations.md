@@ -113,10 +113,10 @@ test sensitivity to constructed patterns, but cannot demonstrate detection of re
 illegal activity. Any anomaly extension needs a separate taxonomy, credible labels, human review and evaluation of
 false alarms.
 
-## V3 limitations (provisional before the locked test pass)
+## V3 limitations
 
-These points follow from the frozen design and validation analysis. They describe the evidential boundary before any
-V3 test outcome is known and must be revisited after the single locked test pass.
+These points follow from the frozen design, the validation analysis and the single locked test pass on 1 Nov 2026, in
+which V3-H1 to V3-H4 were all supported. They define what those results do and do not show.
 
 1. **A single model-training area.** All learned parameters come from the Danish home area. Bornholm, Skagen, the
    Salish Sea and Houston provide geographic evaluation, but only the Salish Sea is the primary cross-country setting;
@@ -137,21 +137,28 @@ V3 test outcome is known and must be revisited after the single locked test pass
    does not guarantee coverage within each ship group, regime, route or location. The locally calibrated analysis also
    requires four days of recent trajectories with known futures. Its stability under seasonal or operational change
    has not been established.
-6. **Validation calibration is temporally reversed.** The validation outcomes cover 7–11 October, while the calibration
-   set covers 12–15 October. This supports method development but is not a deployment-realistic chronology. In the
-   locked evaluation, calibration precedes the 16–29 October test period.
-7. **Statistical calibration is not operational usefulness.** In Salish Sea validation, the locally calibrated 90%
-   box at 60 minutes has mean half-widths of approximately 11.3 km along track and 10.2 km across track. A box can
-   achieve nominal aggregate coverage while being too broad for a practical decision; no operational width or utility
-   requirement has been established.
-8. **The Houston explanation remains an inference.** Fairway context fails to improve the 60-minute validation result
-   overall in Houston, where service craft—principally tugs and towboats—provide about two-thirds of the windows. This
-   pattern is consistent with the current flow representation being better suited to route-constrained transit, but it
-   does not demonstrate that vessel mix caused the difference.
+6. **Calibration was tested over two weeks only.** In validation the calibration days (12–15 October) followed the
+   evaluated days (7–11 October). The locked test used the deployment-realistic order, calibration before the 16–29
+   October test period, and coverage held across those two weeks. Whether four days of calibration remain valid for
+   longer, or need regular refreshing, has not been tested.
+7. **Statistical calibration is not operational usefulness.** In the Salish Sea test, the locally calibrated 90% box
+   at 60 minutes has mean half-widths of approximately 11.0 km along track and 10.1 km across track (validation: 11.3
+   and 10.2 km). A box can achieve nominal aggregate coverage while being too broad for a practical decision; no
+   operational width or utility requirement has been established.
+8. **The Houston exception remains unexplained.** Fairway context fails to improve the 60-minute result in Houston on
+   both validation and test. Service craft, principally tugs and towboats, provide about two-thirds of the windows, but
+   on test the merchant-only result (cargo and tanker) also does not favour fairway context, unlike validation. Vessel
+   mix alone therefore does not account for the shortfall. Port-area operations, the US data resolution and the choice
+   of area remain possible explanations; none has been demonstrated.
 9. **Model and representation scope is narrow.** Point and quantile forecasts use one gradient-boosting family and one
    prespecified primary seed. Prediction regions are axis-aligned rectangles in the vessel frame rather than
    multimodal route alternatives. The map-history curve and explicit junction features were removed from V3 before
    testing, so the study does not determine the minimum history needed or solve branch ambiguity.
 10. **The hypotheses are validation-informed.** V3 hypotheses and thresholds were revised after examining validation
     results and frozen before test access. The locked test is their first independent evaluation, not a preregistration
-    made before model development.
+    made before model development. The test period is the same two calendar weeks in both countries and directly
+    follows the validation period, so agreement between validation and test shows stability over adjacent weeks, not
+    over seasons.
+11. **One test pass, one seed.** The V3 decisions rest on a single run with seed 0. Seed variation was small for A and
+    E in V2, but was not re-measured for the V3 60-minute models, and no V3 sensitivity analysis on the test period is
+    permitted without being labelled exploratory.

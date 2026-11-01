@@ -5,13 +5,15 @@ explicit generalisation tests, including transfer to independent waterways.**
 
 MORVA (Maritime Operational Reasoning and Vessel Analytics) is an independent maritime machine-learning research project. It asks a focused question:
 
-> When do vessel and geographic context improve 5–20-minute trajectory prediction beyond constant-motion and
+> When do vessel and geographic context improve 5–60-minute trajectory prediction beyond constant-motion and
 > motion-only learned baselines, and do those improvements transfer to unseen vessels and unseen waters?
 
 The short answer so far: raw coordinates give strong local accuracy but negative geographic transfer (V1). Fairway
 context learned from historical traffic reverses this failure, improving prediction over motion-only models in the
 training area and in two independently evaluated Danish waterways (V2). How geography is represented, not merely
-whether it is present, determines transfer.
+whether it is present, determines transfer. At a 60-minute horizon, fairway context learned in Denmark also transfers
+to the Salish Sea in the USA, and prediction boxes reach their stated coverage in new waters once calibrated on a few
+days of local data (V3).
 
 The project combines AIS data engineering, geospatial processing, interpretable kinematic models, residual machine
 learning and leakage-aware evaluation. It is an offline research prototype, not a real-time or safety-certified
@@ -30,19 +32,19 @@ therefore evaluates both predictive accuracy and transfer.
 
 ## Study at a glance
 
-| Item | V1 | V2 |
-|---|---|---|
-| Data | Danish Maritime Authority historical shore-based AIS, Class A | same |
-| Period | 19 Sep–6 Oct 2026 (18 days) | 19 Sep–15 Oct 2026 (27 days) |
-| Split | train 19–30 Sep; validation 1–3 Oct; test 4–6 Oct | train 19–30 Sep; validation 1–6 Oct; test 7–15 Oct |
-| Training area | Home: Great Belt, Øresund, southern Kattegat | Home only |
-| Evaluation settings | Home; home with unseen vessels; home with held-out longitude bands | V1 settings plus two independent waterways |
-| Prediction task | 20-minute history → 20-minute future at one-minute resolution | same |
-| Baselines | Persistence, CV, CTRV, damped CTRV, CV Kalman filter | same |
-| Learned model | Gradient-boosted residual correction to constant velocity | same model and hyperparameters in every region |
-| Feature sets | A motion; B + vessel; C + raw location; D all | adds E motion + fairway; F motion + vessel + fairway |
-| Hypotheses | V1-H1 to V1-H4b, frozen 11 Oct | V2-H1, V2-H2, frozen 21 Oct, plus two pre-test amendments |
-| Metrics | ADE, FDE and horizon errors with vessel-grouped bootstrap intervals | same |
+| Item | V1 | V2 | V3 |
+|---|---|---|---|
+| Data | Danish Maritime Authority historical shore-based AIS, Class A | same | DMA (Denmark) and NOAA/BOEM Marine Cadastre (USA), Class A |
+| Period | 19 Sep–6 Oct 2026 (18 days) | 19 Sep–15 Oct 2026 (27 days) | 19 Sep–29 Oct (41 days): 2026 in Denmark, same calendar dates in 2025 in the USA |
+| Split | train 19–30 Sep; validation 1–3 Oct; test 4–6 Oct | train 19–30 Sep; validation 1–6 Oct; test 7–15 Oct | train 19 Sep–6 Oct; validation 7–11 Oct; calibration 12–15 Oct; test 16–29 Oct |
+| Training area | Home: Great Belt, Øresund, southern Kattegat | Home only | Home only |
+| Evaluation settings | Home; home with unseen vessels; home with held-out longitude bands | V1 settings plus two independent waterways | Home, Bornholm, Skagen, Salish Sea (primary US) and Houston (descriptive) |
+| Prediction task | 20-minute history → 20-minute future at one-minute resolution | same | 20-minute history → 60-minute future at one-minute resolution |
+| Baselines | Persistence, CV, CTRV, damped CTRV, CV Kalman filter | same | same |
+| Learned model | Gradient-boosted residual correction to constant velocity | same model and hyperparameters in every region | same, plus quantile models for prediction boxes with split-conformal calibration (home or local) |
+| Feature sets | A motion; B + vessel; C + raw location; D all | adds E motion + fairway; F motion + vessel + fairway | A–F, with fairway features extended to 60 minutes ahead |
+| Hypotheses | V1-H1 to V1-H4b, frozen 11 Oct | V2-H1, V2-H2, frozen 21 Oct, plus two pre-test amendments | V3-H1 to V3-H4, frozen 26 Oct |
+| Metrics | ADE, FDE and horizon errors with vessel-grouped bootstrap intervals | same | same, plus paired differences at every horizon, box coverage and box width |
 
 V2 regions and prediction windows (vessels in brackets):
 
@@ -100,15 +102,43 @@ Fairway-relative context retained predictive value in two independently evaluate
 in other countries, seasons and waterway types is untested. The hypotheses, both pre-test amendments and every test
 command are recorded in the [protocol](docs/05_protocol.md) and [research log](docs/08_research_log.md).
 
-## V3 in progress: longer horizons and reliable transfer
+## V3 result: 60-minute transfer across countries and calibrated boxes
 
-Validation experiments extend the forecast horizon to 60 minutes and add two US waterways, the Salish Sea and
-Houston, with flow maps built from each waterway's own AIS and the model still trained only in Danish waters. On
-validation, fairway context transferred to the Salish Sea (16% lower error than motion-only at 60 minutes). In
-service-craft-dominated Houston it helped only slightly at 20 minutes and was worse than motion-only at 60. Prediction boxes calibrated in Danish waters were close to nominal coverage there but
-not in other waters (58% coverage for nominal 80% boxes in the Salish Sea at 60 minutes); four days of local
-calibration restored approximately nominal aggregate coverage everywhere. These findings are provisional: the V3 test
-period is locked and has not been evaluated. Details are in [docs/06_results.md](docs/06_results.md).
+V3 extends the forecast to 60 minutes and adds two US waterways from NOAA/BOEM Marine Cadastre AIS: the Salish Sea
+(primary) and Houston (descriptive stress test). The model is still trained only in the Danish home area; each
+waterway's flow map is built from its own AIS. Prediction boxes are split-conformal 2-D boxes in the vessel frame,
+calibrated either in the home area or on four days of the evaluated region's own data. Four hypotheses were frozen on
+26 Oct 2026 and tested once on 16–29 October (2026 in Denmark, 2025 in the USA); **all four were supported**.
+
+Mean error at 20 / 60 minutes on the locked V3 test period (m):
+
+| Model | Home | Bornholm | Skagen | Salish Sea | Houston |
+|---|---:|---:|---:|---:|---:|
+| Constant velocity | 1,605 / 8,059 | 535 / 3,126 | 843 / 4,719 | 2,619 / 10,991 | 1,462 / 5,934 |
+| A: motion only | 1,305 / 5,895 | 550 / 3,540 | 833 / 4,526 | 2,125 / 7,386 | 1,244 / 4,442 |
+| C: + raw location | 846 / 3,013 | 2,002 / 9,165 | 1,341 / 6,342 | 3,282 / 13,392 | 1,960 / 8,712 |
+| E: motion + fairway | 797 / 3,484 | **430 / 2,362** | 736 / 3,842 | **1,729 / 6,150** | 1,220 / 4,628 |
+
+Coverage of 80% boxes from model E at 60 minutes:
+
+| Calibration | Home | Bornholm | Skagen | Salish Sea | Houston |
+|---|---:|---:|---:|---:|---:|
+| Home area | 78.5% | 84.1% | 69.2% | 59.6% | 40.2% |
+| Region's own four days | — | 82.3% | 80.0% | 79.5% | 80.5% |
+
+1. **Fairway context transfers to another country.** In the Salish Sea, E improves on motion-only A by 396 m at 20
+   minutes and 1,236 m at 60 minutes (both 95% CIs below zero; V3-H1), about 17–19%, matching validation.
+2. **Raw coordinates fail again,** in every independent waterway and at both horizons (Salish Sea C − A +1,156 m and
+   +6,006 m; V3-H2).
+3. **Point skill and calibration transfer differently.** Boxes calibrated in Danish waters are honest there (V3-H4) but
+   not in new waters. Four days of local calibration, with no retraining, give coverage within 3 points of nominal in
+   every waterway, Houston included (V3-H3).
+4. **Limits.** Houston gains nothing at 60 minutes, and on test not even for cargo and tanker traffic alone; the cause
+   is unknown. Calibrated boxes are honest but wide: about 11 km along track for a 90% box at 60 minutes in the Salish
+   Sea.
+
+Details are in [docs/06_results.md](docs/06_results.md); the frozen hypotheses and every test command are in the
+[protocol](docs/05_protocol.md) and [research log](docs/08_research_log.md).
 
 ## V1 result: raw location helps in familiar waters only
 
@@ -306,31 +336,35 @@ periods have been used once for their recorded runs and must not be used for fur
 
 ## Scope and limitations
 
-The results cover 27 days of autumn traffic, Class A transmitters and Danish waters only. V2 adds two independent
-waterways, but both are Danish and share part of their traffic with the training area. The learned comparison uses one
-model family and deterministic outputs. Fairway context needs historical traffic for the waterway, so it does not
-apply to waters without AIS history. AIS omits control commands, route intent and several environmental and
-interaction variables.
+The results cover autumn traffic only (19 Sep–29 Oct) and Class A transmitters. Models are trained in one Danish area.
+V2 and V3 evaluate them in two other Danish waterways and two US waterways, but the US data come from a different year
+(2025) and a sparser source, and Houston shows no benefit. The learned comparison uses one model family and one seed
+in V3. Fairway context and local calibration both need historical traffic for the waterway, so they do not apply to
+waters without AIS history. V3 coverage is aggregate, not per ship type or location, and calibrated boxes are wide at
+60 minutes. AIS omits control commands, route intent and several environmental and interaction variables.
 
 MORVA does not provide collision avoidance, infer intent, certify anomalies or replace radar, bridge judgement or
 VTS procedures. See the full [limitations](docs/07_limitations.md).
 
 ## Next research steps
 
-1. Test fairway context across seasons, in non-Danish waters and with sparser traffic history.
-2. Add chart-based context that does not need traffic history: coastline, bathymetry and port proximity.
-3. Add calibrated uncertainty and multiple plausible future trajectories, especially near junctions.
-4. Model surrounding-vessel interactions under the same controlled evaluation.
-5. Evaluate prediction residuals for anomaly screening only after defining credible labels and operational criteria.
+1. Model surrounding-vessel interactions under the same controlled evaluation (planned V4).
+2. Evaluate behaviour deviation from calibrated forecasts only after defining credible labels and operational
+   criteria (planned V5).
+3. Test transfer across seasons and with sparser traffic history, and how often local calibration must be refreshed.
+4. Add chart-based context that does not need traffic history (coastline, bathymetry, port proximity), and multiple
+   plausible future trajectories near junctions in place of a single box.
+5. Investigate why fairway context does not help in Houston.
 
 ## Data access
 
 Historical AIS files are available from the
-[Danish Maritime Authority](https://www.dma.dk/safety-at-sea/navigational-information/ais-data). Raw files are not
-redistributed here. The [data card](docs/03_data_card.md) records the study selection, observed quality, source terms
-and known biases.
+[Danish Maritime Authority](https://www.dma.dk/safety-at-sea/navigational-information/ais-data) and, for US waters,
+from NOAA/BOEM [Marine Cadastre](https://hub.marinecadastre.gov/pages/vesseltraffic). Raw files are not redistributed
+here. The [data card](docs/03_data_card.md) records the study selection, observed quality, source terms and known
+biases.
 
 ## Licence
 
-Code is released under the [MIT License](LICENSE). DMA AIS data is not included and remains subject to the provider's
-terms.
+Code is released under the [MIT License](LICENSE). DMA and Marine Cadastre AIS data are not included and remain
+subject to their providers' terms.
