@@ -1,8 +1,8 @@
-# When does geographic context transfer? A controlled AIS study of vessel trajectory prediction in Danish waters
+# When does geographic context transfer? A controlled AIS study of vessel trajectory prediction in Danish and US waters
 
-**Kiran Jose Puthussery · Preliminary research summary · 22 October 2026 · MORVA V1–V2**
+**Kiran Jose Puthussery · Preliminary research summary · 1 November 2026 · MORVA V1–V3**
 
-*An earlier version of this summary, covering V1 only, is in the repository history.*
+*Earlier versions of this summary, covering V1 and V1–V2, are in the repository history.*
 
 ## Motivation and research question
 
@@ -13,20 +13,25 @@ continue the turn, settle on a new course, follow a bend in a fairway or approac
 does not resolve these alternatives.
 
 My starting point was therefore not to develop another large prediction architecture. I wanted to establish how far
-transparent kinematic models could go, and then isolate the value of additional information. The primary question was:
+transparent kinematic models could go, and then isolate the value of additional information. My starting question for
+V1 and V2 was:
 
 > Does vessel and geographic context improve 5-, 10- and 20-minute trajectory prediction beyond transparent
 > kinematic and motion-only learned baselines, in which manoeuvring regimes, and does the improvement transfer to
 > unseen vessels and unseen waters?
+
+V3 broadened this question to a 60-minute horizon and added a second issue: whether prediction boxes, calibrated where
+the model was trained, remain calibrated in new waters.
 
 This question was motivated partly by my naval-architecture background. Vessel type and dimensions are physically
 related to manoeuvrability, while waterway geometry constrains where a manoeuvre can lead. At the same time, these
 variables can act as shortcuts: dimensions may identify a frequently observed vessel, and raw coordinates may encode a
 memorised route. I therefore treated generalisation as part of the research question rather than as an afterthought.
 
-The study has two stages. V1 tested raw context and found that raw coordinates help locally but fail in held-out areas.
-V2 asked whether a different representation of geography, describing a vessel's relation to the local traffic flow,
-would transfer to independent waterways.
+The study has three stages. V1 tested raw context and found that raw coordinates help locally but fail in held-out
+areas. V2 asked whether a different representation of geography, describing a vessel's relation to the local traffic
+flow, would transfer to independent waterways. V3 tested that representation in two US waterways at the longer
+horizon, together with its prediction boxes.
 
 AIS trajectory-prediction research now spans classical machine learning, recurrent networks, graph models and
 transformers, but reviews continue to identify data quality, heterogeneous evaluation and incomplete contextual
@@ -61,10 +66,22 @@ still trained only on the home area (19–30 September). Validation now covers 1
 167,533 home windows from 1,209 vessels, 55,561 Bornholm windows from 904 vessels and 97,396 Skagen windows from
 1,011 vessels.
 
+For V3, I extended the Danish data to 41 days (19 September–29 October 2026) and added a second source: NOAA/BOEM
+Marine Cadastre AIS for two US areas, the Salish Sea (47.0–48.8° N, 124.7–122.2° W), the primary cross-country test,
+and the Houston area (28.9–29.8° N, 95.3–94.3° W), a descriptive stress test dominated by tugs and towboats. The
+US archive was available for 2025, so the US regions use the same calendar dates one year earlier. Every region follows
+the same calendar: 19 September–6 October for training (home) or flow-map history (other regions), 7–11 October for
+model selection, 12–15 October for calibrating prediction boxes, and 16–29 October as a locked test period. Each
+window now has 20 minutes of history and 60 minutes of future. The V3 test set contains 230,570 home windows,
+76,694 in Bornholm, 146,955 in Skagen, 110,193 in the Salish Sea and 179,930 in Houston. The US source is sparser than
+DMA's: the median in-region reporting interval is about 80 seconds rather than 10, so the 180-second gap rule keeps the
+better-covered part of the US traffic.
+
 The main metrics are average displacement error (ADE) and final displacement error at 20 minutes (FDE@20), calculated
-as geodesic distances in metres. Model differences are paired on identical samples. I estimate 95% confidence intervals
-by resampling whole vessels rather than individual windows, because windows belonging to the same vessel are strongly
-correlated.
+as geodesic distances in metres; V3 reports errors at 20 and 60 minutes. Model differences are paired on identical
+samples. I estimate 95% confidence intervals by resampling whole vessels rather than individual windows, because
+windows belonging to the same vessel are strongly correlated. For prediction boxes, V3 reports coverage, the share of
+windows whose true position lies inside the box, and box width.
 
 ## Models and contextual ablation
 
@@ -95,7 +112,15 @@ same-direction traffic within 1.5 km is pooled, so the opposite lane of a traffi
 features describe the vessel's lateral offset from the lane and its heading relative to it, the lane's width, density
 and coherence, and how the lane bends at the positions a constant-velocity forecast would reach after 5, 10 and 20
 minutes. No external chart data is used. To stop a training sample from seeing its own future path, each training
-window uses a map built without the day or days its future covers.
+window uses a map built without the day or days its future covers. In V3 the same learner and features are used, with
+the lane queried out to 60 minutes ahead (23 fairway features instead of 14).
+
+V3 also adds uncertainty. For each forecast time and each body-frame axis, quantile versions of the same
+gradient-boosting model predict the central 80% and 90% ranges of the correction. Together they form a box around the
+forecast position. Split-conformal calibration then widens or narrows every box by one amount per forecast time, chosen
+so that the stated share of calibration windows falls inside it [4]. I compared two versions: boxes calibrated on the
+home area, and boxes calibrated on four days of the evaluated region's own data. Calibration changes only the box size,
+never the model.
 
 For interpretation, each sample is assigned to one of five manoeuvring regimes using only the final 10 minutes of its
 observed history: low-speed, steady transit, turning, speed-changing or combined turning and speed-changing. I repeated
@@ -181,27 +206,81 @@ consistent with, though not proof of, tree models extrapolating outside the coor
 
 ![V2 test FDE at 20 minutes: raw location vs fairway context](../results/v2/figures/transfer_test.png)
 
+## V3 results: 60-minute transfer across countries and calibrated boxes
+
+The V3 plan was revised after validation. Validation showed that home-calibrated boxes were honest at home but not in
+other waters, and that local calibration fixed this, so I split the planned coverage hypothesis into one for the home
+area and one for local calibration elsewhere. I froze four hypotheses on 26 October, before downloading any test data.
+V3-H1 predicted that fairway context (E) would improve on motion-only (A) in the Salish Sea at 20 and 60 minutes;
+V3-H2, that raw coordinates (C) would be worse than A there at both horizons; V3-H3, that locally calibrated 80% and
+90% boxes would cover within 3 percentage points of nominal in Bornholm, Skagen and the Salish Sea at 20 and 60
+minutes (12 checks); and V3-H4, that home-calibrated boxes would do the same at home (4 checks). Houston had no
+hypothesis. The test pass ran once on 1 November, after the last Danish test day was published, and a decision script
+written before any test result existed applied the rules.
+
+**Table 3. Mean error at 20 / 60 minutes (m) on the V3 test period (16–29 October).** Models trained on the Danish home
+area only.
+
+| Model | Home | Bornholm | Skagen | Salish Sea | Houston |
+|---|---:|---:|---:|---:|---:|
+| Constant velocity | 1,605 / 8,059 | 535 / 3,126 | 843 / 4,719 | 2,619 / 10,991 | 1,462 / 5,934 |
+| A: motion only | 1,305 / 5,895 | 550 / 3,540 | 833 / 4,526 | 2,125 / 7,386 | 1,244 / 4,442 |
+| C: + raw location | 846 / 3,013 | 2,002 / 9,165 | 1,341 / 6,342 | 3,282 / 13,392 | 1,960 / 8,712 |
+| E: + fairway context | 797 / 3,484 | **430 / 2,362** | **736 / 3,842** | **1,729 / 6,150** | 1,220 / 4,628 |
+
+All four hypotheses were supported (figure, panel A). In the Salish Sea, fairway context reduced error by 396 m at 20
+minutes (95% CI −442 to −348) and by 1,236 m at 60 minutes (−1,385 to −1,097), about 17–19%, close to the validation
+result. E also improved on A at both horizons at home, in Bornholm and in Skagen. Raw coordinates were worse than
+motion-only in every independent waterway at both horizons, including the Salish Sea (+1,156 m and +6,006 m). At home,
+raw location was slightly worse than fairway context at 20 minutes but better at 60 minutes (3,013 against 3,484 m), as
+on validation: within familiar waters, memorised routes still help most over longer horizons.
+
+Houston is the exception. Fairway context gave a small gain at 20 minutes (−24 m) and was worse than motion-only at 60
+minutes (+186 m). About two-thirds of Houston windows come from tugs and towboats, but on the test period cargo and
+tanker traffic alone also did not benefit, so vessel mix does not explain the result on its own.
+
+Point skill and uncertainty transfer differently (figure, panels B and C). Boxes calibrated in the home area were
+honest there (78.5–79.0% for 80% boxes and 88.8–89.1% for 90% boxes), but too wide in Bornholm, too narrow in Skagen at
+60 minutes and far too narrow in the USA: an 80% box at 60 minutes contained the vessel's position only 60% of the time
+in the Salish Sea and 40% in Houston. Calibrating on four days of the region's own data, without retraining, brought
+coverage within 3 points of nominal in every region, Houston included. In the test, unlike validation, the calibration
+days preceded the evaluated days, as they would in use. Fairway context also gave narrower boxes than motion-only at
+the same coverage, except in Houston at 60 minutes. Honest is not the same as useful, however: the 90% box at 60
+minutes in the Salish Sea extends on average about 11 km along track and 10 km across track on each side of the
+forecast.
+
+![V3 test: paired E − A differences and 60-minute box coverage under home and local calibration](../results/v3/figures/v3_summary_test.png)
+
+*Post-test figure drawn from the saved outputs of the single V3 test pass; it adds no analysis and does not affect the
+frozen decisions.*
+
 ## Interpretation, limitations and next direction
 
-Together, the two stages suggest that the difficult part of short-horizon vessel prediction is not simply detecting a
-manoeuvre. It is identifying how that manoeuvre relates to the waterway and when it will end. Absolute coordinates
-provide this information within a familiar region but attach it to places. Describing the same information relative to
-the local traffic flow kept its value in two independently evaluated Danish waterways. How geography is represented,
-not merely whether it is present, determines whether it transfers.
+Together, the three stages suggest that the difficult part of vessel prediction is not simply detecting a manoeuvre.
+It is identifying how that manoeuvre relates to the waterway and when it will end. Absolute coordinates provide this
+information within a familiar region but attach it to places. Describing the same information relative to the local
+traffic flow kept its value in two independently evaluated Danish waterways and, at a 60-minute horizon, in a US
+waterway with a different AIS source. How geography is represented, not merely whether it is present, determines
+whether it transfers. V3 adds a second lesson: a model's accuracy can transfer while its uncertainty does not. Boxes
+need a few days of local calibration before they can be trusted in new waters, and that step is cheap because it does
+not touch the model.
 
-These findings are limited to three Danish settings observed over the same autumn weeks, sharing one AIS network and
-part of their traffic, and to Class A transmitters. Fairway context depends on historical traffic, so it does not apply
-to waters without AIS history; it averages diverging branches near junctions and says little about low-speed harbour
-behaviour. The learned comparison uses one gradient-boosting model family with deterministic outputs. AIS does not
-expose rudder commands, propulsion state, pilot instructions, route plans, weather, currents or all traffic
-interactions. This work evaluates statistical trajectory forecasting, not navigational intent or a safety-certified
-function, and displacement accuracy is not operational safety performance.
+These findings are limited to autumn traffic over six consecutive weeks and to Class A transmitters. The Danish and US
+regions are observed in different years and with sources of different resolution, so the cross-country comparison
+mixes geography with data differences. Houston shows that transfer can fail without an obvious cause. Fairway context
+and local calibration both depend on historical traffic, so neither applies to waters without AIS history; the flow
+map averages diverging branches near junctions and says little about low-speed harbour behaviour. Coverage is
+aggregate rather than per ship type or location, and calibrated boxes are wide at 60 minutes. The learned comparison
+uses one gradient-boosting model family and, in V3, one seed. AIS does not expose rudder commands, propulsion state,
+pilot instructions, route plans, weather, currents or all traffic interactions. This work evaluates statistical
+trajectory forecasting, not navigational intent or a safety-certified function, and displacement accuracy is not
+operational safety performance.
 
-The next questions are how to represent route choice at junctions; whether chart-based context (coastline,
-bathymetry, ports and anchorages) can replace traffic history where it is sparse; whether the result holds in other
-countries, seasons and waterway types; and how to provide calibrated uncertainty where several futures are plausible.
-If prediction residuals are later used for anomaly screening, that will require a separate evaluation because an
-unusual trajectory is not automatically unsafe, illegal or erroneous.
+The next questions are how surrounding vessels change a forecast (planned V4); how to represent route choice at
+junctions, where one box should become several plausible futures; whether chart-based context (coastline, bathymetry,
+ports and anchorages) can replace traffic history where it is sparse; why Houston does not benefit; and how long local
+calibration stays valid across seasons. If forecasts are later used to flag unusual behaviour (planned V5), that will
+require a separate evaluation, because an unusual trajectory is not automatically unsafe, illegal or erroneous.
 
 ## References
 
@@ -211,8 +290,10 @@ unusual trajectory is not automatically unsafe, illegal or erroneous.
    review and methods analysis,” *Engineering Applications of Artificial Intelligence*, 126, 107062, 2023.
 3. H. Li, H. Jiao and Z. Yang, “AIS data-driven ship trajectory prediction modelling and analysis based on machine
    learning and deep learning methods,” *Transportation Research Part E*, 175, 103152, 2023.
+4. Y. Romano, E. Patterson and E. J. Candès, “Conformalized quantile regression,” *Advances in Neural Information
+   Processing Systems*, 32, 2019.
 
 **Reproducibility and provenance.** Code and documentation: <https://github.com/kiranjojose/morva>. The repository records the data manifests and checksums, experiment configuration,
-quality reports, run summaries, both hypothesis freezes and the V2 pre-test amendments, and every test command.
-Raw DMA files are not redistributed. Both test periods are now spent; any subsequent model development is treated as
-post hoc and returns to validation or new data.
+quality reports, run summaries, the three hypothesis freezes and the V2 pre-test amendments, and every test command.
+Raw DMA and Marine Cadastre files are not redistributed. All three test periods are now spent; any subsequent model
+development is treated as post hoc and returns to validation or new data.
