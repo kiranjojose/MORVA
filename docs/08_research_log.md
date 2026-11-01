@@ -251,3 +251,25 @@ All with `--confirm-test`. Run folders `results/v2/runs/20261021T2*`; tables in 
 - Downloaded the 8 Danish test files already published (2026-10-16 to 2026-10-23) to the raw store after the freeze; every file matches DMA's byte size and passes `unzip -t`; manifests written. Not linked into `data/raw` and not ingested. The remaining 6 (24–29 Oct) follow once DMA publishes them (a one-time check is scheduled for 1 Nov).
 - **Dry run of the frozen test pass on synthetic data:** the 12 commands in the protocol were run once, in order, with `--synthetic` (outputs only under `results/v3/_synthetic`), after a scratch script added synthetic voyages in Skagen and Houston so every region has test windows (no repository code changed). All 12 commands exited 0, including the sweep's skipped local calibration for a region without calibration windows. The runner's command list was checked line by line against the frozen protocol, and the test lock refused `test` and `transfer_test` commands without `--confirm-test`. No real test windows exist and no real test output was produced.
 
+
+## 2026-11-01 (Sun), V3 single test pass
+- DMA published 2026-10-28 and 2026-10-29 by 1 Nov. Downloaded the remaining 6 Danish test files (2026-10-24 to 2026-10-29); every file matches DMA's byte size and passes `unzip -t`; manifests written. All 28 test files (14 DMA, 14 Marine Cadastre) linked into `data/raw` and `data/raw/us`. Run code and configurations identical to pinned `ba7032c` (`git diff ba7032c HEAD -- src configs pyproject.toml uv.lock` empty).
+- **Data preparation** (V3 configs; ingest 15:04–15:08, clean –15:14, windows –15:18, fairway –15:19 UTC; all exit 0). Window counts before → after: train, validation and transfer-context windows identical in every region (same vessel and anchor time for every window). Calibration gained 84 windows and lost none: home 66,974 → 66,982; Bornholm 20,330 → 20,333; Skagen 39,675 → 39,681; Salish Sea 36,761 → 36,785; Houston 48,628 → 48,671. All added windows are anchored at 23:00 UTC on 15 Oct (Houston 22:59–23:00), the last anchor whose 60-minute future fits the calibration block, which tracks reach now that the data no longer end at 16 Oct, as anticipated in the protocol. Test windows: home 230,570; Bornholm 76,694; Skagen 146,955; Salish Sea 110,193; Houston 179,930.
+- **Test pass:** the 12 frozen commands run once, in order, from a runner whose command list was extracted verbatim from `docs/05_protocol.md`. Every command exited 0; none was repeated.
+
+| # | Command | Start–end (UTC) | Run directory |
+|---|---|---|---|
+| 1 | baselines test | 15:20:22–15:20:44 | `20261101T152034Z_baselines_test` |
+| 2 | baselines transfer_test bornholm | 15:20:44–15:20:57 | `20261101T152055Z_baselines_transfer_test_bornholm` |
+| 3 | baselines transfer_test skagen | 15:20:57–15:21:13 | `20261101T152108Z_baselines_transfer_test_skagen` |
+| 4 | baselines transfer_test salish_sea | 15:21:13–15:21:28 | `20261101T152124Z_baselines_transfer_test_salish_sea` |
+| 5 | baselines transfer_test houston | 15:21:28–15:21:47 | `20261101T152139Z_baselines_transfer_test_houston` |
+| 6 | gbm test | 15:21:47–15:34:35 | `20261101T153434Z_gbm_test` |
+| 7 | gbm transfer_test bornholm | 15:34:35–15:46:30 | `20261101T154630Z_gbm_transfer_test_bornholm` |
+| 8 | gbm transfer_test skagen | 15:46:30–15:58:43 | `20261101T155843Z_gbm_transfer_test_skagen` |
+| 9 | gbm transfer_test salish_sea | 15:58:43–16:08:35 | `20261101T160834Z_gbm_transfer_test_salish_sea` |
+| 10 | gbm transfer_test houston | 16:08:35–16:18:50 | `20261101T161849Z_gbm_transfer_test_houston` |
+| 11 | intervals test E_fairway --sweep | 16:18:50–16:26:51 | `20261101T162450Z_intervals_E_fairway_*` (9 folders) |
+| 12 | intervals test A_motion --sweep | 16:26:51–16:32:43 | `20261101T163100Z_intervals_A_motion_*` (9 folders) |
+
+- **Decision** (`scripts/v3_decide.py results/v3 --split test`, written to `results/v3/tables/v3_decision_test.md`): V3-H1, V3-H2, V3-H3 and V3-H4 all supported. Salish Sea E − A: −396 m (−442 to −348) at 20 min, −1,236 m (−1,385 to −1,097) at 60 min; C − A: +1,156 m (+993 to +1,343) and +6,006 m (+5,000 to +7,033). Local-calibration coverage of E boxes in Bornholm, Skagen and the Salish Sea 78.9–82.3% (80% boxes) and 89.0–91.7% (90% boxes), all 12 within ±3 points; home coverage at home 79.0 / 78.5% and 89.1 / 88.8%.

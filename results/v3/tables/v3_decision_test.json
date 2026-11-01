@@ -1,0 +1,156 @@
+{
+  "split": "test",
+  "runs": {
+    "gbm_salish_sea": "20261101T160834Z_gbm_transfer_test_salish_sea",
+    "intervals_bornholm": "20261101T162450Z_intervals_E_fairway_transfer_test_bornholm_localcal",
+    "intervals_skagen": "20261101T162450Z_intervals_E_fairway_transfer_test_skagen_localcal",
+    "intervals_salish_sea": "20261101T162450Z_intervals_E_fairway_transfer_test_salish_sea_localcal",
+    "intervals_home": "20261101T162450Z_intervals_E_fairway_test"
+  },
+  "hypotheses": {
+    "V3-H1": {
+      "outcome": "supported",
+      "checks": [
+        {
+          "check": "E_fairway - A_motion at 20 min, 95% CI upper < 0",
+          "mean": -396.0144700213858,
+          "ci95_lo": -442.2486608982295,
+          "ci95_hi": -348.44856106290024,
+          "pass": true
+        },
+        {
+          "check": "E_fairway - A_motion at 60 min, 95% CI upper < 0",
+          "mean": -1235.8287285643607,
+          "ci95_lo": -1385.086057025539,
+          "ci95_hi": -1096.7604445384045,
+          "pass": true
+        }
+      ]
+    },
+    "V3-H2": {
+      "outcome": "supported",
+      "checks": [
+        {
+          "check": "C_location - A_motion at 20 min, 95% CI lower > 0",
+          "mean": 1156.452896264319,
+          "ci95_lo": 992.7731290171806,
+          "ci95_hi": 1342.7533016371633,
+          "pass": true
+        },
+        {
+          "check": "C_location - A_motion at 60 min, 95% CI lower > 0",
+          "mean": 6005.646849557732,
+          "ci95_lo": 5000.003174935158,
+          "ci95_hi": 7033.183876638429,
+          "pass": true
+        }
+      ]
+    },
+    "V3-H3": {
+      "outcome": "supported",
+      "checks": [
+        {
+          "check": "bornholm: 80% box at 20 min within \u00b13 points",
+          "coverage": 0.7950035204840014,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "bornholm: 80% box at 60 min within \u00b13 points",
+          "coverage": 0.8230630818577724,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "bornholm: 90% box at 20 min within \u00b13 points",
+          "coverage": 0.903108456984901,
+          "nominal": 0.9,
+          "pass": true
+        },
+        {
+          "check": "bornholm: 90% box at 60 min within \u00b13 points",
+          "coverage": 0.9170339270347093,
+          "nominal": 0.9,
+          "pass": true
+        },
+        {
+          "check": "skagen: 80% box at 20 min within \u00b13 points",
+          "coverage": 0.7936238984723215,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "skagen: 80% box at 60 min within \u00b13 points",
+          "coverage": 0.799605321356878,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "skagen: 90% box at 20 min within \u00b13 points",
+          "coverage": 0.8964444898098057,
+          "nominal": 0.9,
+          "pass": true
+        },
+        {
+          "check": "skagen: 90% box at 60 min within \u00b13 points",
+          "coverage": 0.8960293967541084,
+          "nominal": 0.9,
+          "pass": true
+        },
+        {
+          "check": "salish_sea: 80% box at 20 min within \u00b13 points",
+          "coverage": 0.7885800368444457,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "salish_sea: 80% box at 60 min within \u00b13 points",
+          "coverage": 0.7950958772335811,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "salish_sea: 90% box at 20 min within \u00b13 points",
+          "coverage": 0.890292486818582,
+          "nominal": 0.9,
+          "pass": true
+        },
+        {
+          "check": "salish_sea: 90% box at 60 min within \u00b13 points",
+          "coverage": 0.8949025800186945,
+          "nominal": 0.9,
+          "pass": true
+        }
+      ]
+    },
+    "V3-H4": {
+      "outcome": "supported",
+      "checks": [
+        {
+          "check": "home: 80% box at 20 min within \u00b13 points",
+          "coverage": 0.7904974628095589,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "home: 80% box at 60 min within \u00b13 points",
+          "coverage": 0.7852886325194084,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "home: 90% box at 20 min within \u00b13 points",
+          "coverage": 0.8912868109467841,
+          "nominal": 0.9,
+          "pass": true
+        },
+        {
+          "check": "home: 90% box at 60 min within \u00b13 points",
+          "coverage": 0.8879732836015093,
+          "nominal": 0.9,
+          "pass": true
+        }
+      ]
+    }
+  }
+}

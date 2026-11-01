@@ -56,17 +56,24 @@
       "by_split": [
         {
           "split": "calib",
-          "windows": 66974,
-          "with_flow": 65381,
-          "median_abs_offset_m": 97.41187124394895,
-          "median_abs_hdg_deg": 3.0819840547509614
+          "windows": 66982,
+          "with_flow": 65389,
+          "median_abs_offset_m": 97.42511848333302,
+          "median_abs_hdg_deg": 3.081813148545905
         },
         {
           "split": "excluded",
-          "windows": 1542,
-          "with_flow": 1524,
-          "median_abs_offset_m": 114.26012591527024,
-          "median_abs_hdg_deg": 2.3700407515158872
+          "windows": 2256,
+          "with_flow": 2226,
+          "median_abs_offset_m": 109.79314600227238,
+          "median_abs_hdg_deg": 2.406512976837746
+        },
+        {
+          "split": "test",
+          "windows": 230570,
+          "with_flow": 224884,
+          "median_abs_offset_m": 97.7989702362142,
+          "median_abs_hdg_deg": 3.0196663807048907
         },
         {
           "split": "train",
@@ -95,17 +102,17 @@
       "by_split": [
         {
           "split": "excluded",
-          "windows": 763,
-          "with_flow": 698,
-          "median_abs_offset_m": 145.5054224768103,
-          "median_abs_hdg_deg": 2.4648446061676452
+          "windows": 1020,
+          "with_flow": 953,
+          "median_abs_offset_m": 139.4700339866809,
+          "median_abs_hdg_deg": 2.391443939037714
         },
         {
           "split": "transfer_calib",
-          "windows": 20330,
-          "with_flow": 19165,
-          "median_abs_offset_m": 123.17386835205703,
-          "median_abs_hdg_deg": 2.7546177519652417
+          "windows": 20333,
+          "with_flow": 19168,
+          "median_abs_offset_m": 123.18465110551084,
+          "median_abs_hdg_deg": 2.7544165988119858
         },
         {
           "split": "transfer_context",
@@ -113,6 +120,13 @@
           "with_flow": 95211,
           "median_abs_offset_m": 122.01439624361412,
           "median_abs_hdg_deg": 2.6965091006549216
+        },
+        {
+          "split": "transfer_test",
+          "windows": 76694,
+          "with_flow": 72734,
+          "median_abs_offset_m": 122.88839376361753,
+          "median_abs_hdg_deg": 2.7885538571825066
         },
         {
           "split": "transfer_val",
@@ -134,17 +148,17 @@
       "by_split": [
         {
           "split": "excluded",
-          "windows": 1067,
-          "with_flow": 1055,
-          "median_abs_offset_m": 123.37301860191928,
-          "median_abs_hdg_deg": 5.359165166135313
+          "windows": 1551,
+          "with_flow": 1528,
+          "median_abs_offset_m": 119.3462591688764,
+          "median_abs_hdg_deg": 5.09491678024915
         },
         {
           "split": "transfer_calib",
-          "windows": 39675,
-          "with_flow": 38580,
-          "median_abs_offset_m": 122.59656061998187,
-          "median_abs_hdg_deg": 5.510595413480303
+          "windows": 39681,
+          "with_flow": 38586,
+          "median_abs_offset_m": 122.56683134765795,
+          "median_abs_hdg_deg": 5.511106059479999
         },
         {
           "split": "transfer_context",
@@ -152,6 +166,13 @@
           "with_flow": 190931,
           "median_abs_offset_m": 122.28494754826315,
           "median_abs_hdg_deg": 5.12126578561157
+        },
+        {
+          "split": "transfer_test",
+          "windows": 146955,
+          "with_flow": 142294,
+          "median_abs_offset_m": 122.68219752296093,
+          "median_abs_hdg_deg": 5.472606296198705
         },
         {
           "split": "transfer_val",
@@ -173,17 +194,17 @@
       "by_split": [
         {
           "split": "excluded",
-          "windows": 1063,
-          "with_flow": 1051,
-          "median_abs_offset_m": 107.13784347067762,
-          "median_abs_hdg_deg": 4.695807872409091
+          "windows": 1865,
+          "with_flow": 1822,
+          "median_abs_offset_m": 106.95254361493416,
+          "median_abs_hdg_deg": 5.496584562755402
         },
         {
           "split": "transfer_calib",
-          "windows": 36761,
-          "with_flow": 35699,
-          "median_abs_offset_m": 108.15014747957359,
-          "median_abs_hdg_deg": 4.556954802679513
+          "windows": 36785,
+          "with_flow": 35723,
+          "median_abs_offset_m": 108.1397128282578,
+          "median_abs_hdg_deg": 4.55808343275902
         },
         {
           "split": "transfer_context",
@@ -191,6 +212,13 @@
           "with_flow": 137347,
           "median_abs_offset_m": 111.84147103916271,
           "median_abs_hdg_deg": 4.387641218350268
+        },
+        {
+          "split": "transfer_test",
+          "windows": 110193,
+          "with_flow": 106976,
+          "median_abs_offset_m": 108.80866021681818,
+          "median_abs_hdg_deg": 4.59447854338066
         },
         {
           "split": "transfer_val",
@@ -212,17 +240,17 @@
       "by_split": [
         {
           "split": "excluded",
-          "windows": 1722,
-          "with_flow": 1694,
-          "median_abs_offset_m": 47.424262956201744,
-          "median_abs_hdg_deg": 3.667565338480955
+          "windows": 3078,
+          "with_flow": 3048,
+          "median_abs_offset_m": 44.72514470780325,
+          "median_abs_hdg_deg": 3.553065860498407
         },
         {
           "split": "transfer_calib",
-          "windows": 48628,
-          "with_flow": 48072,
-          "median_abs_offset_m": 41.25748071045949,
-          "median_abs_hdg_deg": 2.863655355866257
+          "windows": 48671,
+          "with_flow": 48115,
+          "median_abs_offset_m": 41.273437323027274,
+          "median_abs_hdg_deg": 2.8646861822329015
         },
         {
           "split": "transfer_context",
@@ -230,6 +258,13 @@
           "with_flow": 256898,
           "median_abs_offset_m": 43.47239744170434,
           "median_abs_hdg_deg": 3.2819811499954312
+        },
+        {
+          "split": "transfer_test",
+          "windows": 179930,
+          "with_flow": 176251,
+          "median_abs_offset_m": 44.160280543579994,
+          "median_abs_hdg_deg": 3.488263088832241
         },
         {
           "split": "transfer_val",

@@ -1,30 +1,30 @@
 {
-  "rows": 43812556,
-  "vessels": 2644,
+  "rows": 66020611,
+  "vessels": 3245,
   "t_min_utc": "2026-09-19 00:00:00+00:00",
-  "t_max_utc": "2026-10-15 23:59:58+00:00",
+  "t_max_utc": "2026-10-29 23:59:58+00:00",
   "null_fraction_after_sentinels": {
-    "sog": 0.005,
-    "cog": 0.0552,
-    "heading": 0.1528,
+    "sog": 0.0048,
+    "cog": 0.056,
+    "heading": 0.1524,
     "ship_type": 0.0,
-    "length": 0.0289,
-    "width": 0.0297,
-    "draught": 0.1358
+    "length": 0.0261,
+    "width": 0.0268,
+    "draught": 0.1369
   },
   "sentinel_counts_raw": {
-    "sog_102.3": 43795,
-    "heading_511": 6,
+    "sog_102.3": 64731,
+    "heading_511": 8,
     "cog_360": 0
   },
   "flags": {
     "flag_invalid_pos": 0,
-    "flag_bad_mmsi": 331175,
-    "flag_duplicate": 189355,
-    "flag_sog_high": 25647,
-    "flag_speed_spike": 2858
+    "flag_bad_mmsi": 492936,
+    "flag_duplicate": 296491,
+    "flag_sog_high": 36106,
+    "flag_speed_spike": 3929
   },
-  "rows_passing_hard_flags": 43289862,
+  "rows_passing_hard_flags": 65228292,
   "report_interval_s_quantiles": {
     "p10": 3.0,
     "p50": 10.0,
@@ -35,108 +35,108 @@
     "gap_s": 1200,
     "min_points": 20,
     "min_duration_s": 1800,
-    "segments": 8492,
-    "vessels_with_segments": 2516,
-    "rows_in_segments": 43191667
+    "segments": 12627,
+    "vessels_with_segments": 3089,
+    "rows_in_segments": 65084510
   },
   "transfer_regions": {
     "bornholm": {
-      "rows": 11157079,
-      "vessels": 1907,
+      "rows": 16817854,
+      "vessels": 2405,
       "t_min_utc": "2026-09-19 00:00:00+00:00",
-      "t_max_utc": "2026-10-15 23:59:58+00:00",
+      "t_max_utc": "2026-10-29 23:59:58+00:00",
       "null_fraction_after_sentinels": {
-        "sog": 0.0016,
-        "cog": 0.0046,
-        "heading": 0.0619,
+        "sog": 0.0013,
+        "cog": 0.0033,
+        "heading": 0.0576,
         "ship_type": 0.0,
-        "length": 0.0082,
-        "width": 0.0088,
-        "draught": 0.0351
+        "length": 0.0071,
+        "width": 0.0075,
+        "draught": 0.0358
       },
       "sentinel_counts_raw": {
-        "sog_102.3": 4068,
+        "sog_102.3": 6023,
         "heading_511": 0,
         "cog_360": 0
       },
       "flags": {
         "flag_invalid_pos": 0,
-        "flag_bad_mmsi": 1549,
-        "flag_duplicate": 59449,
-        "flag_sog_high": 6022,
-        "flag_speed_spike": 825
+        "flag_bad_mmsi": 3857,
+        "flag_duplicate": 108164,
+        "flag_sog_high": 6681,
+        "flag_speed_spike": 1201
       },
-      "rows_passing_hard_flags": 11095262,
+      "rows_passing_hard_flags": 16704678,
       "report_interval_s_quantiles": {
         "p10": 3.0,
         "p50": 10.0,
         "p90": 12.0,
-        "p99": 133.0
+        "p99": 118.0
       },
       "segmentation": {
         "gap_s": 1200,
         "min_points": 20,
         "min_duration_s": 1800,
-        "segments": 4125,
-        "vessels_with_segments": 1879,
-        "rows_in_segments": 11064219
+        "segments": 6228,
+        "vessels_with_segments": 2360,
+        "rows_in_segments": 16658369
       }
     },
     "skagen": {
-      "rows": 36835264,
-      "vessels": 2172,
+      "rows": 56153885,
+      "vessels": 2770,
       "t_min_utc": "2026-09-19 00:00:00+00:00",
-      "t_max_utc": "2026-10-15 23:59:58+00:00",
+      "t_max_utc": "2026-10-29 23:59:58+00:00",
       "null_fraction_after_sentinels": {
-        "sog": 0.0046,
-        "cog": 0.0711,
-        "heading": 0.1571,
+        "sog": 0.0049,
+        "cog": 0.0715,
+        "heading": 0.1578,
         "ship_type": 0.0,
-        "length": 0.0442,
-        "width": 0.0443,
-        "draught": 0.3325
+        "length": 0.0455,
+        "width": 0.0457,
+        "draught": 0.3273
       },
       "sentinel_counts_raw": {
-        "sog_102.3": 10143,
-        "heading_511": 5,
+        "sog_102.3": 11821,
+        "heading_511": 7,
         "cog_360": 0
       },
       "flags": {
         "flag_invalid_pos": 0,
-        "flag_bad_mmsi": 44451,
-        "flag_duplicate": 125602,
-        "flag_sog_high": 9838,
-        "flag_speed_spike": 631
+        "flag_bad_mmsi": 48028,
+        "flag_duplicate": 187859,
+        "flag_sog_high": 12301,
+        "flag_speed_spike": 1138
       },
-      "rows_passing_hard_flags": 36664715,
+      "rows_passing_hard_flags": 55917017,
       "report_interval_s_quantiles": {
         "p10": 4.0,
         "p50": 10.0,
         "p90": 12.0,
-        "p99": 174.0
+        "p99": 175.0
       },
       "segmentation": {
         "gap_s": 1200,
         "min_points": 20,
         "min_duration_s": 1800,
-        "segments": 4853,
-        "vessels_with_segments": 2130,
-        "rows_in_segments": 36645700
+        "segments": 7243,
+        "vessels_with_segments": 2722,
+        "rows_in_segments": 55887797
       }
     },
     "salish_sea": {
-      "rows": 6173752,
-      "vessels": 1224,
+      "rows": 9400065,
+      "vessels": 1447,
       "t_min_utc": "2025-09-19 00:00:00+00:00",
-      "t_max_utc": "2025-10-15 23:59:59+00:00",
+      "t_max_utc": "2025-10-29 23:59:59+00:00",
       "null_fraction_after_sentinels": {
-        "sog": 0.0004,
-        "cog": 0.0966,
-        "heading": 0.338,
+        "sog": 0.0007,
+        "cog": 0.0965,
+        "heading": 0.3375,
         "ship_type": 0.0,
-        "length": 0.0113,
-        "width": 0.0209,
-        "draught": 0.2661
+        "length": 0.013,
+        "width": 0.0241,
+        "draught": 0.27
       },
       "sentinel_counts_raw": {
         "sog_102.3": 0,
@@ -145,12 +145,12 @@
       },
       "flags": {
         "flag_invalid_pos": 0,
-        "flag_bad_mmsi": 491,
-        "flag_duplicate": 136,
-        "flag_sog_high": 352,
-        "flag_speed_spike": 529
+        "flag_bad_mmsi": 8346,
+        "flag_duplicate": 184,
+        "flag_sog_high": 765,
+        "flag_speed_spike": 707
       },
-      "rows_passing_hard_flags": 6172596,
+      "rows_passing_hard_flags": 9390829,
       "report_interval_s_quantiles": {
         "p10": 66.0,
         "p50": 80.0,
@@ -161,24 +161,24 @@
         "gap_s": 1200,
         "min_points": 20,
         "min_duration_s": 1800,
-        "segments": 7456,
-        "vessels_with_segments": 1116,
-        "rows_in_segments": 6144638
+        "segments": 10899,
+        "vessels_with_segments": 1299,
+        "rows_in_segments": 9348419
       }
     },
     "houston": {
-      "rows": 11666364,
-      "vessels": 1801,
+      "rows": 17589591,
+      "vessels": 2164,
       "t_min_utc": "2025-09-19 00:00:00+00:00",
-      "t_max_utc": "2025-10-15 23:59:59+00:00",
+      "t_max_utc": "2025-10-29 23:59:59+00:00",
       "null_fraction_after_sentinels": {
         "sog": 0.0002,
-        "cog": 0.0569,
-        "heading": 0.2536,
+        "cog": 0.0588,
+        "heading": 0.2507,
         "ship_type": 0.0,
-        "length": 0.0135,
+        "length": 0.0138,
         "width": 0.0198,
-        "draught": 0.1371
+        "draught": 0.1344
       },
       "sentinel_counts_raw": {
         "sog_102.3": 0,
@@ -187,25 +187,25 @@
       },
       "flags": {
         "flag_invalid_pos": 0,
-        "flag_bad_mmsi": 417,
-        "flag_duplicate": 140,
-        "flag_sog_high": 133,
-        "flag_speed_spike": 1242
+        "flag_bad_mmsi": 440,
+        "flag_duplicate": 244,
+        "flag_sog_high": 210,
+        "flag_speed_spike": 2091
       },
-      "rows_passing_hard_flags": 11664565,
+      "rows_passing_hard_flags": 17586816,
       "report_interval_s_quantiles": {
         "p10": 68.0,
         "p50": 79.0,
         "p90": 181.0,
-        "p99": 538.0
+        "p99": 537.0
       },
       "segmentation": {
         "gap_s": 1200,
         "min_points": 20,
         "min_duration_s": 1800,
-        "segments": 10839,
-        "vessels_with_segments": 1648,
-        "rows_in_segments": 11610870
+        "segments": 15602,
+        "vessels_with_segments": 1953,
+        "rows_in_segments": 17515191
       }
     }
   }
