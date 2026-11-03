@@ -2,35 +2,38 @@
 
 ## Study scope
 
-**Title:** Context-aware vessel behaviour modelling from historical AIS: reproducible baselines, prediction and
-generalisation analysis.
+**Title:** When does geographic context transfer? A controlled AIS study of vessel trajectory prediction in Danish and
+US waters.
 
-**Primary question:** Does vessel and geographic context improve 5-, 10- and 20-minute vessel trajectory prediction
-beyond transparent kinematic and motion-only learned baselines, in which manoeuvring regimes, and does the improvement
-transfer to unseen vessels and unseen waters?
+**Primary question (V1):** Does vessel and geographic context improve 5-, 10- and 20-minute vessel trajectory
+prediction beyond transparent kinematic and motion-only learned baselines, in which manoeuvring regimes, and does the
+improvement transfer to unseen vessels and unseen waters?
+
+This file states the question as it was posed for V1. V2 added independent Danish waterways and a fairway-relative
+representation of geography; V3 extended the horizon to 60 minutes, added two US waterways and asked whether
+calibrated prediction boxes stay calibrated in new waters. Those extensions are set out in the
+[roadmap](00_plan.md) and [protocol](05_protocol.md).
 
 ## Motivation
 
-AIS provides a detailed record of where a vessel has been, its speed over ground and its recent course. These
-observations are valuable, but they do not directly reveal navigational intent. A vessel that is turning may be
-following a fairway bend, approaching a terminal, avoiding traffic or preparing to settle on a new course. The same
-observed turn rate can therefore lead to different future trajectories.
+AIS gives a detailed record of where a vessel has been, its speed over ground and its recent course. It does not tell
+you what the vessel intends to do. A turning vessel may be following a fairway bend, approaching a terminal, avoiding
+traffic or about to settle on a new course, and the same turn rate can lead to quite different futures.
 
-From a naval-architecture perspective, I expected two forms of context to matter. First, vessel type and principal
-dimensions are related to inertia, service speed and manoeuvring capability. A large loaded tanker, a ferry and a tug
-do not respond or operate in the same way. Second, manoeuvres occur inside a geographic system: fairways, traffic
-separation schemes, coastlines, ports and recurring routes constrain where the vessel can go. Recent motion describes
-the current state, while vessel and geographic context may help explain how that state is likely to evolve.
+Coming from naval architecture, I expected two kinds of context to matter. Vessel type and principal dimensions relate
+to inertia, service speed and manoeuvring capability: a loaded tanker, a ferry and a tug do not handle or operate in
+the same way. And manoeuvres happen inside a geographic system, where fairways, traffic separation schemes,
+coastlines, ports and recurring routes limit where a vessel can go. Recent motion describes the current state; vessel
+and geographic context may say how that state will develop.
 
-This reasoning also creates a methodological risk. Vessel dimensions can act as a fingerprint for ships repeatedly
-seen in the data, and raw latitude and longitude can let a model memorise local routes. A model can therefore achieve
-high accuracy without learning a representation that transfers to a new vessel population or a different waterway.
-For this reason, MORVA studies not only in-area accuracy but also vessel-held-out and spatially held-out
-performance.
+The same reasoning carries a risk. Vessel dimensions can act as a fingerprint for ships seen many times in the data,
+and raw latitude and longitude let a model memorise local routes. A model can score well without learning anything
+that carries over to new vessels or another waterway. So MORVA reports vessel-held-out and spatially held-out
+performance next to in-area accuracy.
 
-The project is deliberately baseline-led. At a 5–20-minute horizon, constant velocity is physically interpretable,
-computationally cheap and often appropriate during steady transit. A learned model is useful only if it improves on
-this baseline under a leakage-aware evaluation and if the source and limits of the improvement can be explained.
+The project starts from baselines. At 5–20 minutes, constant velocity is physically interpretable, cheap and often
+right during steady transit. A learned model earns its place only if it beats this baseline under a leakage-aware
+evaluation, and if I can explain where the gain comes from and where it stops.
 
 ## Research questions
 
@@ -46,8 +49,7 @@ this baseline under a leakage-aware evaluation and if the source and limits of t
 
 ## Intended contribution
 
-The first study is a controlled investigation of **when context helps**, rather than a proposal for a new deep neural
-architecture. It contributes:
+V1 is a controlled investigation of **when context helps**, not a new deep neural architecture. It contributes:
 
 - a reproducible AIS quality and trajectory-window pipeline;
 - transparent kinematic baselines evaluated on the same samples as the learned models;

@@ -1,7 +1,9 @@
 # 02 — Literature position for the preliminary summary
 
-This is a deliberately bounded review. I verified the three papers cited in `paper/preliminary_summary.md`; the wider
-reading programme remains in `references/literature_matrix.csv` and should be completed before a journal submission.
+This review is kept short on purpose. It covers the three AIS papers cited in `paper/preliminary_summary.md`, which I
+verified against the sources listed below. The summary's fourth reference, Romano et al. (2019), is cited only for the
+conformalized quantile regression method used in V3 and is not reviewed here. The wider reading programme remains in
+`references/literature_matrix.csv` and should be completed before a journal submission.
 
 ## Verified sources used in the summary
 
@@ -48,13 +50,12 @@ First, increasingly expressive models are used to capture nonlinear movement, lo
 interactions. Second, researchers are adding contextual information such as vessel characteristics, geographic
 structure, weather and surrounding traffic.
 
-The main unresolved issue for this study is not whether a complex model can fit a familiar AIS dataset. It is whether
-the reported improvement is attributable to the model, to extra information, or to shortcuts created by repeated
-vessels and familiar geography. Differences in regions, preprocessing, prediction horizons, data splits and metrics
+A complex model can clearly fit a familiar AIS dataset. The open question for this study is where a reported
+improvement comes from: the model, extra information, or shortcuts created by repeated vessels and familiar geography. Differences in regions, preprocessing, prediction horizons, data splits and metrics
 make comparisons across papers difficult. A model evaluated on random or overlapping samples may answer a different
 question from a model evaluated on later days, unseen vessels or unseen waters.
 
-MORVA therefore occupies a narrower position than a general state-of-the-art architecture paper. It uses strong
+MORVA's position is narrower than a state-of-the-art architecture paper. It uses strong
 kinematic baselines and a fixed residual learner to ask when motion, vessel and raw geographic context help. Its
 spatial result also exposes a distinction that aggregate in-area accuracy can hide: location can be highly predictive
 without being transferable.
@@ -84,6 +85,8 @@ intended application.
 - Li, H., Jiao, H. and Yang, Z. (2023b). *AIS data-driven ship trajectory prediction modelling and analysis based on
   machine learning and deep learning methods.* Transportation Research Part E, 175, 103152.
   <https://doi.org/10.1016/j.tre.2023.103152>
+- Romano, Y., Patterson, E. and Candès, E. J. (2019). *Conformalized quantile regression.* Advances in Neural
+  Information Processing Systems, 32. (Method reference for V3; not reviewed above.)
 
 ## Reading still required before journal submission
 

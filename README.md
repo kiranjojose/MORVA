@@ -8,27 +8,25 @@ MORVA (Maritime Operational Reasoning and Vessel Analytics) is an independent ma
 > When do vessel and geographic context improve 5–60-minute trajectory prediction beyond constant-motion and
 > motion-only learned baselines, and do those improvements transfer to unseen vessels and unseen waters?
 
-The short answer so far: raw coordinates give strong local accuracy but negative geographic transfer (V1). Fairway
-context learned from historical traffic reverses this failure, improving prediction over motion-only models in the
-training area and in two independently evaluated Danish waterways (V2). How geography is represented, not merely
-whether it is present, determines transfer. At a 60-minute horizon, fairway context learned in Denmark also transfers
-to the Salish Sea in the USA, and prediction boxes reach their stated coverage in new waters once calibrated on a few
-days of local data (V3).
+Raw coordinates give strong local accuracy but make prediction worse in unseen waters (V1). Fairway context learned
+from historical traffic fixes this: it beats motion-only models in the training area and in two independently
+evaluated Danish waterways (V2). Whether geography transfers depends on how it is encoded. At a 60-minute horizon,
+fairway context learned in Denmark also transfers to the Salish Sea in the USA, and prediction boxes reach their
+stated coverage in new waters once calibrated on a few days of local data (V3).
 
 The project combines AIS data engineering, geospatial processing, interpretable kinematic models, residual machine
 learning and leakage-aware evaluation. It is an offline research prototype, not a real-time or safety-certified
 navigation system.
 
-## Why this problem matters
+## AIS shows motion, not intent
 
-AIS reports where a vessel is, how fast it is moving and its course over ground. It does not directly reveal why the
-vessel is manoeuvring or when the manoeuvre will end. A turn can continue, settle onto a new course, follow a fairway
-bend or lead into a terminal approach.
+AIS reports where a vessel is, how fast it is moving and its course over ground. It does not say why the vessel is
+manoeuvring or when the manoeuvre will end. A turn can continue, settle onto a new course, follow a fairway bend or
+lead into a terminal approach.
 
-This creates a useful modelling question. Recent motion provides a strong short-term baseline, while vessel type,
-dimensions and location may contain additional information. Those same variables can also create shortcuts: vessel
-attributes may identify recurring services, and raw coordinates may let a model memorise local routes. MORVA
-therefore evaluates both predictive accuracy and transfer.
+Recent motion is a strong short-term baseline. Vessel type, dimensions and location may add information, but they
+also open shortcuts: vessel attributes can identify a recurring service, and raw coordinates let a model memorise
+local routes. That is why MORVA measures transfer as well as accuracy.
 
 ## Study at a glance
 
@@ -90,16 +88,14 @@ Both frozen V2 hypotheses were supported by the single test run:
 Further observations:
 
 - **Bornholm:** motion-only learning does not beat constant velocity, but fairway context does (E − CV −110 m, 95% CI
-  −144 to −86). The result is consistent with fairway context reducing large errors in predominantly straight
-  transit, rather than proving a particular causal mechanism.
+  −144 to −86), mostly by cutting large errors in straight transit. This does not pin down the mechanism.
 - **Regimes:** E improves on A in every manoeuvring regime and setting, except Skagen low-speed, where there is no
   detectable difference (+9 m, CI −15 to +32).
 - **Seeds:** the hypotheses were decided on the prespecified seed 0; seeds 0–2 are a sensitivity check. A and E vary by
   at most 2 m across seeds, while C is unstable in the waterways (Bornholm 1,816 / 1,816 / 2,218 m).
 - **Exploratory:** at home, E's mean error is 70 m lower than C's. This was not a prespecified comparison.
 
-Fairway-relative context retained predictive value in two independently evaluated Danish waterways. Whether it does so
-in other countries, seasons and waterway types is untested. The hypotheses, both pre-test amendments and every test
+Other seasons and waterway types were not tested in V2. The hypotheses, both pre-test amendments and every test
 command are recorded in the [protocol](docs/05_protocol.md) and [research log](docs/08_research_log.md).
 
 ## V3 result: 60-minute transfer across countries and calibrated boxes
@@ -117,7 +113,7 @@ Mean error at 20 / 60 minutes on the locked V3 test period (m):
 | Constant velocity | 1,605 / 8,059 | 535 / 3,126 | 843 / 4,719 | 2,619 / 10,991 | 1,462 / 5,934 |
 | A: motion only | 1,305 / 5,895 | 550 / 3,540 | 833 / 4,526 | 2,125 / 7,386 | 1,244 / 4,442 |
 | C: + raw location | 846 / 3,013 | 2,002 / 9,165 | 1,341 / 6,342 | 3,282 / 13,392 | 1,960 / 8,712 |
-| E: motion + fairway | 797 / 3,484 | **430 / 2,362** | 736 / 3,842 | **1,729 / 6,150** | 1,220 / 4,628 |
+| E: motion + fairway | 797 / 3,484 | **430 / 2,362** | **736 / 3,842** | **1,729 / 6,150** | 1,220 / 4,628 |
 
 Coverage of 80% boxes from model E at 60 minutes:
 
@@ -166,8 +162,7 @@ Four conclusions defined V1:
    1,127 m worse than motion alone (V1-H4 rejected, V1-H4b supported). The in-area model learned useful but
    geographically attached route corrections.
 
-The negative transfer result motivated V2. High in-area accuracy does not demonstrate transferable geographic
-understanding.
+This negative transfer result is what V2 set out to fix.
 
 ## Research design
 
@@ -190,7 +185,8 @@ Baseline parameters are selected using training data only.
 ### Residual prediction
 
 The learned model starts from the CV trajectory and predicts an along-track and cross-track correction in the vessel's
-local body frame. Corrections are estimated at 5, 10, 15 and 20 minutes and interpolated between those knots.
+local body frame. Corrections are estimated at 5, 10, 15 and 20 minutes (V3 adds 30, 45 and 60) and interpolated
+between those knots.
 
 The four controlled feature sets are:
 
@@ -204,8 +200,7 @@ V2 adds two feature sets that use historical traffic instead of coordinates:
 - **E — fairway:** A plus fairway context (below);
 - **F — vessel + fairway:** A plus vessel attributes and fairway context.
 
-Holding the learner and samples fixed makes it possible to attribute changes to the added information rather than to a
-different model architecture.
+The learner and samples stay fixed, so a change in error can be put down to the added information.
 
 ### Fairway context from historical traffic (V2)
 
@@ -251,7 +246,7 @@ windows from one vessel are not independent.
 ## Reproducible pipeline
 
 ```text
-raw DMA ZIP/CSV + checksummed manifests
+raw DMA ZIP/CSV (V3 adds Marine Cadastre files) + checksummed manifests
   → ingest: AOI and Class A filtering, schema conversion, exact de-duplication
   → quality: sentinel normalisation, flags and quality report
   → tracks: gap-based segmentation and vessel metadata
@@ -259,6 +254,7 @@ raw DMA ZIP/CSV + checksummed manifests
   → baselines: persistence, CV, CTRV, damped CTRV and CV Kalman
   → fairway (V2): traffic-flow maps from the training period and fairway features per window
   → learning: residual GBM with motion/vessel/location/fairway ablations
+  → intervals (V3): quantile boxes with split-conformal calibration
   → evaluation: horizon metrics, paired differences, grouped confidence intervals
   → analysis: regimes, vessel hold-out, spatial hold-out and sensitivity tests
 ```
@@ -289,21 +285,15 @@ uv run morva gbm
 uv run morva gbm --split transfer_val --region bornholm
 ```
 
-V2 outputs are written to `results/v2/` (set by `results_dir` in `configs/experiment.yaml`); V1 outputs stay in
-`results/`. The `test` and `transfer_test` splits are protected by `--confirm-test`. Both the V1 and the V2 test
-periods have been used once for their recorded runs and must not be used for further model development.
+V3 runs with `--data-config configs/v3/data.yaml --exp-config configs/v3/experiment.yaml`; `make smoke-v3` runs it
+end to end on synthetic data.
 
-## Technology
+Outputs go to `results/` (V1), `results/v2/` and `results/v3/`, set by `results_dir` in each experiment config. The
+`test` and `transfer_test` splits are protected by `--confirm-test`. All three test periods have been used once for
+their recorded runs and must not be used for further model development.
 
-- **Python 3.12**
-- **Polars, PyArrow and Parquet** for large tabular AIS processing
-- **NumPy** for trajectory tensors, geometry and vectorised baselines
-- **scikit-learn** for histogram gradient boosting
-- **DuckDB** for local analytical queries
-- **Matplotlib** for research figures
-- **PyYAML** for configuration-driven experiments
-- **pytest** and **Ruff** for verification and static checks
-- Optional **PyTorch** dependency for future sequence-model experiments
+Built with Polars, PyArrow, NumPy, scikit-learn (histogram gradient boosting), DuckDB and Matplotlib; tested with
+pytest and Ruff. PyTorch is an optional dependency kept for later sequence-model work.
 
 ## Repository structure
 

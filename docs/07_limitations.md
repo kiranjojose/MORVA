@@ -12,7 +12,7 @@ untested. The V2 test period is one to two weeks after training; agreement betwe
 short-term repeatability, not long-term robustness.
 
 The longitude-band hold-out uses four bands with a buffer inside the home area. It tests local spatial extrapolation,
-which is not the same as transfer to an independent region; V2 therefore reports it separately from the two
+which is not the same as transfer to an independent region; so V2 reports it separately from the two
 independent waterways. The folds also differ in traffic mix
 and sit at different positions within the coordinate range. Tree models can extrapolate particularly poorly at the
 outer bands, so the experiment measures both geographic novelty and feature-range extrapolation.
@@ -39,7 +39,7 @@ services. Future studies should report route- and day-block uncertainty in addit
 
 The vessel-held-out experiment changes the training population as well as vessel familiarity. A same-size random
 subset controls for training quantity, but unseen vessels are not exchangeable with familiar vessels: they may belong
-to different services, ship types or routes. The result should therefore be interpreted as performance on this unseen
+to different services, ship types or routes. Read the result as performance on this unseen
 vessel population, not as a causal estimate of vessel identity alone.
 
 ## Model and feature scope
@@ -94,7 +94,7 @@ represent several distinct route alternatives. Near a junction or terminal, mult
 a mean trajectory or a single axis-aligned box can remain misleading despite competitive aggregate metrics.
 
 The V1 hypotheses were developed after validation analysis and frozen before the single V1 test run. V1-H1–V1-H4 are
-therefore validation-informed rather than a preregistration made before any results were seen. V1-H4b was explicitly
+validation-informed, not a preregistration made before any results were seen. V1-H4b was explicitly
 added after the spatial validation result and received its first independent check on the V1 test split. V2-H1 and
 V2-H2 were likewise informed by V2 validation results and frozen before the V2 test run. Two pre-test amendments made
 the decision rules and reporting coverage explicit; the stronger V2-H2 rule and the original rule produce the same
@@ -129,9 +129,9 @@ which V3-H1 to V3-H4 were all supported. They define what those results do and d
    much denser reports. Observed median in-region intervals are about 79–80 seconds in the US areas and 10 seconds in
    the Danish areas; US 90th percentiles are about 181–183 seconds. Because MORVA rejects any window containing a gap
    above 180 seconds, retained US windows preferentially represent better-covered vessels and periods. Cross-country
-   comparisons therefore combine geographic shift with a source-resolution and selection shift.
+   comparisons combine geographic shift with a source-resolution and selection shift.
 4. **Transfer requires local traffic history.** Model weights never train on the transfer regions, but each fairway
-   map is constructed from that region's historical AIS. The method is therefore not zero-local-data transfer and
+   map is constructed from that region's historical AIS. So the method is not zero-local-data transfer and
    cannot be applied as evaluated where suitable traffic history is unavailable.
 5. **Calibration is marginal and consumes local labels.** Reported coverage is aggregated over a region's windows; it
    does not guarantee coverage within each ship group, regime, route or location. The locally calibrated analysis also
@@ -148,7 +148,7 @@ which V3-H1 to V3-H4 were all supported. They define what those results do and d
 8. **The Houston exception remains unexplained.** Fairway context fails to improve the 60-minute result in Houston on
    both validation and test. Service craft, principally tugs and towboats, provide about two-thirds of the windows, but
    on test the merchant-only result (cargo and tanker) also does not favour fairway context, unlike validation. Vessel
-   mix alone therefore does not account for the shortfall. Port-area operations, the US data resolution and the choice
+   mix alone does not account for the shortfall. Port-area operations, the US data resolution and the choice
    of area remain possible explanations; none has been demonstrated.
 9. **Model and representation scope is narrow.** Point and quantile forecasts use one gradient-boosting family and one
    prespecified primary seed. Prediction regions are axis-aligned rectangles in the vessel frame rather than
