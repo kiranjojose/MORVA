@@ -338,9 +338,10 @@ VTS procedures. See the full [limitations](docs/07_limitations.md).
 
 ## Next research steps
 
-1. Model surrounding-vessel interactions under the same controlled evaluation (planned V4).
-2. Evaluate behaviour deviation from calibrated forecasts only after defining credible labels and operational
-   criteria (planned V5).
+1. Norwegian waters, deviation screening from calibrated forecast residuals against simple rule baselines, and wind
+   and current as controlled feature sets (proposed V4; data access checked, see the
+   [roadmap](docs/00_plan.md)).
+2. Model surrounding-vessel interactions under the same controlled evaluation (planned V5).
 3. Test transfer across seasons and with sparser traffic history, and how often local calibration must be refreshed.
 4. Add chart-based context that does not need traffic history (coastline, bathymetry, port proximity), and multiple
    plausible future trajectories near junctions in place of a single box.

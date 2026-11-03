@@ -52,6 +52,11 @@ spatially held-out controls.
 
 ## V3 — Reliable forecasts in new waters (planned 22 Oct 2026)
 
+**Status: experimentally complete (test pass 1 Nov 2026).** All four frozen hypotheses were supported: fairway context
+transferred to the Salish Sea at 20 and 60 minutes, raw coordinates failed again, and locally calibrated boxes reached
+nominal coverage in every waterway (`docs/06_results.md`). Norway was not included. The plan as written before V3
+follows.
+
 V2 showed that fairway context makes forecasts *better* in waters the model has never seen. V3 asks whether they are
 *trustworthy* there: honest uncertainty, longer horizons and transfer to another country. These are research
 questions in their own right and also the questions behind any later product decision. The study stays
@@ -177,22 +182,79 @@ All confidence intervals remain paired and vessel-grouped.
    is the gain large enough at 30–60 minutes to matter for a real use, such as estimating a vessel's position when
    its AIS is stale?
 
-## V4 — Neighbouring vessels and interaction
+## V4 — Norwegian waters, deviation screening and environmental context (proposed 3 Nov 2026)
 
-- Add neighbouring-vessel features and encounter geometry without future leakage.
+**Status: proposal, nothing set.** This swaps the earlier order: behaviour deviation moves forward from V5, and
+neighbouring-vessel interaction moves to V5. V3 already produced the piece deviation screening needs, a calibrated
+nonconformity score per window, while interaction modelling is a larger engineering step. Norwegian waters and
+environmental data were the main gaps left after V3.
+
+### Scope
+
+- **In:** Norwegian AIS; a deviation score from the V3 conformal machinery, tested against simple rules; wind and
+  current as controlled feature sets; Skagen as the link to the Danish results.
+- **Out:** neighbouring vessels and encounter geometry (V5); Class B and leisure traffic; real-time operation.
+
+### Research questions (draft)
+
+| | Question | Why |
+|---|---|---|
+| RQ1 | Does a score built from calibrated forecast residuals detect injected deviations (unplanned turn, stop, speed change) better than route, speed and turn threshold rules at the same false-alarm rate? | Moves MORVA from prediction to deviation screening on a measurable footing |
+| RQ2 | Is that false-alarm rate what the calibration promises, in new waters and on normal traffic? | A screening tool is only usable if its alarm rate is known in advance |
+| RQ3 | Do wind and surface current add information beyond motion and fairway context? | Tests multi-source context with the same ablation design as A–F |
+| RQ4 | Do V2/V3 conclusions (fairway context transfers, raw coordinates do not) hold in Norwegian fjord and coastal waters? | New waterway types and the funder's own waters |
+| RQ5 (exploratory) | Can AIS data faults (position jumps, implausible speeds) be separated from unusual behaviour using the existing quality flags? | A large residual is often a data problem, not a vessel problem |
+
+### Data sources (access checked 3 Nov 2026)
+
+| Source | What | Coverage checked | Terms |
+|---|---|---|---|
+| Kystverket, [Historisk AIS](https://hais.kystverket.no/) | Shore and satellite AIS, ordered by date range and up to 5 areas (map or WKT); Parquet or CSV link sent by email; up to one year per order | Norwegian economic zone and the Svalbard and Jan Mayen zones. Earliest available date and whether positions are thinned not yet confirmed | NLOD 2.0; no registration; Kystverket must be credited. Fishing vessels < 15 m and leisure craft < 45 m excluded |
+| MET Norway, MEPS (`meps25epsarchive` on thredds.met.no) | Weather model, 2.5 km, runs every 3 h | Archive present to Nov 2026; domain 49.8–75.2° N, so Denmark is included | MET licence (NLOD / CC BY 4.0), credit MET Norway |
+| MET Norway, NorKyst v3 (`fou-hi/norkystv3_his_files`) | Ocean model, 800 m, hourly currents, sea level, wind | 2023–2026 archive present. Covers Skagen, Oslofjord and the Bergen approach; about 1% of the Danish home area and none of Bornholm (coarse grid check) | CC BY 4.0 (file metadata) |
+| Kartverket via Geonorge | Generalised depth contours; chart depth data | Norwegian waters | Contours CC BY 4.0; chart depth data listed as open, not for navigation. Exact terms to confirm on kartkatalog.geonorge.no |
+
+The older NorKyst-800 series ends in October 2025 and the NORA3 hindcast in December 2021; neither covers the 2026
+periods. For currents in the Danish home area a Baltic model would be needed (Copernicus Marine is the likely source;
+not checked).
+
+### Design options (to decide before any data are inspected)
+
+- **Training area.** (a) Train in Norway, where NorKyst gives currents, and test transfer to Skagen; or (b) keep the
+  Danish home area for training, with wind only, and use Norway as independent waters. Option (a) is preferred because
+  it allows the current feature set and puts the main experiment in Norwegian waters.
+- **Periods.** The Danish and US test periods up to 29 Oct 2026 are spent. Norwegian autumn 2026 data are unused and
+  can follow the V3 calendar; any Skagen evaluation needs new days (from November 2026), which also adds a second
+  season.
+- **Feature sets.** Keep A, C and E as references; add **G** = E + wind (MEPS) and **H** = G + surface current
+  (NorKyst). Depth is exploratory until its terms are confirmed.
+- **Deviation labels.** No real anomaly labels exist. Use deviations injected into real test tracks, so detection rates
+  are exact, plus a small set of real flagged cases reviewed by experts using the questionnaire in
+  `docs/10_expert_questionnaire.md`. An outlier is not treated as unsafe, illegal or erroneous.
+
+### Engineering needed
+
+1. A Kystverket HAIS adapter (Parquet with geometry column, field names, ship types).
+2. Readers for MEPS and NorKyst that sample wind and current along each window's history without future leakage.
+3. A deviation module: conformal p-values from the V3 scores, deviation injection, and rule baselines.
+4. Detection metrics (detection rate at fixed false-alarm rate, time to detection) in run summaries and figures.
+
+### Order of work
+
+1. **Data feasibility (by the author):** a one-day HAIS test order for Oslofjord or the Bergen approach, to confirm
+   the earliest date, the reporting interval and the file format.
+2. **Choose the training area and set the V4 split** in the configuration before any validation analysis.
+3. **Infrastructure:** adapters, environmental readers and deviation module; tests and synthetic smoke run.
+4. **Validation:** point results for A–H; deviation detection against rules; calibration of the alarm rate.
+5. **Freeze V4 hypotheses**, with decision rules, primary seed and exact test commands.
+6. **Download the test periods and run the single test pass**; record every run.
+
+## V5 — Neighbouring vessels and interaction
+
+- Add neighbouring-vessel features and COLREG encounter geometry (head-on, crossing, overtaking) without future
+  leakage.
 - Evaluate whether interaction context improves forecasts in close-quarters situations.
 - Measure compute, latency and degradation under missing observations.
-
-## V5 — Behaviour deviation research
-
-Prediction residuals may support behavioural-deviation screening, but this is a separate task:
-
-- define anomaly categories and operational relevance;
-- distinguish data faults from unusual vessel behaviour;
-- obtain credible labels or expert-reviewed cases;
-- compare residual-based signals with transparent route, speed and turn rules;
-- measure false alarms and context-dependent explanations;
-- avoid interpreting an outlier as automatically unsafe or illegal.
 
 ## Engineering roadmap
 
