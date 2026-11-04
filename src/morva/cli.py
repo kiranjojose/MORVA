@@ -97,7 +97,7 @@ def cmd_manifest(ws: Workspace, data_cfg, exp_cfg, args):
         print(f"wrote {out.relative_to(project_path('.'))}")
 
 
-RAW_SUFFIXES = {"dma": (".zip", ".csv"), "marinecadastre_2025": (".zst", ".csv")}
+RAW_SUFFIXES = {"dma": (".zip", ".csv"), "marinecadastre_2025": (".zst", ".csv"), "kystverket_hais": (".parquet",)}
 
 
 def _raw_files(raw_dir: Path, fmt: str) -> list[Path]:
@@ -112,10 +112,11 @@ def _raw_files(raw_dir: Path, fmt: str) -> list[Path]:
 
 
 def cmd_ingest(ws: Workspace, data_cfg, exp_cfg, args):
-    from morva.ingestion import dma, marinecadastre
+    from morva.ingestion import dma, kystverket, marinecadastre
     from morva.ingestion.sources import regions, sources
 
-    readers = {"dma": dma.ingest_file, "marinecadastre_2025": marinecadastre.ingest_file}
+    readers = {"dma": dma.ingest_file, "marinecadastre_2025": marinecadastre.ingest_file,
+               "kystverket_hais": kystverket.ingest_file}
     log_path = ws.results / "tables" / "ingest_log.json"
     log = json.loads(log_path.read_text()) if log_path.exists() else {}
     n_files = 0

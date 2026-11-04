@@ -1,0 +1,69 @@
+# V4 data configuration. Drafted 2026-11-04 after the training-area decision (train in Norway; docs/00_plan.md, "V4").
+# V4 commands pass --data-config configs/v4/data.yaml. The V1-V3 configs are unchanged.
+#
+# FIXED now: sources, region roles and which calendar each region uses.
+# PROVISIONAL: the home box. It is set from a one-day traffic count on 24 Sep 2026 (a map-period day) before any model
+# is run on Norwegian data, as the US boxes were in V3. Changing anything here after validation analysis has started
+# must be recorded in docs/08_research_log.md.
+
+sources:
+  kystverket:
+    format: kystverket_hais
+    provider: Kystverket Historisk AIS (HAIS), NLOD 2.0
+    url: https://hais.kystverket.no/
+    raw: data/raw/no                      # hais_YYYY-MM-DD.snappy.parquet (the position/ member of each order zip)
+    keep_ais_classes: ["A"]               # Class A only, as for DMA and Marine Cadastre
+    keep_data_sources: ["G"]              # shore stations; satellite reports are sparse here (data card, V4)
+    terms: >-
+      NLOD 2.0; free, no registration; Kystverket must be credited. Fishing vessels < 15 m and leisure craft < 45 m
+      are withheld. The position files carry no ship type or dimensions.
+  dma:
+    format: dma
+    provider: Danish Maritime Authority
+    url: https://www.dma.dk/safety-at-sea/navigational-information/ais-data
+    raw: data/raw                         # daily aisdk-YYYY-MM-DD.zip
+    timestamp_format: "%d/%m/%Y %H:%M:%S"  # UTC
+    keep_mobile_types: ["Class A"]
+
+paths:
+  interim: data/v4/interim
+  processed: data/v4/processed
+  manifests: data/manifests
+
+# Home area: the only area used to fit models. Norwegian west coast from Karmsund to Fedje and Mongstad (Haugesund,
+# Bømlafjord, Bergen approaches). PROVISIONAL until the 24 Sep 2026 traffic count; it contains the Bergen-approach
+# test box (60.0-61.0 N, 4.5-5.6 E), whose count is in the data card.
+aoi:
+  name: west_coast
+  source: kystverket
+  calendar: no2026
+  lat_min: 59.0
+  lat_max: 61.2
+  lon_min: 4.4
+  lon_max: 6.0
+
+# Independent waterways: never used to fit model weights.
+transfer_aois:
+  - name: oslofjord           # Norwegian, independent of the home area; box as in the 24 Sep 2026 test order
+    source: kystverket
+    calendar: no2026
+    lat_min: 58.8
+    lat_max: 59.9
+    lon_min: 10.2
+    lon_max: 11.0
+  - name: skagen              # Danish link to V1-V3 and inside the NorKyst current grid; box unchanged from V2/V3.
+    source: dma               # Its V3 validation and test days are spent, so it uses new evaluation days (dk2026b).
+    calendar: dk2026b
+    lat_min: 57.2
+    lat_max: 58.0
+    lon_min: 9.6
+    lon_max: 11.2
+
+quality:
+  max_implied_speed_kn: 50.0
+  max_plausible_sog_kn: 40.0
+
+segmentation:
+  gap_s: 1200
+  min_points: 20
+  min_duration_s: 1800

@@ -184,7 +184,13 @@ All confidence intervals remain paired and vessel-grouped.
 
 ## V4 — Norwegian waters, deviation screening and environmental context (proposed 3 Nov 2026)
 
-**Status: proposal, nothing set.** This swaps the earlier order: behaviour deviation moves forward from V5, and
+**Status: training area chosen (4 Nov 2026): Norway.** Draft split and regions are in `configs/v4/`: home
+`west_coast` (59.0–61.2° N, 4.4–6.0° E, provisional until a one-day traffic count), Oslofjord as an independent
+Norwegian waterway, and Skagen on new evaluation days (val 30 Oct–3 Nov, calib 4–7 Nov, test 8–21 Nov 2026) because
+its V2/V3 days are spent. Norwegian regions use the V3 calendar dates in 2026, which no version has used. HAIS position
+files have no ship type or dimensions, so feature sets with vessel attributes are dropped.
+
+This swaps the earlier order: behaviour deviation moves forward from V5, and
 neighbouring-vessel interaction moves to V5. V3 already produced the piece deviation screening needs, a calibrated
 nonconformity score per window, while interaction modelling is a larger engineering step. Norwegian waters and
 environmental data were the main gaps left after V3.

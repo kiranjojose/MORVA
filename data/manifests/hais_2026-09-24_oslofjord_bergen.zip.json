@@ -1,0 +1,10 @@
+{
+  "file": "hais_2026-09-24_oslofjord_bergen.zip",
+  "provider": "Kystverket Historisk AIS (HAIS), NLOD 2.0",
+  "source_url": "https://hais.kystverket.no/",
+  "size_bytes": 64728737,
+  "sha256": "59ef2778a6bb0d4df3f9742962bcb6d384b280968e00ea110075325a696aa5b5",
+  "recorded_utc": "2026-11-04T07:57:46+00:00",
+  "license_note": "Check provider terms before redistribution. Raw data is not committed.",
+  "notes": "V4 feasibility test order (placed by the author 3 Nov 2026): 2026-09-24, areas Oslofjord POLYGON((10.2 58.8, 11.0 58.8, 11.0 59.9, 10.2 59.9, 10.2 58.8)) (cropped by HAIS to the Norwegian zone) and Bergen approach POLYGON((4.5 60.0, 5.6 60.0, 5.6 61.0, 4.5 61.0, 4.5 60.0)); all ship types; Parquet. The .zip is the delivered order; the .parquet is its position/ member."
+}

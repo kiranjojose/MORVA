@@ -1,0 +1,82 @@
+# V4 experiment configuration. Drafted 2026-11-04 (docs/00_plan.md, "V4").
+# V4 commands pass --exp-config configs/v4/experiment.yaml; V1-V3 configs are unchanged.
+#
+# FIXED now: results_dir, windows and split. PROVISIONAL until the V4 hypothesis freeze: fairway, gbm, uncertainty and
+# environmental settings, which may be tuned on the model-selection days only.
+
+results_dir: results/v4
+
+windows:                    # FIXED, as V3
+  step_s: 60
+  obs_steps: 20             # 20-minute history
+  future_steps: 60          # 60-minute future
+  horizons_min: [5, 10, 20, 30, 45, 60]
+  stride_steps: 5
+  max_gap_s: 180            # no original AIS gap above 180 s anywhere in history or future
+  min_mean_sog_kn: 1.0
+
+split:                      # FIXED. Whole UTC days; a window belongs to a block only if its whole span lies inside it.
+  # Test files are not downloaded until the V4 hypotheses are frozen.
+  #
+  # no2026 (Norwegian regions; none of these days has been used before):
+  #   train   19 Sep - 6 Oct   model fitting (home only) and flow maps for every region
+  #   val      7 Oct - 11 Oct  model selection
+  #   calib   12 Oct - 15 Oct  interval calibration only (never used for model selection)
+  #   test    16 Oct - 29 Oct  LOCKED
+  #
+  # dk2026b (Skagen). Its 7-29 Oct days were V2/V3 validation and test days, so V4 evaluates Skagen on new days. The
+  # earlier days only build Skagen's flow map (traffic history, no model evaluation):
+  #   map     19 Sep - 29 Oct  flow map only
+  #   val     30 Oct -  3 Nov
+  #   calib    4 Nov -  7 Nov
+  #   test     8 Nov - 21 Nov  LOCKED
+  calendars:
+    no2026:
+      train_start: "2026-09-19T00:00:00"
+      train_end: "2026-10-07T00:00:00"
+      val_end: "2026-10-12T00:00:00"
+      calib_end: "2026-10-16T00:00:00"
+      test_end: "2026-10-30T00:00:00"
+    dk2026b:
+      train_start: "2026-09-19T00:00:00"
+      train_end: "2026-10-30T00:00:00"
+      val_end: "2026-11-04T00:00:00"
+      calib_end: "2026-11-08T00:00:00"
+      test_end: "2026-11-22T00:00:00"
+
+fairway:                    # PROVISIONAL (V3 settings)
+  cell_m: 300
+  block_radius_cells: 2
+  n_dir_bins: 12
+  dir_radius_bins: 1
+  min_sog_kn: 3.0
+  sample_s: 60
+  min_points: 10
+  ahead_min: [5, 10, 20, 30, 45, 60]
+
+baselines:                  # as V3
+  ctrv_turn_window_steps: 5
+  ctrv_max_turn_rate_deg_s: 3.0
+  ctrv_min_sog_kn: 1.0
+  ctrv_damped_tau_grid_s: [30, 60, 120, 180, 300, 600]
+  kalman_q_grid: [1.0e-4, 1.0e-3, 1.0e-2, 3.0e-2, 0.1, 0.3, 1.0]
+  tuning_max_windows: 60000
+
+evaluation:
+  n_bootstrap: 1000
+  seed: 42
+
+gbm:                        # PROVISIONAL
+  knots_min: [5, 10, 15, 20, 30, 45, 60]
+  seed: 0                   # primary seed (as V2/V3)
+  # Norwegian position files have no ship type or dimensions, so sets with vessel attributes (B, D, F) are not used.
+  # G (E + wind, MEPS) and H (G + surface current, NorKyst v3) are added when their readers exist.
+  feature_sets:
+    A_motion: [motion]
+    C_location: [motion, location]
+    E_fairway: [motion, fairway]
+
+uncertainty:                # PROVISIONAL, as V3
+  quantiles: [0.05, 0.1, 0.9, 0.95]
+  interval_levels: [0.8, 0.9]
+  calibration: home_calib

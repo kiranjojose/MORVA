@@ -212,3 +212,23 @@ Traffic mix differs strongly between regions. In Houston, 35,695 of 54,432 valid
 contribute 6,697 and 22,460. The Salish Sea also contains substantial passenger and service traffic. All US results
 are consequently reported by ship group as well as in aggregate. Flow features are available for 96–98% of validation
 windows and 95–98% of test windows in every region (lowest: Bornholm test, 94.8%).
+
+## V4 feasibility: Kystverket Historisk AIS (2026-11-04)
+
+One test order, used only to check the source. No V4 region, split or model is set.
+
+| Field | Value |
+|---|---|
+| Source | Kystverket Historisk AIS (https://hais.kystverket.no), ordered by date and area; one zip per order with one Parquet file per day in `position/` |
+| Terms | NLOD 2.0; free, no registration; Kystverket must be credited. Fishing vessels < 15 m and leisure craft < 45 m are withheld |
+| Test order | 24 Sep 2026; Oslofjord 58.8–59.9° N, 10.2–11.0° E (cropped by HAIS to the Norwegian zone) and Bergen approach 60.0–61.0° N, 4.5–5.6° E |
+| Rows | 2,131,275 position reports from 601 MMSIs; 98.0% Class A by row; 99.5% from shore stations (`G`), 0.5% satellite (`S`) |
+| Message types | 1 and 3 (Class A), 18 (Class B), 27 (long-range) |
+| Reporting interval | Class A moving above 5 kn, shore stations: median 6–7 s, 90th percentile 11 s, 99th percentile 20 s; 0.03–0.04% of intervals exceed 180 s |
+| Moving traffic (Class A, > 5 kn) | Bergen approach 222 vessels, 47,682 vessel-minutes; Oslofjord 116 vessels, 26,767 vessel-minutes (Skagen on the same calendar day: 262 and 50,179) |
+| Sentinels | SOG 102.3, COG 360 and heading 511 are present in raw units, as in DMA data, and are nulled by the existing quality step |
+| Missing fields | The position file has no name, IMO, ship type, dimensions, draught or destination. Vessel-attribute features (sets B, D, F) and results by ship group need a separate static-data source |
+
+The reader (`morva.ingestion.kystverket`) keeps shore-station Class A reports by default. Satellite reports are
+excluded because they are sparse here (median interval 47 s for moving vessels) and their timing differs from the
+shore network; this can be changed with `keep_data_sources`.
