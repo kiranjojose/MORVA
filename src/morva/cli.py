@@ -10,7 +10,7 @@ import argparse
 import json
 import subprocess
 import sys
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import numpy as np
@@ -324,6 +324,48 @@ def cmd_fairway(ws: Workspace, data_cfg, exp_cfg, args):
     _write_json(summary, ws.results / "tables" / "fairway_summary.json")
 
 
+def cmd_environment(ws: Workspace, data_cfg, exp_cfg, args):
+    """V4: wind (MEPS) and surface current (NorKyst v3) at each window's origin, from cached regional subsets."""
+    from morva.context import environment as env
+    from morva.ingestion.sources import regions
+
+    if ws.synthetic:
+        sys.exit("environment fetches real MET Norway data; it is not part of the synthetic smoke run")
+    e, w = exp_cfg["environment"], exp_cfg["windows"]
+    hist = np.load(ws.processed / "windows.npz")["hist"]
+    meta = pl.read_parquet(ws.processed / "windows_meta.parquet")
+    sources = {"meps": (env.fetch_meps_day, ["wind_speed", "wind_direction"], env.wind_features),
+               "norkyst": (env.fetch_norkyst_day, ["u_eastward", "v_northward"], env.current_features)}
+    parts, summary = [], {"config": e, "regions": {}}
+    for box in regions(data_cfg):
+        sel = ((meta["region"] == box["name"]) & (meta["split"] != "excluded")).to_numpy()
+        if not sel.any():
+            continue
+        m = meta.filter(pl.Series(sel))
+        t0 = m["t0"].dt.replace_time_zone(None).to_numpy()
+        start = (m["t0"].min() - timedelta(seconds=w["step_s"] * w["obs_steps"])).date()
+        days = [start + timedelta(days=i) for i in range((m["t0"].max().date() - start).days + 1)]
+        feats, cover = {}, {}
+        for name, (fetch, cols, featurize) in sources.items():
+            df = env.cached_days(ws.processed.parent / "env" / name / box["name"], days, fetch, box)
+            if df is None:
+                print(f"{box['name']}: outside the {name} grid; its features are missing")
+                names = ["wind_speed", "wind_along", "wind_cross"] if name == "meps" else [
+                    "current_speed", "current_along", "current_cross"]
+                feats.update({n: np.full(len(m), np.nan) for n in names})
+                cover[name] = 0.0
+                continue
+            f = featurize(env.FieldSampler(df, cols, e[f"{name}_max_dist_m"]), hist[sel], t0, w["step_s"])
+            feats.update(f)
+            cover[name] = float(np.isfinite(next(iter(f.values()))).mean())
+        parts.append(pl.DataFrame({"sample_id": m["sample_id"], **feats}))
+        summary["regions"][box["name"]] = {"windows": int(sel.sum()), "days": [str(days[0]), str(days[-1])],
+                                           "share_with_values": cover}
+        print(f"{box['name']}: {int(sel.sum()):,} windows; share with values {cover}")
+    pl.concat(parts).sort("sample_id").write_parquet(ws.processed / "environment_features.parquet")
+    _write_json(summary, ws.results / "tables" / "environment_summary.json")
+
+
 def cmd_baselines(ws: Workspace, data_cfg, exp_cfg, args):
     from morva.evaluation.metrics import per_sample_metrics, step_errors_m, summarize
     from morva.models import baselines
@@ -459,6 +501,11 @@ def _load_meta(ws: Workspace, feature_groups: list[str]) -> pl.DataFrame:
         path = ws.processed / "fairway_features.parquet"
         if not path.exists():
             sys.exit("feature sets use 'fairway': run `morva fairway` first")
+        meta = meta.join(pl.read_parquet(path), on="sample_id", how="left", maintain_order="left")
+    if {"wind", "current"} & set(feature_groups):
+        path = ws.processed / "environment_features.parquet"
+        if not path.exists():
+            sys.exit("feature sets use 'wind' or 'current': run `morva environment` first")
         meta = meta.join(pl.read_parquet(path), on="sample_id", how="left", maintain_order="left")
     return meta
 
@@ -1132,6 +1179,7 @@ def main(argv=None):
     sub.add_parser("clean", help="quality flags, report, segmentation")
     sub.add_parser("windows", help="build prediction windows and time-block split")
     sub.add_parser("fairway", help="V2: traffic-flow maps (training period) and fairway features per window")
+    sub.add_parser("environment", help="V4: wind (MEPS) and surface current (NorKyst) features per window")
     p = sub.add_parser("baselines", help="evaluate persistence / CV / CTRV")
     p.add_argument("--split", default="val", choices=["train", *EVAL_SPLITS])
     p.add_argument("--confirm-test", action="store_true")
@@ -1181,6 +1229,7 @@ def main(argv=None):
         "windows": cmd_windows, "fairway": cmd_fairway, "baselines": cmd_baselines, "plot-tracks": cmd_plot_tracks,
         "regime-eda": cmd_regime_eda, "sensitivity": cmd_sensitivity, "gbm": cmd_gbm,
         "regime-report": cmd_regime_report, "intervals": cmd_intervals, "deviation": cmd_deviation,
+        "environment": cmd_environment,
         "summary-figure": cmd_summary_figure,
     }
     handlers[args.cmd](ws, data_cfg, exp_cfg, args)

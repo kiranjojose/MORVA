@@ -46,3 +46,14 @@ def test_v4_task_and_outputs_are_separate_from_v3():
     assert EXP["windows"] == V3["windows"]
     assert EXP["results_dir"] == "results/v4" and DATA["paths"]["processed"].startswith("data/v4/")
     assert not any("vessel" in sets for sets in EXP["gbm"]["feature_sets"].values())  # no static data in HAIS
+
+
+def test_v4_deviation_settings_are_fixed_and_include_a_control():
+    from morva.anomaly.deviation import KINDS
+
+    d = EXP["deviation"]
+    assert (d["level"], d["onset_step"], d["min_sog_kn"]) == (0.8, 10, 5.0) and 0.05 in d["alphas"]
+    assert d["level"] in EXP["uncertainty"]["interval_levels"]
+    names = [s["name"] for s in d["scenarios"]]
+    assert len(set(names)) == len(names) and all(s["kind"] in KINDS for s in d["scenarios"])
+    assert {"kind": "speed", "magnitude": 1.0, "name": "none"} in d["scenarios"]

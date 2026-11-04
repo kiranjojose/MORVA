@@ -70,11 +70,41 @@ gbm:                        # PROVISIONAL
   knots_min: [5, 10, 15, 20, 30, 45, 60]
   seed: 0                   # primary seed (as V2/V3)
   # Norwegian position files have no ship type or dimensions, so sets with vessel attributes (B, D, F) are not used.
-  # G (E + wind, MEPS) and H (G + surface current, NorKyst v3) are added when their readers exist.
   feature_sets:
     A_motion: [motion]
     C_location: [motion, location]
     E_fairway: [motion, fairway]
+    G_wind: [motion, fairway, wind]                    # E + MEPS 10 m wind at the origin
+    H_wind_current: [motion, fairway, wind, current]   # G + NorKyst v3 surface current at the origin
+
+environment:                # PROVISIONAL (morva environment; src/morva/context/environment.py)
+  meps_max_dist_m: 5000     # 2.5 km grid: the nearest point is at most ~1.8 km away
+  norkyst_max_dist_m: 2000  # 800 m grid read every second point (1.6 km); farther = fjord arm without data
+
+deviation:                  # FIXED 2026-11-04, before any V4 validation analysis (docs/00_plan.md, "V4")
+  # Settings chosen from maritime practice, not tuned: the V3 trials (docs/08_research_log.md, 4 Nov) only motivated
+  # the Bonferroni first-flag rule. Each scenario is injected into the same evaluated windows, so detectors and sizes
+  # are compared on identical traffic.
+  level: 0.8                # box level for the model score
+  alphas: [0.01, 0.05]      # primary: 0.05; first flag uses alpha / number of horizons
+  onset_step: 10            # deviation starts 10 min into the forecast, leaving 50 min to observe it
+  min_sog_kn: 5.0           # same speed limit as the moving regimes (docs/04_methods.md); applies to calibration
+                            # and evaluation windows alike
+  seed: 0
+  scenarios:                # size ladders, so detection can be reported against deviation size
+    - {name: none, kind: speed, magnitude: 1.0}           # control: unchanged copy; detection must equal false alarms
+    - {name: turn_15, kind: turn, magnitude: 15.0}        # turns at 10 deg/min, half to starboard and half to port
+    - {name: turn_30, kind: turn, magnitude: 30.0}
+    - {name: turn_60, kind: turn, magnitude: 60.0}
+    - {name: turn_90, kind: turn, magnitude: 90.0}
+    - {name: stop, kind: stop, magnitude: 0.0}            # speed falls to zero over 5 min
+    - {name: slow_50pct, kind: speed, magnitude: 0.5}
+    - {name: slow_75pct, kind: speed, magnitude: 0.75}
+    - {name: fast_125pct, kind: speed, magnitude: 1.25}
+    - {name: fast_150pct, kind: speed, magnitude: 1.5}
+    - {name: jump_200m, kind: jump, magnitude: 200.0}     # position jumps (data faults), random bearing
+    - {name: jump_500m, kind: jump, magnitude: 500.0}
+    - {name: jump_1000m, kind: jump, magnitude: 1000.0}
 
 uncertainty:                # PROVISIONAL, as V3
   quantiles: [0.05, 0.1, 0.9, 0.95]

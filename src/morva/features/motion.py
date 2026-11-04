@@ -74,9 +74,11 @@ def motion_features(hist: np.ndarray, step_s: int) -> dict[str, np.ndarray]:
 
 
 def build_features(hist: np.ndarray, meta: pl.DataFrame, step_s: int, sets: list[str]) -> tuple[np.ndarray, list[str]]:
-    """sets: subset of {'motion', 'vessel', 'location', 'fairway'}. Returns X and column names (NaN = missing).
+    """sets: subset of {'motion', 'vessel', 'location', 'fairway', 'wind', 'current'}. Returns X and column names
+    (NaN = missing).
 
-    'fairway' reads the flow_* columns precomputed by `morva fairway` (see features/fairway.py) from meta."""
+    'fairway' reads the flow_* columns precomputed by `morva fairway` (see features/fairway.py) from meta; 'wind' and
+    'current' read the wind_* and current_* columns precomputed by `morva environment` (context/environment.py)."""
     cols: dict[str, np.ndarray] = {}
     if "motion" in sets:
         cols.update(motion_features(hist, step_s))
@@ -94,5 +96,11 @@ def build_features(hist: np.ndarray, meta: pl.DataFrame, step_s: int, sets: list
         if not flow:
             raise ValueError("feature set 'fairway' needs fairway features; run `morva fairway` first")
         cols.update({c: meta[c].cast(pl.Float64).to_numpy() for c in flow})
+    for group in ("wind", "current"):
+        if group in sets:
+            env = [c for c in meta.columns if c.startswith(f"{group}_")]
+            if not env:
+                raise ValueError(f"feature set '{group}' needs environment features; run `morva environment` first")
+            cols.update({c: meta[c].cast(pl.Float64).to_numpy() for c in env})
     names = list(cols)
     return np.column_stack([cols[n] for n in names]).astype(np.float64), names
