@@ -84,8 +84,10 @@ def test_box_excess_is_negative_inside_and_scaled_by_half_width():
 
 
 def test_detection_summary_counts_flags_from_the_onset():
-    p_normal = np.array([[0.5, 0.5], [0.01, 0.5]])
-    p_dev = np.array([[0.5, 0.01], [0.5, 0.5]])
+    p_normal = np.array([[0.5, 0.5], [0.01, 0.5], [0.04, 0.5]])
+    p_dev = np.array([[0.5, 0.01], [0.5, 0.5], [0.04, 0.04]])
     out = detection_summary(p_normal, p_dev, 0.05, [5, 10], onset_step=5, step_s=STEP)
-    assert out["first_flag_false_alarm_rate"] == 0.5 and out["first_flag_detection_rate"] == 0.5
-    assert out["median_delay_min"] == 5.0 and out["per_horizon"][10]["detection_rate"] == 0.5
+    # First flag uses 0.05 / 2 per horizon: 0.04 counts per horizon but not for the first flag
+    assert np.isclose(out["first_flag_false_alarm_rate"], 1 / 3) and np.isclose(out["first_flag_detection_rate"], 1 / 3)
+    assert out["median_delay_min"] == 5.0 and np.isclose(out["per_horizon"][10]["detection_rate"], 2 / 3)
+    assert np.isclose(out["per_horizon"][5]["false_alarm_rate"], 2 / 3)

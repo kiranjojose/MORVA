@@ -586,6 +586,126 @@ def cmd_intervals(ws: Workspace, data_cfg, exp_cfg, args):
         print("\n".join(lines[:1] + lines[4:]))
 
 
+def cmd_deviation(ws: Workspace, data_cfg, exp_cfg, args):
+    """V4: deviation screening with injected deviations; model box score against rule scores.
+
+    Fits the quantile residual model on home `train` windows. Calibrates every detector on normal windows (home
+    `calib`, or the region's own `transfer_calib` with --region) and evaluates `--split`: false alarms on the normal
+    windows, detections on copies of the same windows with injected deviations. Only windows whose anchor speed is at
+    least `min_sog_kn` are used, in calibration and evaluation alike.
+    """
+    from morva.anomaly.deviation import (
+        DEFAULT_SETTINGS,
+        box_excess_scores,
+        conformal_pvalues,
+        detection_summary,
+        inject,
+        rule_scores,
+    )
+    from morva.features.motion import anchor_frame, build_features
+    from morva.geo import KNOT_MS
+    from morva.models.quantile import QuantileResidualGBM, residual_truth
+
+    _check_test_lock(args)
+    if args.split.startswith("transfer_") != bool(args.region):
+        sys.exit("home splits take no --region; transfer splits need --region")
+    d = exp_cfg.get("deviation", DEFAULT_SETTINGS)
+    w, g, u = exp_cfg["windows"], exp_cfg["gbm"], exp_cfg.get("uncertainty", {})
+    step = w["step_s"]
+    knots_min = list(g["knots_min"])
+    knots = [int(k * 60 / step) for k in knots_min]
+    sets = g["feature_sets"][args.feature_set]
+    arrays = np.load(ws.processed / "windows.npz")
+    hist_all, fut_all = arrays["hist"], arrays["fut"]
+    meta = _load_meta(ws, sets)
+    split, region = meta["split"], meta["region"]
+    moving = anchor_frame(hist_all, step)[2] >= d["min_sog_kn"] * KNOT_MS
+    ev_mask = _eval_mask(meta, args)[0] & moving
+    cal_mask = (((split == "transfer_calib") & (region == args.region)) if args.region
+                else (split == "calib")).to_numpy() & moving
+    tr = (split == "train").to_numpy()
+    if not (tr.any() and ev_mask.any() and cal_mask.any()):
+        sys.exit(f"empty blocks: {int(tr.sum())} train, {int(cal_mask.sum())} calibration, "
+                 f"{int(ev_mask.sum())} evaluated windows")
+
+    def X(mask):
+        return build_features(hist_all[mask], meta.filter(pl.Series(mask)), step, sets)
+
+    X_tr, cols = X(tr)
+    keep = ~np.isnan(X_tr).all(axis=0)
+    cols = [c for c, k in zip(cols, keep, strict=True) if k]
+    cat = [c == "ship_group" for c in cols] if "ship_group" in cols else None
+    quantiles = u.get("quantiles", [0.05, 0.1, 0.9, 0.95])
+    model = QuantileResidualGBM(knots, quantiles, categorical=cat, seed=g["seed"]).fit(
+        X_tr[:, keep], hist_all[tr], fut_all[tr], step)
+    print(f"fitted {len(model.models)} quantile models on {int(tr.sum()):,} train windows")
+
+    def detector_scores(hist, fut, box):
+        lo, hi = box
+        out = {"model_box": box_excess_scores(lo, hi, residual_truth(hist, fut, step, knots))}
+        out.update(rule_scores(hist, fut, step, knots))
+        return out
+
+    blocks = {}
+    for name, mask in (("calibration", cal_mask), ("evaluated", ev_mask)):
+        hist, fut = hist_all[mask], fut_all[mask]
+        box = model.interval(model.predict(X(mask)[0][:, keep]), d["level"])
+        blocks[name] = (hist, fut, box, detector_scores(hist, fut, box))
+    cal_scores = blocks["calibration"][3]
+    hist, fut, box, normal = blocks["evaluated"]
+    p_normal = {k: conformal_pvalues(cal_scores[k], s) for k, s in normal.items()}
+
+    rng = np.random.default_rng(d["seed"])
+    results = {}
+    for sc in d["scenarios"]:
+        if sc["kind"] == "turn":  # half the windows turn to starboard, half to port
+            sign = rng.choice([-1.0, 1.0], size=len(fut))
+            fut_dev = np.where((sign > 0)[:, None, None],
+                               inject(hist, fut, step, "turn", d["onset_step"], sc["magnitude"]),
+                               inject(hist, fut, step, "turn", d["onset_step"], -sc["magnitude"]))
+        else:
+            fut_dev = inject(hist, fut, step, sc["kind"], d["onset_step"], sc["magnitude"], rng=rng)
+        dev = detector_scores(hist, fut_dev, box)
+        results[sc["name"]] = {
+            k: {str(a): detection_summary(p_normal[k], conformal_pvalues(cal_scores[k], dev[k]), a, knots,
+                                          d["onset_step"], step) for a in d["alphas"]}
+            for k in dev}
+        print(f"{sc['name']}: done")
+
+    target = f"{args.split}{'_' + args.region if args.region else ''}"
+    counts = {"train": int(tr.sum()), "calibration": int(cal_mask.sum()), "evaluated": int(ev_mask.sum()),
+              "evaluated_vessels": int(meta.filter(pl.Series(ev_mask))["mmsi"].n_unique())}
+    root = project_path(args.results_dir) if args.results_dir else ws.results
+    stamp = f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}"
+    _write_json({"split": args.split, "region": args.region, "feature_set": args.feature_set, "git": _git_hash(),
+                 "config": {"deviation": d, "gbm_seed": g["seed"], "knots_min": knots_min, "quantiles": quantiles},
+                 "windows": counts, "features": cols, "results": results},
+                root / "runs" / f"{stamp}_deviation_{args.feature_set}_{target}" / "summary.json")
+    a = str(max(d["alphas"]))
+    k20 = knots_min.index(20) if 20 in knots_min else len(knots_min) // 2
+    detectors = list(next(iter(results.values())))
+    lines = [f"# Deviation screening ({args.feature_set}; {target}; alpha {a})", "",
+             f"{counts['train']:,} train / {counts['calibration']:,} calibration / {counts['evaluated']:,} evaluated "
+             f"windows ({counts['evaluated_vessels']} vessels), anchor speed >= {d['min_sog_kn']} kn. Deviations "
+             f"start {d['onset_step'] * step // 60} min into the forecast. First flag = first horizon with "
+             f"p <= {a} / {len(knots)}; per-horizon columns use p <= {a}.", "",
+             "| deviation | detector | false alarms, first flag | detected, first flag | median delay (min) | "
+             f"detected at {knots_min[k20]} min | detected at {knots_min[-1]} min |",
+             "|---|---|---:|---:|---:|---:|---:|"]
+    for sc, by_det in results.items():
+        for det in detectors:
+            r = by_det[det][a]
+            delay = "–" if r["median_delay_min"] is None else f"{r['median_delay_min']:.0f}"
+            lines.append(f"| {sc} | {det} | {r['first_flag_false_alarm_rate']:.3f} | "
+                         f"{r['first_flag_detection_rate']:.3f} | {delay} | "
+                         f"{r['per_horizon'][knots[k20]]['detection_rate']:.3f} | "
+                         f"{r['per_horizon'][knots[-1]]['detection_rate']:.3f} |")
+    out = root / "tables" / f"deviation_{args.feature_set}_{target}.md"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("\n".join(lines) + "\n")
+    print("\n".join(lines))
+
+
 def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     """E3/E4: residual GBM with feature-set ablation. Trains on train, evaluates on `--split` (val by default)."""
     import time
@@ -1035,6 +1155,12 @@ def main(argv=None):
     p.add_argument("--sweep", action="store_true",
                    help="fit once; evaluate the home split and every transfer region (home and local calibration)")
     p.add_argument("--confirm-test", action="store_true")
+    p = sub.add_parser("deviation", help="V4: deviation screening with injected deviations; model vs rule scores")
+    p.add_argument("--split", default="val", choices=list(EVAL_SPLITS))
+    p.add_argument("--region", choices=region_names, help="transfer region (calibrated on its own transfer_calib)")
+    p.add_argument("--feature-set", default="E_fairway", help="feature set from the gbm config (default E_fairway)")
+    p.add_argument("--results-dir", help="write runs and tables here instead of the config's results_dir")
+    p.add_argument("--confirm-test", action="store_true")
     p = sub.add_parser("sensitivity", help="E0: retained data under different gap thresholds")
     p.add_argument("--gap-s", type=int, nargs="+", default=[600, 1200, 1800])
     p.add_argument("--window-gap-s", type=int, nargs="+", default=[120, 180, 300])
@@ -1054,7 +1180,8 @@ def main(argv=None):
         "synth": cmd_synth, "manifest": cmd_manifest, "ingest": cmd_ingest, "clean": cmd_clean,
         "windows": cmd_windows, "fairway": cmd_fairway, "baselines": cmd_baselines, "plot-tracks": cmd_plot_tracks,
         "regime-eda": cmd_regime_eda, "sensitivity": cmd_sensitivity, "gbm": cmd_gbm,
-        "regime-report": cmd_regime_report, "intervals": cmd_intervals, "summary-figure": cmd_summary_figure,
+        "regime-report": cmd_regime_report, "intervals": cmd_intervals, "deviation": cmd_deviation,
+        "summary-figure": cmd_summary_figure,
     }
     handlers[args.cmd](ws, data_cfg, exp_cfg, args)
 

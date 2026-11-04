@@ -9,9 +9,8 @@ model-based or rule-based, is turned into a conformal p-value against calibratio
 For a new window exchangeable with the calibration windows, P(p <= alpha) <= alpha at each horizon, so flagging at
 p <= alpha gives a false-alarm rate of at most alpha there, whatever the score. Detectors are then compared by how many
 deviating windows they flag at the same false-alarm rate. Windows of one vessel are correlated, so the guarantee is
-approximate and false-alarm rates are always measured on held-out normal windows. Flagging at the first horizon with
-p <= alpha tests several horizons, so its overall false-alarm rate is reported separately; dividing alpha by the
-number of horizons bounds it.
+approximate and false-alarm rates are always measured on held-out normal windows. Flagging at the first horizon tests
+several horizons, so it uses alpha divided by the number of horizons, which bounds its overall false-alarm rate.
 
 Real deviation labels do not exist, so deviations are injected into the observed futures of real windows: a turn, a
 stop, a speed change or a position jump (a data fault), starting at a chosen step after the forecast origin. The
@@ -24,6 +23,24 @@ from morva.features.motion import anchor_frame, from_body
 from morva.geo import KNOT_MS, from_local_xy, to_local_xy
 
 KINDS = ("turn", "stop", "speed", "jump")
+
+# Used when the experiment config has no `deviation` section (e.g. trials on V3 data). PROVISIONAL for V4.
+DEFAULT_SETTINGS = {
+    "level": 0.8,             # box level for the model score
+    "alphas": [0.01, 0.05],
+    "onset_step": 10,         # deviation starts 10 minutes into the forecast
+    "min_sog_kn": 5.0,        # calibration and evaluation windows: anchor speed at least this (deviations of
+                              # stationary vessels are not meaningful)
+    "seed": 0,
+    "scenarios": [
+        {"name": "turn_30", "kind": "turn", "magnitude": 30.0},   # sign drawn per window
+        {"name": "turn_60", "kind": "turn", "magnitude": 60.0},
+        {"name": "stop", "kind": "stop", "magnitude": 0.0},
+        {"name": "slow_50pct", "kind": "speed", "magnitude": 0.5},
+        {"name": "fast_150pct", "kind": "speed", "magnitude": 1.5},
+        {"name": "jump_500m", "kind": "jump", "magnitude": 500.0},
+    ],
+}
 
 
 def conformal_pvalues(cal_scores: np.ndarray, scores: np.ndarray) -> np.ndarray:
@@ -124,34 +141,28 @@ def detection_summary(p_normal: np.ndarray, p_deviating: np.ndarray, alpha: floa
                       onset_step: int, step_s: int) -> dict:
     """False-alarm and detection rates at significance `alpha`.
 
-    Per horizon: share of normal windows flagged (false alarms) and of deviating windows flagged (detections).
-    First-flag: a window is flagged at the first knot with p <= alpha; reported are the overall false-alarm rate,
-    the detection rate, and the median delay (minutes) from the deviation onset to the flagging knot, counting only
-    knots at or after the onset.
+    Per horizon: share of normal windows flagged (false alarms) and of deviating windows flagged (detections), at
+    p <= alpha. First flag: a window is flagged at the first knot with p <= alpha / K (Bonferroni over the K knots,
+    so the first-flag false-alarm rate is at most alpha). Reported are the first-flag false-alarm and detection rates
+    and the median delay (minutes) from the deviation onset to the flagging knot; only knots at or after the onset
+    count as detections.
     """
     knots = np.asarray(knots_steps)
     usable = knots >= onset_step
-    flag_n, flag_d = p_normal <= alpha, p_deviating[:, usable] <= alpha
+    a_first = alpha / len(knots)
+    flag_d = p_deviating[:, usable] <= a_first
     first = np.argmax(flag_d, axis=1)
     detected = flag_d.any(axis=1)
     delay_min = (knots[usable][first[detected]] - onset_step) * step_s / 60
     return {
         "alpha": alpha,
-        "per_horizon": {int(k): {"false_alarm_rate": float(flag_n[:, i].mean()),
+        "per_horizon": {int(k): {"false_alarm_rate": float((p_normal[:, i] <= alpha).mean()),
                                  "detection_rate": float((p_deviating[:, i] <= alpha).mean())}
                         for i, k in enumerate(knots)},
-        "first_flag_false_alarm_rate": float(flag_n.any(axis=1).mean()),
+        "first_flag_alpha_per_horizon": a_first,
+        "first_flag_false_alarm_rate": float((p_normal <= a_first).any(axis=1).mean()),
         "first_flag_detection_rate": float(detected.mean()),
         "median_delay_min": float(np.median(delay_min)) if detected.any() else None,
         "n_normal": int(len(p_normal)),
         "n_deviating": int(len(p_deviating)),
     }
-
-
-def residual_box_inputs(model, X: np.ndarray, hist: np.ndarray, fut: np.ndarray, step_s: int, level: float):
-    """Predicted box bounds and true residuals [n, K, 2] for a fitted `QuantileResidualGBM`."""
-    from morva.models.quantile import residual_truth
-
-    lo, hi = model.interval(model.predict(X), level)
-    return lo, hi, residual_truth(hist, fut, step_s, model.knots)
-
