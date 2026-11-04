@@ -280,7 +280,7 @@ All with `--confirm-test`. Run folders `results/v2/runs/20261021T2*`; tables in 
 - Roadmap: V4 proposed as Norwegian waters + deviation screening + wind/current feature sets; interaction moves to V5 (`docs/00_plan.md`). Nothing set or frozen.
 
 ## 2026-11-04 (Wed), Kystverket HAIS test order and reader
-- Test order placed by the author on 3 Nov: 24 Sep 2026, Oslofjord and Bergen approach (WKT in the manifest). Delivered as a zip with `position/hais_2026-09-24.snappy.parquet` (2.13 M rows, 601 MMSIs). Raw files moved to `data/raw/no/` (git-ignored); manifests written.
+- Test order placed by the author on 3 Nov: 24 Sep 2026, Oslofjord and Bergen approach (WKT in the manifest). Delivered as a zip with `position/hais_2026-09-24.snappy.parquet` (2.13 M rows, 601 MMSIs). Raw files moved to `data/raw/no/` (git-ignored); manifests written. (Later the same day renamed into `orders/` and `checks/`; see `data/README.md`.)
 - The data are full-rate shore-station AIS: Class A moving vessels report every 6–7 s (median), denser than DMA. Gaps over 180 s are rare (< 0.05%), so the V1–V3 gap rule works unchanged. Bergen approach traffic is close to Skagen's (222 vs 262 moving vessels on the same calendar day); Oslofjord carries about half.
 - The position file has no static fields (ship type, dimensions). Feature sets without vessel attributes (A, C, E and the planned G, H) are unaffected; ship-group reporting needs another source (to ask Kystverket, ais@kystverket.no).
 - Polars cannot read the file's Spark `geometry` column ("LogicalType union has no variant set"), so the reader loads the other columns with PyArrow.
