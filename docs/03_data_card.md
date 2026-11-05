@@ -229,6 +229,13 @@ One test order, used only to check the source. No V4 region, split or model is s
 | Sentinels | SOG 102.3, COG 360 and heading 511 are present in raw units, as in DMA data, and are nulled by the existing quality step |
 | Missing fields | The position file has no name, IMO, ship type, dimensions, draught or destination. Vessel-attribute features (sets B, D, F) and results by ship group need a separate static-data source |
 
+A second check order (24 Sep 2026, west-coast box 59.0–61.2° N, 4.4–6.0° E) fixed the V4 home area: 3,067,524 rows
+from 817 MMSIs; Class A shore-station reports while moving above 5 kn have a median interval of 6 s (90th percentile
+11 s, 99th 21 s) and 0.03% of intervals above 180 s. Moving traffic (Class A, > 5 kn): 439 vessels and 109,582
+vessel-minutes, of which 230 vessels and 47,830 vessel-minutes south of 60° N (Karmsund, Haugesund, Bømlafjord) and
+284 and 61,752 north of it (Bergen approaches, Fedje, Mongstad). The V1–V3 Danish home area had 397 vessels and
+104,756 vessel-minutes on the same day, counted the same way.
+
 The reader (`morva.ingestion.kystverket`) keeps shore-station Class A reports by default. Satellite reports are
 excluded because they are sparse here (median interval 47 s for moving vessels) and their timing differs from the
 shore network; this can be changed with `keep_data_sources`.

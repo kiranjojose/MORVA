@@ -1,10 +1,10 @@
 # V4 data configuration. Drafted 2026-11-04 after the training-area decision (train in Norway; docs/00_plan.md, "V4").
 # V4 commands pass --data-config configs/v4/data.yaml. The V1-V3 configs are unchanged.
 #
-# FIXED now: sources, region roles and which calendar each region uses.
-# PROVISIONAL: the home box. It is set from a one-day traffic count on 24 Sep 2026 (a map-period day) before any model
-# is run on Norwegian data, as the US boxes were in V3. Changing anything here after validation analysis has started
-# must be recorded in docs/08_research_log.md.
+# FIXED: sources, region roles, boxes and which calendar each region uses. The home box was fixed on 2026-11-05 from a
+# one-day traffic count on 24 Sep 2026 (a map-period day), before any model was run on Norwegian data, as the US boxes
+# were in V3. Changing anything here after validation analysis has started must be recorded in
+# docs/08_research_log.md.
 
 sources:
   kystverket:
@@ -31,8 +31,8 @@ paths:
   manifests: data/manifests
 
 # Home area: the only area used to fit models. Norwegian west coast from Karmsund to Fedje and Mongstad (Haugesund,
-# Bømlafjord, Bergen approaches). PROVISIONAL until the 24 Sep 2026 traffic count; it contains the Bergen-approach
-# test box (60.0-61.0 N, 4.5-5.6 E), whose count is in the data card.
+# Bømlafjord, Bergen approaches). Count on 24 Sep 2026 (Class A, shore stations, > 5 kn): 439 moving vessels and
+# 109,582 vessel-minutes, against 397 and 104,756 in the V1-V3 Danish home area on the same day (data card, V4).
 aoi:
   name: west_coast
   source: kystverket

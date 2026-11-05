@@ -1,0 +1,10 @@
+{
+  "file": "hais_2026-09-24_check_west_coast.snappy.parquet",
+  "provider": "Kystverket Historisk AIS (HAIS), NLOD 2.0",
+  "source_url": "https://hais.kystverket.no/",
+  "size_bytes": 96533874,
+  "sha256": "aab83bb1242e29e96e709dc7dcf745c361732c8f5db8217fd3eae2bf661e2913",
+  "recorded_utc": "2026-11-05T21:02:44+00:00",
+  "license_note": "Check provider terms before redistribution. Raw data is not committed.",
+  "notes": "V4 west-coast check order (placed by the author 4 Nov 2026, delivered 5 Nov): 2026-09-24, area POLYGON((4.4 59.0, 6.0 59.0, 6.0 61.2, 4.4 61.2, 4.4 59.0)); all ship types; Parquet. Delivered as Hais_7ba4a2f1-cbc4-4229-964e-ebab2348dabc.zip; the .parquet is its position/ member, renamed."
+}
