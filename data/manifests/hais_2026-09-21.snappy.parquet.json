@@ -1,0 +1,10 @@
+{
+  "file": "hais_2026-09-21.snappy.parquet",
+  "provider": "Kystverket Historisk AIS (HAIS), NLOD 2.0",
+  "source_url": "https://hais.kystverket.no/",
+  "size_bytes": 120157284,
+  "sha256": "11377a843fa2477eab56efe674c56ea49ff42bb8ccdd312d7e2023d3640d65d8",
+  "recorded_utc": "2026-11-06T07:16:46+00:00",
+  "license_note": "Check provider terms before redistribution. Raw data is not committed.",
+  "notes": "V4 main order (placed by the author 5 Nov 2026, delivered 6 Nov as Hais_1ec4e84a-bd16-40dc-b174-2859a8291520.zip, stored as data/raw/no/orders/2026-11-05_main_west_coast_oslofjord_0919-1015.zip): 19 Sep-15 Oct 2026; areas west_coast POLYGON((4.4 59.0, 6.0 59.0, 6.0 61.2, 4.4 61.2, 4.4 59.0)) and oslofjord POLYGON((10.2 58.8, 11.0 58.8, 11.0 59.9, 10.2 59.9, 10.2 58.8)) (cropped by HAIS to the Norwegian zone); all ship types; Parquet. Map, validation and calibration days only; no test day."
+}

@@ -17,6 +17,8 @@ component across it (positive = towards starboard).
 """
 
 import re
+import time
+import urllib.error
 import urllib.request
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -62,10 +64,26 @@ def dap_ascii(text: str) -> dict[str, np.ndarray]:
     return out
 
 
-def _get(url: str, constraint: str, timeout: int = 300) -> dict[str, np.ndarray]:
+def _get(url: str, constraint: str, timeout: int = 300, attempts: int = 4) -> dict[str, np.ndarray]:
+    """Fetch and parse one OPeNDAP ASCII request. The server sometimes answers with a DAP `Error {` body (status
+    200), a 5xx status or a timeout that succeed on retry; these are retried with growing pauses. A 404 (file not
+    in the archive) is raised at once."""
     query = constraint.replace("[", "%5B").replace("]", "%5D")
-    with urllib.request.urlopen(f"{url}.ascii?{query}", timeout=timeout) as r:
-        return dap_ascii(r.read().decode())
+    for attempt in range(attempts):
+        try:
+            with urllib.request.urlopen(f"{url}.ascii?{query}", timeout=timeout) as r:
+                text = r.read().decode()
+            if "-" * 45 not in text and text.lstrip().startswith("Error {"):
+                raise RuntimeError(f"{url}: server error {text[:200]!r}")
+            return dap_ascii(text)
+        except urllib.error.HTTPError as err:
+            if err.code < 500 or attempt == attempts - 1:
+                raise
+        except (RuntimeError, TimeoutError, urllib.error.URLError):
+            if attempt == attempts - 1:
+                raise
+        time.sleep(10 * 2 ** attempt)
+    raise AssertionError("unreachable")
 
 
 def index_box(lat: np.ndarray, lon: np.ndarray, box: dict, pad_deg: float) -> tuple[slice, slice] | None:
@@ -109,27 +127,38 @@ def _epoch(seconds: np.ndarray) -> np.ndarray:
     return (np.asarray(seconds) * 1e6).astype("int64").astype("datetime64[us]")
 
 
-def fetch_meps_day(day: date, box: dict, stride: int = 1, pad_deg: float = 0.2) -> pl.DataFrame:
-    """Hourly 10 m wind for one UTC day around `box`, each hour from the run started 3-5 h earlier."""
+def fetch_meps_day(day: date, box: dict, stride: int = 1, pad_deg: float = 0.2, max_fallback: int = 2
+                   ) -> pl.DataFrame:
+    """Hourly 10 m wind for one UTC day around `box`, each hour from the run started 3-5 h earlier.
+
+    A few runs are missing from the archive (e.g. 22 Sep 2026 09Z, 30 Sep 2026 21Z). For their hours the previous
+    run is used instead, up to `max_fallback` runs back (leads 6-8 h, then 9-11 h), which was still issued before
+    the valid time. Column `lead_h` records the lead time used."""
     parts = []
-    for run_h in range(-6, 24, 3):  # runs whose leads 3-5 h fall on this day
-        init = datetime(day.year, day.month, day.day, tzinfo=UTC) + timedelta(hours=run_h)
-        url = (f"{THREDDS}/meps25epsarchive/{init:%Y/%m/%d}/meps_det_2_5km_{init:%Y%m%dT%H}Z.nc")
-        sub = _grid_subset(url, box, pad_deg, coarse=20, shape=MEPS_SHAPE,
-                           names=("latitude", "longitude"))
+    for run_h in range(-6, 24, 3):  # the run started at run_h covers the hours run_h + 3 ... run_h + 5
+        for back in range(max_fallback + 1):
+            init = datetime(day.year, day.month, day.day, tzinfo=UTC) + timedelta(hours=run_h - 3 * back)
+            leads = [h + 3 * back for h in MEPS_LEADS_H]
+            url = f"{THREDDS}/meps25epsarchive/{init:%Y/%m/%d}/meps_det_2_5km_{init:%Y%m%dT%H}Z.nc"
+            try:
+                sub = _grid_subset(url, box, pad_deg, coarse=20, shape=MEPS_SHAPE, names=("latitude", "longitude"))
+                break
+            except urllib.error.HTTPError as err:
+                if err.code != 404 or back == max_fallback:
+                    raise
         if sub is None:
             raise ValueError(f"box {box['name']} is outside the MEPS grid")
         ys, xs = sub
         yx = f"{_rng(ys, stride, MEPS_SHAPE[0])}{_rng(xs, stride, MEPS_SHAPE[1])}"
-        r = f"[{MEPS_LEADS_H[0]}:1:{MEPS_LEADS_H[-1]}][0]{yx}"
-        g = _get(url, f"wind_speed{r},wind_direction{r},latitude{yx},longitude{yx},time[{MEPS_LEADS_H[0]}:1:"
-                      f"{MEPS_LEADS_H[-1]}]")
-        expected = np.array([(init + timedelta(hours=h)).timestamp() for h in MEPS_LEADS_H])
+        r = f"[{leads[0]}:1:{leads[-1]}][0]{yx}"
+        g = _get(url, f"wind_speed{r},wind_direction{r},latitude{yx},longitude{yx},time[{leads[0]}:1:{leads[-1]}]")
+        expected = np.array([(init + timedelta(hours=h)).timestamp() for h in leads])
         if not np.allclose(g["time"], expected):
             raise ValueError(f"{url}: lead times {g['time']} differ from the expected {expected}")
-        times = init.replace(tzinfo=None) + np.array([timedelta(hours=h) for h in MEPS_LEADS_H])
+        times = init.replace(tzinfo=None) + np.array([timedelta(hours=h) for h in leads])
         fields = {k: np.where(np.abs(g[k]) > 1e30, np.nan, g[k])[:, 0] for k in ("wind_speed", "wind_direction")}
-        parts.append(_long_frame(times.astype("datetime64[us]"), g["latitude"], g["longitude"], fields))
+        df = _long_frame(times.astype("datetime64[us]"), g["latitude"], g["longitude"], fields)
+        parts.append(df.with_columns(lead_h=pl.col("t").dt.hour().sub(init.hour).mod(24).cast(pl.Int8)))
     start = datetime(day.year, day.month, day.day, tzinfo=UTC)
     return pl.concat(parts).filter((pl.col("t") >= start) & (pl.col("t") < start + timedelta(days=1)))
 

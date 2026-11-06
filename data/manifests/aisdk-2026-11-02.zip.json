@@ -1,0 +1,10 @@
+{
+  "file": "aisdk-2026-11-02.zip",
+  "provider": "Danish Maritime Authority",
+  "source_url": "https://www.dma.dk/safety-at-sea/navigational-information/ais-data",
+  "size_bytes": 576005156,
+  "sha256": "0a5d1d656968197721ca01422ccdf74b9e6b5b485bf2c255f08dd26c8e6e6c43",
+  "recorded_utc": "2026-11-06T07:33:20+00:00",
+  "license_note": "Check provider terms before redistribution. Raw data is not committed.",
+  "notes": "DMA daily file for V4 Skagen validation (dk2026b val 30 Oct-3 Nov 2026). Downloaded 6 Nov 2026 from http://aisdata.ais.dk (S3 aisdata.ais.dk.s3.eu-central-1.amazonaws.com); size matches the server listing and unzip -t passes."
+}
