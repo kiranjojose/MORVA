@@ -649,6 +649,7 @@ def cmd_deviation(ws: Workspace, data_cfg, exp_cfg, args):
         inject,
         rule_scores,
     )
+    from morva.evaluation.metrics import summarize
     from morva.features.motion import anchor_frame, build_features
     from morva.geo import KNOT_MS
     from morva.models.quantile import QuantileResidualGBM, residual_truth
@@ -702,6 +703,8 @@ def cmd_deviation(ws: Workspace, data_cfg, exp_cfg, args):
     hist, fut, box, normal = blocks["evaluated"]
     p_normal = {k: conformal_pvalues(cal_scores[k], s) for k, s in normal.items()}
 
+    groups = meta.filter(pl.Series(ev_mask))["mmsi"].to_numpy()
+    ev_cfg = exp_cfg["evaluation"]
     rng = np.random.default_rng(d["seed"])
     results = {}
     for sc in d["scenarios"]:
@@ -713,10 +716,19 @@ def cmd_deviation(ws: Workspace, data_cfg, exp_cfg, args):
         else:
             fut_dev = inject(hist, fut, step, sc["kind"], d["onset_step"], sc["magnitude"], rng=rng)
         dev = detector_scores(hist, fut_dev, box)
+        p_dev = {k: conformal_pvalues(cal_scores[k], s) for k, s in dev.items()}
         results[sc["name"]] = {
-            k: {str(a): detection_summary(p_normal[k], conformal_pvalues(cal_scores[k], dev[k]), a, knots,
-                                          d["onset_step"], step) for a in d["alphas"]}
+            k: {str(a): detection_summary(p_normal[k], p_dev[k], a, knots, d["onset_step"], step)
+                for a in d["alphas"]}
             for k in dev}
+        # Paired detection gap, model minus each rule, per window and horizon at p <= alpha (vessel bootstrap)
+        results[sc["name"]]["model_minus_rule"] = {
+            str(a): {rule: {str(h): summarize((p_dev["model_box"][:, i] <= a).astype(float)
+                                              - (p_dev[rule][:, i] <= a).astype(float),
+                                              groups, ev_cfg["n_bootstrap"], ev_cfg["seed"])
+                            for i, h in enumerate(knots_min)}
+                     for rule in dev if rule != "model_box"}
+            for a in d["alphas"]}
         print(f"{sc['name']}: done")
 
     target = f"{args.split}{'_' + args.region if args.region else ''}"
@@ -730,7 +742,7 @@ def cmd_deviation(ws: Workspace, data_cfg, exp_cfg, args):
                 root / "runs" / f"{stamp}_deviation_{args.feature_set}_{target}" / "summary.json")
     a = str(max(d["alphas"]))
     k20 = knots_min.index(20) if 20 in knots_min else len(knots_min) // 2
-    detectors = list(next(iter(results.values())))
+    detectors = [k for k in next(iter(results.values())) if k != "model_minus_rule"]
     lines = [f"# Deviation screening ({args.feature_set}; {target}; alpha {a})", "",
              f"{counts['train']:,} train / {counts['calibration']:,} calibration / {counts['evaluated']:,} evaluated "
              f"windows ({counts['evaluated_vessels']} vessels), anchor speed >= {d['min_sog_kn']} kn. Deviations "
@@ -747,6 +759,14 @@ def cmd_deviation(ws: Workspace, data_cfg, exp_cfg, args):
                          f"{r['first_flag_detection_rate']:.3f} | {delay} | "
                          f"{r['per_horizon'][knots[k20]]['detection_rate']:.3f} | "
                          f"{r['per_horizon'][knots[-1]]['detection_rate']:.3f} |")
+    rules = [r for r in detectors if r != "model_box"]
+    lines += ["", f"Paired detection gap at {knots_min[k20]} min, model minus each rule (percentage points, 95% CI, "
+              "vessel bootstrap):", "", "| deviation | " + " | ".join(rules) + " |", "|---|" + "---:|" * len(rules)]
+    for sc, by_det in results.items():
+        gap = by_det["model_minus_rule"][a]
+        lines.append(f"| {sc} | " + " | ".join(
+            f"{100 * gap[r][str(knots_min[k20])]['mean']:+.1f} ({100 * gap[r][str(knots_min[k20])]['ci95_lo']:+.1f} "
+            f"to {100 * gap[r][str(knots_min[k20])]['ci95_hi']:+.1f})" for r in rules) + " |")
     out = root / "tables" / f"deviation_{args.feature_set}_{target}.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(lines) + "\n")
@@ -860,6 +880,11 @@ def cmd_gbm(ws: Workspace, data_cfg, exp_cfg, args):
     names = list(g["feature_sets"])
     comparisons = {f"{n} - cv": paired("cv", n) for n in names}
     comparisons.update({f"{n} - A_motion": paired("A_motion", n) for n in names if n != "A_motion"})
+    # V4: sets that add groups to E_fairway (wind, current) are also compared with E_fairway itself
+    if "E_fairway" in names:
+        base = set(g["feature_sets"]["E_fairway"])
+        comparisons.update({f"{n} - E_fairway": paired("E_fairway", n) for n in names
+                            if base < set(g["feature_sets"][n])})
 
     turn = past_turn_rate_deg_min(h_ev, step)
     group_names = {v: k for k, v in SHIP_GROUP_CODES.items()}

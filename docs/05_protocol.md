@@ -354,16 +354,19 @@ at the forecast origin. Decided on seed 0; confidence intervals paired and vesse
   *Validation:* home 81.8, 81.3, 90.8, 90.6%; Oslofjord local 80.6, 80.6, 90.5, 90.0%; Skagen local **not yet
   validated** (its calibration days, 4–7 Nov, are not yet published).
 - **V4-H4 (deviation screening at home):** at the home area, flagging at p ≤ 0.05 at 20 minutes, the E box score
-  detects more injected deviations than the best of the three rules (distance from constant velocity, turn, speed
-  change) for turns of 30°, 60° and 90°, a stop, speed ×0.5 and speed ×1.5 (6 checks), while the unchanged control
-  is flagged at 5% ± 1 point.
-  *Decision rule:* for each of the 6 scenarios, the lower bound of the 95% vessel-bootstrap CI of (model − best rule)
-  detection rate is above 0; control false-alarm rate within 4–6%.
-  *Validation (model vs best rule):* turn 30° 26.4 vs 4.8%; 60° 37.1 vs 4.8%; 90° 40.8 vs 4.8%; stop 39.7 vs 6.9%;
-  ×0.5 30.9 vs 5.0%; ×1.5 34.3 vs 6.5%; control 4.8%. CIs not yet computed (see engineering below).
+  detects more injected deviations than each of the three rules (distance from constant velocity, turn, speed
+  change) for turns of 30°, 60° and 90°, a stop, speed ×0.5 and speed ×1.5, while the unchanged control is flagged at
+  5% ± 1 point.
+  *Decision rule:* for each of the 6 scenarios and each of the 3 rules (18 checks), the lower bound of the 95%
+  vessel-bootstrap CI of the paired detection gap (model − rule, same windows) is above 0; control false-alarm rate
+  of the model within 4–6%.
+  *Validation (gap to the closest rule, percentage points):* turn 30° +21.6 (+17.9 to +25.5); 60° +32.3 (+28.2 to
+  +36.5); 90° +36.0 (+31.6 to +40.3); stop +32.8 (+28.4 to +37.0); ×0.5 +25.9 (+22.4 to +29.4); ×1.5 +27.8 (+24.5 to
+  +31.2); control 4.8% (gap +0.0 to +0.1, CIs across 0). All 18 lower bounds above 0.
 - **V4-H5 (wind and current add no point accuracy):** at home, H's error at 60 minutes is within ±150 m of E's.
   *Decision rule:* the 95% CI of H − E at 60 minutes lies inside −150 to +150 m (an equivalence test).
-  *Validation:* +4 m at home, −1 m in the Oslofjord, +13 m at Skagen (point estimates; CIs not yet computed).
+  *Validation:* H − E at 60 min +3 m (−19 to +23) at home; descriptive elsewhere: −1 m (−24 to +25) in the
+  Oslofjord and +12 m (+4 to +21) at Skagen.
   *Kept as an equivalence hypothesis (author's decision, 6 Nov).* The ±150 m margin (about 3.4% of E's FDE@60 at
   home) was chosen **after** the validation results were seen; it is stated here so the test is read accordingly. A
   supported V4-H5 means wind and current at the forecast origin, as represented here, add no point accuracy beyond
@@ -381,8 +384,8 @@ at the forecast origin. Decided on seed 0; confidence intervals paired and vesse
 
 **Engineering needed before the freeze**
 
-1. `gbm`: paired H − E and G − E comparisons with CIs (currently only against CV and A).
-2. `deviation`: vessel-bootstrap CI of the detection-rate difference between the model and each rule.
-3. Skagen calibration days (4–7 Nov 2026): download, ingest, rebuild Skagen windows and features, and validate V4-H3
+1. Done 6 Nov: `gbm` reports paired G − E and H − E; `deviation` reports the vessel-bootstrap CI of the paired
+   detection gap, model minus each rule, at every horizon.
+2. Skagen calibration days (4–7 Nov 2026): download, ingest, rebuild Skagen windows and features, and validate V4-H3
    at Skagen.
-4. A decision script (as `scripts/v3_decide.py`) written before test access.
+3. A decision script (as `scripts/v3_decide.py`) written before test access.

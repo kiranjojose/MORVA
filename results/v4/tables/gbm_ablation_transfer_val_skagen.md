@@ -22,6 +22,8 @@ Paired differences on identical windows (m, negative = first model better), vess
 | E_fairway - A_motion | -308 (-359 to -260) | -714 (-830 to -605) |
 | G_wind - A_motion | -310 (-362 to -263) | -701 (-818 to -595) |
 | H_wind_current - A_motion | -310 (-362 to -262) | -702 (-822 to -592) |
+| G_wind - E_fairway | -3 (-4 to -2) | +13 (+8 to +18) |
+| H_wind_current - E_fairway | -2 (-4 to -0) | +12 (+4 to +21) |
 
 Paired error differences at earlier horizons (m, 95% CI, vessel bootstrap):
 
@@ -36,6 +38,8 @@ Paired error differences at earlier horizons (m, 95% CI, vessel bootstrap):
 | E_fairway - A_motion | -4 (-7 to -3) | -29 (-38 to -22) | -107 (-132 to -86) | -269 (-318 to -225) | -524 (-613 to -443) |
 | G_wind - A_motion | -4 (-7 to -3) | -29 (-39 to -22) | -107 (-133 to -86) | -274 (-325 to -230) | -538 (-628 to -456) |
 | H_wind_current - A_motion | -4 (-6 to -3) | -29 (-38 to -22) | -107 (-132 to -86) | -274 (-324 to -231) | -537 (-627 to -454) |
+| G_wind - E_fairway | +0 (-0 to +0) | -1 (-1 to -0) | -0 (-1 to +1) | -5 (-7 to -4) | -14 (-18 to -11) |
+| H_wind_current - E_fairway | +0 (-0 to +1) | -0 (-1 to +0) | -0 (-1 to +1) | -5 (-8 to -3) | -13 (-18 to -8) |
 
 Mean FDE@60 min (m) by past turn rate (°/min):
 
