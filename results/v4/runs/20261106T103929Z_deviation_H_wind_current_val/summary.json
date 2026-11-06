@@ -1,0 +1,4347 @@
+{
+  "split": "val",
+  "region": null,
+  "feature_set": "H_wind_current",
+  "git": "839ac93",
+  "config": {
+    "deviation": {
+      "level": 0.8,
+      "alphas": [
+        0.01,
+        0.05
+      ],
+      "onset_step": 10,
+      "min_sog_kn": 5.0,
+      "seed": 0,
+      "scenarios": [
+        {
+          "name": "none",
+          "kind": "speed",
+          "magnitude": 1.0
+        },
+        {
+          "name": "turn_15",
+          "kind": "turn",
+          "magnitude": 15.0
+        },
+        {
+          "name": "turn_30",
+          "kind": "turn",
+          "magnitude": 30.0
+        },
+        {
+          "name": "turn_60",
+          "kind": "turn",
+          "magnitude": 60.0
+        },
+        {
+          "name": "turn_90",
+          "kind": "turn",
+          "magnitude": 90.0
+        },
+        {
+          "name": "stop",
+          "kind": "stop",
+          "magnitude": 0.0
+        },
+        {
+          "name": "slow_50pct",
+          "kind": "speed",
+          "magnitude": 0.5
+        },
+        {
+          "name": "slow_75pct",
+          "kind": "speed",
+          "magnitude": 0.75
+        },
+        {
+          "name": "fast_125pct",
+          "kind": "speed",
+          "magnitude": 1.25
+        },
+        {
+          "name": "fast_150pct",
+          "kind": "speed",
+          "magnitude": 1.5
+        },
+        {
+          "name": "jump_200m",
+          "kind": "jump",
+          "magnitude": 200.0
+        },
+        {
+          "name": "jump_500m",
+          "kind": "jump",
+          "magnitude": 500.0
+        },
+        {
+          "name": "jump_1000m",
+          "kind": "jump",
+          "magnitude": 1000.0
+        }
+      ]
+    },
+    "gbm_seed": 0,
+    "knots_min": [
+      5,
+      10,
+      15,
+      20,
+      30,
+      45,
+      60
+    ],
+    "quantiles": [
+      0.05,
+      0.1,
+      0.9,
+      0.95
+    ]
+  },
+  "windows": {
+    "train": 376524,
+    "calibration": 68219,
+    "evaluated": 78568,
+    "evaluated_vessels": 638
+  },
+  "features": [
+    "sog",
+    "sog_mean",
+    "sog_std",
+    "dsog_2",
+    "turn_2",
+    "dsog_5",
+    "turn_5",
+    "dsog_10",
+    "turn_10",
+    "dsog_19",
+    "turn_19",
+    "cog_jitter",
+    "fd_speed_ratio",
+    "along_m2",
+    "cross_m2",
+    "along_m5",
+    "cross_m5",
+    "along_m10",
+    "cross_m10",
+    "along_m19",
+    "cross_m19",
+    "flow_logdens_0",
+    "flow_coher_0",
+    "flow_hdg_0",
+    "flow_offset_0",
+    "flow_width_0",
+    "flow_logdens_5",
+    "flow_hdg_5",
+    "flow_offset_5",
+    "flow_logdens_10",
+    "flow_hdg_10",
+    "flow_offset_10",
+    "flow_logdens_20",
+    "flow_hdg_20",
+    "flow_offset_20",
+    "flow_logdens_30",
+    "flow_hdg_30",
+    "flow_offset_30",
+    "flow_logdens_45",
+    "flow_hdg_45",
+    "flow_offset_45",
+    "flow_logdens_60",
+    "flow_hdg_60",
+    "flow_offset_60",
+    "wind_speed",
+    "wind_along",
+    "wind_cross",
+    "current_speed",
+    "current_along",
+    "current_cross"
+  ],
+  "results": {
+    "none": {
+      "model_box": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010042256389369718,
+              "detection_rate": 0.010042256389369718
+            },
+            "10": {
+              "false_alarm_rate": 0.00962223806129722,
+              "detection_rate": 0.00962223806129722
+            },
+            "15": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.009914978108135629
+            },
+            "20": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.01039863557682517
+            },
+            "30": {
+              "false_alarm_rate": 0.010487730373689034,
+              "detection_rate": 0.010487730373689034
+            },
+            "45": {
+              "false_alarm_rate": 0.010373179920578353,
+              "detection_rate": 0.010373179920578353
+            },
+            "60": {
+              "false_alarm_rate": 0.010233173811220853,
+              "detection_rate": 0.010233173811220853
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004225638936971795,
+          "first_flag_detection_rate": 0.003703797983912025,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04174727624478159,
+              "detection_rate": 0.04174727624478159
+            },
+            "10": {
+              "false_alarm_rate": 0.04344007738519499,
+              "detection_rate": 0.04344007738519499
+            },
+            "15": {
+              "false_alarm_rate": 0.04668567355666429,
+              "detection_rate": 0.04668567355666429
+            },
+            "20": {
+              "false_alarm_rate": 0.048187557275226556,
+              "detection_rate": 0.048187557275226556
+            },
+            "30": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.04985490275939314
+            },
+            "45": {
+              "false_alarm_rate": 0.04943488443132064,
+              "detection_rate": 0.04943488443132064
+            },
+            "60": {
+              "false_alarm_rate": 0.048976682618877915,
+              "detection_rate": 0.048976682618877915
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.019575399653803074,
+          "first_flag_detection_rate": 0.016227980857346502,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "cv_distance": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "10": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.01039863557682517
+            },
+            "15": {
+              "false_alarm_rate": 0.010551369514306078,
+              "detection_rate": 0.010551369514306078
+            },
+            "20": {
+              "false_alarm_rate": 0.009711332858161083,
+              "detection_rate": 0.009711332858161083
+            },
+            "30": {
+              "false_alarm_rate": 0.0100168007331229,
+              "detection_rate": 0.0100168007331229
+            },
+            "45": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "60": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.009914978108135629
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004123816311984523,
+          "first_flag_detection_rate": 0.0036656144995417983,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03797983912025252,
+              "detection_rate": 0.03797983912025252
+            },
+            "10": {
+              "false_alarm_rate": 0.037699826901537524,
+              "detection_rate": 0.037699826901537524
+            },
+            "15": {
+              "false_alarm_rate": 0.04268913552591386,
+              "detection_rate": 0.04268913552591386
+            },
+            "20": {
+              "false_alarm_rate": 0.046978413603502696,
+              "detection_rate": 0.046978413603502696
+            },
+            "30": {
+              "false_alarm_rate": 0.04854393646268201,
+              "detection_rate": 0.04854393646268201
+            },
+            "45": {
+              "false_alarm_rate": 0.050007636696874046,
+              "detection_rate": 0.050007636696874046
+            },
+            "60": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.04985490275939314
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.01677527746665309,
+          "first_flag_detection_rate": 0.01470064148253742,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "turn": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "10": {
+              "false_alarm_rate": 0.007763975155279503,
+              "detection_rate": 0.007763975155279503
+            },
+            "15": {
+              "false_alarm_rate": 0.008744017920781997,
+              "detection_rate": 0.008744017920781997
+            },
+            "20": {
+              "false_alarm_rate": 0.008922207514509724,
+              "detection_rate": 0.008922207514509724
+            },
+            "30": {
+              "false_alarm_rate": 0.010347724264331535,
+              "detection_rate": 0.010347724264331535
+            },
+            "45": {
+              "false_alarm_rate": 0.011467773139191529,
+              "detection_rate": 0.011467773139191529
+            },
+            "60": {
+              "false_alarm_rate": 0.011162305264229712,
+              "detection_rate": 0.011162305264229712
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.006160268811729966,
+          "first_flag_detection_rate": 0.005078403421240199,
+          "median_delay_min": 20.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04774208329090724,
+              "detection_rate": 0.04774208329090724
+            },
+            "10": {
+              "false_alarm_rate": 0.045514713369310664,
+              "detection_rate": 0.045514713369310664
+            },
+            "15": {
+              "false_alarm_rate": 0.04593473169738316,
+              "detection_rate": 0.04593473169738316
+            },
+            "20": {
+              "false_alarm_rate": 0.04645657265044293,
+              "detection_rate": 0.04645657265044293
+            },
+            "30": {
+              "false_alarm_rate": 0.05041492719682313,
+              "detection_rate": 0.05041492719682313
+            },
+            "45": {
+              "false_alarm_rate": 0.05245137969656858,
+              "detection_rate": 0.05245137969656858
+            },
+            "60": {
+              "false_alarm_rate": 0.05215863964973017,
+              "detection_rate": 0.05215863964973017
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.030088585683738928,
+          "first_flag_detection_rate": 0.025315650137460545,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "speed": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010462274717442216,
+              "detection_rate": 0.010462274717442216
+            },
+            "10": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "15": {
+              "false_alarm_rate": 0.01106048263924244,
+              "detection_rate": 0.01106048263924244
+            },
+            "20": {
+              "false_alarm_rate": 0.0117096018735363,
+              "detection_rate": 0.0117096018735363
+            },
+            "30": {
+              "false_alarm_rate": 0.012065981060991752,
+              "detection_rate": 0.012065981060991752
+            },
+            "45": {
+              "false_alarm_rate": 0.011976886264127889,
+              "detection_rate": 0.011976886264127889
+            },
+            "60": {
+              "false_alarm_rate": 0.011900519295387435,
+              "detection_rate": 0.011900519295387435
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.0040219936869972505,
+          "first_flag_detection_rate": 0.0031437735464820283,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03903624885449547,
+              "detection_rate": 0.03903624885449547
+            },
+            "10": {
+              "false_alarm_rate": 0.05024946543121882,
+              "detection_rate": 0.05024946543121882
+            },
+            "15": {
+              "false_alarm_rate": 0.048467569493941556,
+              "detection_rate": 0.048467569493941556
+            },
+            "20": {
+              "false_alarm_rate": 0.04758934935342633,
+              "detection_rate": 0.04758934935342633
+            },
+            "30": {
+              "false_alarm_rate": 0.048862132165767236,
+              "detection_rate": 0.048862132165767236
+            },
+            "45": {
+              "false_alarm_rate": 0.049663985337542,
+              "detection_rate": 0.049663985337542
+            },
+            "60": {
+              "false_alarm_rate": 0.050618572446797676,
+              "detection_rate": 0.050618572446797676
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.017882598513389674,
+          "first_flag_detection_rate": 0.014637002341920375,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      }
+    },
+    "turn_15": {
+      "model_box": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010042256389369718,
+              "detection_rate": 0.010042256389369718
+            },
+            "10": {
+              "false_alarm_rate": 0.00962223806129722,
+              "detection_rate": 0.011798696670400163
+            },
+            "15": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.023368292434578962
+            },
+            "20": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.030737704918032786
+            },
+            "30": {
+              "false_alarm_rate": 0.010487730373689034,
+              "detection_rate": 0.03711434680786071
+            },
+            "45": {
+              "false_alarm_rate": 0.010373179920578353,
+              "detection_rate": 0.046087465634864065
+            },
+            "60": {
+              "false_alarm_rate": 0.010233173811220853,
+              "detection_rate": 0.04475104368190612
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004225638936971795,
+          "first_flag_detection_rate": 0.016546176560431728,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04174727624478159,
+              "detection_rate": 0.04174727624478159
+            },
+            "10": {
+              "false_alarm_rate": 0.04344007738519499,
+              "detection_rate": 0.048722126056409736
+            },
+            "15": {
+              "false_alarm_rate": 0.04668567355666429,
+              "detection_rate": 0.11782150493839731
+            },
+            "20": {
+              "false_alarm_rate": 0.048187557275226556,
+              "detection_rate": 0.14606455554424194
+            },
+            "30": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.16310711740148662
+            },
+            "45": {
+              "false_alarm_rate": 0.04943488443132064,
+              "detection_rate": 0.16471082374503615
+            },
+            "60": {
+              "false_alarm_rate": 0.048976682618877915,
+              "detection_rate": 0.15642500763669687
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.019575399653803074,
+          "first_flag_detection_rate": 0.05209500050911312,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "cv_distance": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "10": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.010322268608084717
+            },
+            "15": {
+              "false_alarm_rate": 0.010551369514306078,
+              "detection_rate": 0.010245901639344262
+            },
+            "20": {
+              "false_alarm_rate": 0.009711332858161083,
+              "detection_rate": 0.009571326748803585
+            },
+            "30": {
+              "false_alarm_rate": 0.0100168007331229,
+              "detection_rate": 0.009953161592505855
+            },
+            "45": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009329498014458813
+            },
+            "60": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.009889522451888809
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004123816311984523,
+          "first_flag_detection_rate": 0.0038056206088992973,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03797983912025252,
+              "detection_rate": 0.03797983912025252
+            },
+            "10": {
+              "false_alarm_rate": 0.037699826901537524,
+              "detection_rate": 0.03761073210467366
+            },
+            "15": {
+              "false_alarm_rate": 0.04268913552591386,
+              "detection_rate": 0.043007331228999086
+            },
+            "20": {
+              "false_alarm_rate": 0.046978413603502696,
+              "detection_rate": 0.047436615415945425
+            },
+            "30": {
+              "false_alarm_rate": 0.04854393646268201,
+              "detection_rate": 0.048480297322064964
+            },
+            "45": {
+              "false_alarm_rate": 0.050007636696874046,
+              "detection_rate": 0.04991854190001018
+            },
+            "60": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.04993126972813359
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.01677527746665309,
+          "first_flag_detection_rate": 0.014726097138784238,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "turn": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "10": {
+              "false_alarm_rate": 0.007763975155279503,
+              "detection_rate": 0.007560329905304959
+            },
+            "15": {
+              "false_alarm_rate": 0.008744017920781997,
+              "detection_rate": 0.005867528764891559
+            },
+            "20": {
+              "false_alarm_rate": 0.008922207514509724,
+              "detection_rate": 0.004734752061908156
+            },
+            "30": {
+              "false_alarm_rate": 0.010347724264331535,
+              "detection_rate": 0.0025328377965583952
+            },
+            "45": {
+              "false_alarm_rate": 0.011467773139191529,
+              "detection_rate": 0.002545565624681804
+            },
+            "60": {
+              "false_alarm_rate": 0.011162305264229712,
+              "detection_rate": 0.0024946543121881683
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.006160268811729966,
+          "first_flag_detection_rate": 0.0021255472966093068,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04774208329090724,
+              "detection_rate": 0.04774208329090724
+            },
+            "10": {
+              "false_alarm_rate": 0.045514713369310664,
+              "detection_rate": 0.04606200997861725
+            },
+            "15": {
+              "false_alarm_rate": 0.04593473169738316,
+              "detection_rate": 0.04081814479177273
+            },
+            "20": {
+              "false_alarm_rate": 0.04645657265044293,
+              "detection_rate": 0.030075857855615517
+            },
+            "30": {
+              "false_alarm_rate": 0.05041492719682313,
+              "detection_rate": 0.016571632216678546
+            },
+            "45": {
+              "false_alarm_rate": 0.05245137969656858,
+              "detection_rate": 0.0150952041543631
+            },
+            "60": {
+              "false_alarm_rate": 0.05215863964973017,
+              "detection_rate": 0.015693412076163323
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.030088585683738928,
+          "first_flag_detection_rate": 0.011607779248549027,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "speed": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010462274717442216,
+              "detection_rate": 0.010462274717442216
+            },
+            "10": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "15": {
+              "false_alarm_rate": 0.01106048263924244,
+              "detection_rate": 0.01106048263924244
+            },
+            "20": {
+              "false_alarm_rate": 0.0117096018735363,
+              "detection_rate": 0.0117096018735363
+            },
+            "30": {
+              "false_alarm_rate": 0.012065981060991752,
+              "detection_rate": 0.012065981060991752
+            },
+            "45": {
+              "false_alarm_rate": 0.011976886264127889,
+              "detection_rate": 0.011976886264127889
+            },
+            "60": {
+              "false_alarm_rate": 0.011900519295387435,
+              "detection_rate": 0.011900519295387435
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.0040219936869972505,
+          "first_flag_detection_rate": 0.0031437735464820283,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03903624885449547,
+              "detection_rate": 0.03903624885449547
+            },
+            "10": {
+              "false_alarm_rate": 0.05024946543121882,
+              "detection_rate": 0.05024946543121882
+            },
+            "15": {
+              "false_alarm_rate": 0.048467569493941556,
+              "detection_rate": 0.048467569493941556
+            },
+            "20": {
+              "false_alarm_rate": 0.04758934935342633,
+              "detection_rate": 0.04758934935342633
+            },
+            "30": {
+              "false_alarm_rate": 0.048862132165767236,
+              "detection_rate": 0.048862132165767236
+            },
+            "45": {
+              "false_alarm_rate": 0.049663985337542,
+              "detection_rate": 0.049663985337542
+            },
+            "60": {
+              "false_alarm_rate": 0.050618572446797676,
+              "detection_rate": 0.050618572446797676
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.017882598513389674,
+          "first_flag_detection_rate": 0.014637002341920375,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      }
+    },
+    "turn_30": {
+      "model_box": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010042256389369718,
+              "detection_rate": 0.010042256389369718
+            },
+            "10": {
+              "false_alarm_rate": 0.00962223806129722,
+              "detection_rate": 0.0118496079828938
+            },
+            "15": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.038985337542001834
+            },
+            "20": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.05676611343040423
+            },
+            "30": {
+              "false_alarm_rate": 0.010487730373689034,
+              "detection_rate": 0.07080490785052439
+            },
+            "45": {
+              "false_alarm_rate": 0.010373179920578353,
+              "detection_rate": 0.07966347622441707
+            },
+            "60": {
+              "false_alarm_rate": 0.010233173811220853,
+              "detection_rate": 0.075336014662458
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004225638936971795,
+          "first_flag_detection_rate": 0.027250280012218714,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04174727624478159,
+              "detection_rate": 0.04174727624478159
+            },
+            "10": {
+              "false_alarm_rate": 0.04344007738519499,
+              "detection_rate": 0.04918032786885246
+            },
+            "15": {
+              "false_alarm_rate": 0.04668567355666429,
+              "detection_rate": 0.2183968027695754
+            },
+            "20": {
+              "false_alarm_rate": 0.048187557275226556,
+              "detection_rate": 0.2576876081865391
+            },
+            "30": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.2764866103248142
+            },
+            "45": {
+              "false_alarm_rate": 0.04943488443132064,
+              "detection_rate": 0.2642297118419713
+            },
+            "60": {
+              "false_alarm_rate": 0.048976682618877915,
+              "detection_rate": 0.2501527339374809
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.019575399653803074,
+          "first_flag_detection_rate": 0.0856200997861725,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "cv_distance": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "10": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.010334996436208126
+            },
+            "15": {
+              "false_alarm_rate": 0.010551369514306078,
+              "detection_rate": 0.01025862946746767
+            },
+            "20": {
+              "false_alarm_rate": 0.009711332858161083,
+              "detection_rate": 0.009953161592505855
+            },
+            "30": {
+              "false_alarm_rate": 0.0100168007331229,
+              "detection_rate": 0.010118623358110172
+            },
+            "45": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009596782405050403
+            },
+            "60": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.009800427655024946
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004123816311984523,
+          "first_flag_detection_rate": 0.0036910701557886162,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03797983912025252,
+              "detection_rate": 0.03797983912025252
+            },
+            "10": {
+              "false_alarm_rate": 0.037699826901537524,
+              "detection_rate": 0.0373943590265757
+            },
+            "15": {
+              "false_alarm_rate": 0.04268913552591386,
+              "detection_rate": 0.04279095815090113
+            },
+            "20": {
+              "false_alarm_rate": 0.046978413603502696,
+              "detection_rate": 0.04645657265044293
+            },
+            "30": {
+              "false_alarm_rate": 0.04854393646268201,
+              "detection_rate": 0.04821301293147337
+            },
+            "45": {
+              "false_alarm_rate": 0.050007636696874046,
+              "detection_rate": 0.05019855411872518
+            },
+            "60": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.048862132165767236
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.01677527746665309,
+          "first_flag_detection_rate": 0.014777008451277874,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "turn": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "10": {
+              "false_alarm_rate": 0.007763975155279503,
+              "detection_rate": 0.007623969045922004
+            },
+            "15": {
+              "false_alarm_rate": 0.008744017920781997,
+              "detection_rate": 0.005294776499338153
+            },
+            "20": {
+              "false_alarm_rate": 0.008922207514509724,
+              "detection_rate": 0.003487424905814072
+            },
+            "30": {
+              "false_alarm_rate": 0.010347724264331535,
+              "detection_rate": 0.0019600855310049894
+            },
+            "45": {
+              "false_alarm_rate": 0.011467773139191529,
+              "detection_rate": 0.0019219020466347623
+            },
+            "60": {
+              "false_alarm_rate": 0.011162305264229712,
+              "detection_rate": 0.0019982690153752163
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.006160268811729966,
+          "first_flag_detection_rate": 0.0019219020466347623,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04774208329090724,
+              "detection_rate": 0.04774208329090724
+            },
+            "10": {
+              "false_alarm_rate": 0.045514713369310664,
+              "detection_rate": 0.0459983708380002
+            },
+            "15": {
+              "false_alarm_rate": 0.04593473169738316,
+              "detection_rate": 0.03764891558904389
+            },
+            "20": {
+              "false_alarm_rate": 0.04645657265044293,
+              "detection_rate": 0.02627023724671622
+            },
+            "30": {
+              "false_alarm_rate": 0.05041492719682313,
+              "detection_rate": 0.013058751654617656
+            },
+            "45": {
+              "false_alarm_rate": 0.05245137969656858,
+              "detection_rate": 0.012155075857855616
+            },
+            "60": {
+              "false_alarm_rate": 0.05215863964973017,
+              "detection_rate": 0.013376947357702881
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.030088585683738928,
+          "first_flag_detection_rate": 0.01025862946746767,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "speed": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010462274717442216,
+              "detection_rate": 0.010462274717442216
+            },
+            "10": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "15": {
+              "false_alarm_rate": 0.01106048263924244,
+              "detection_rate": 0.01106048263924244
+            },
+            "20": {
+              "false_alarm_rate": 0.0117096018735363,
+              "detection_rate": 0.0117096018735363
+            },
+            "30": {
+              "false_alarm_rate": 0.012065981060991752,
+              "detection_rate": 0.012065981060991752
+            },
+            "45": {
+              "false_alarm_rate": 0.011976886264127889,
+              "detection_rate": 0.011976886264127889
+            },
+            "60": {
+              "false_alarm_rate": 0.011900519295387435,
+              "detection_rate": 0.011900519295387435
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.0040219936869972505,
+          "first_flag_detection_rate": 0.0031437735464820283,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03903624885449547,
+              "detection_rate": 0.03903624885449547
+            },
+            "10": {
+              "false_alarm_rate": 0.05024946543121882,
+              "detection_rate": 0.05024946543121882
+            },
+            "15": {
+              "false_alarm_rate": 0.048467569493941556,
+              "detection_rate": 0.048467569493941556
+            },
+            "20": {
+              "false_alarm_rate": 0.04758934935342633,
+              "detection_rate": 0.04758934935342633
+            },
+            "30": {
+              "false_alarm_rate": 0.048862132165767236,
+              "detection_rate": 0.048862132165767236
+            },
+            "45": {
+              "false_alarm_rate": 0.049663985337542,
+              "detection_rate": 0.049663985337542
+            },
+            "60": {
+              "false_alarm_rate": 0.050618572446797676,
+              "detection_rate": 0.050618572446797676
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.017882598513389674,
+          "first_flag_detection_rate": 0.014637002341920375,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      }
+    },
+    "turn_60": {
+      "model_box": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010042256389369718,
+              "detection_rate": 0.010042256389369718
+            },
+            "10": {
+              "false_alarm_rate": 0.00962223806129722,
+              "detection_rate": 0.011735057529783119
+            },
+            "15": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.061679055086040116
+            },
+            "20": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.10748650850218919
+            },
+            "30": {
+              "false_alarm_rate": 0.010487730373689034,
+              "detection_rate": 0.13001476428062314
+            },
+            "45": {
+              "false_alarm_rate": 0.010373179920578353,
+              "detection_rate": 0.13116026881172996
+            },
+            "60": {
+              "false_alarm_rate": 0.010233173811220853,
+              "detection_rate": 0.12106710110986661
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004225638936971795,
+          "first_flag_detection_rate": 0.04070359433866205,
+          "median_delay_min": 20.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04174727624478159,
+              "detection_rate": 0.04174727624478159
+            },
+            "10": {
+              "false_alarm_rate": 0.04344007738519499,
+              "detection_rate": 0.048798493025150186
+            },
+            "15": {
+              "false_alarm_rate": 0.04668567355666429,
+              "detection_rate": 0.2907926891355259
+            },
+            "20": {
+              "false_alarm_rate": 0.048187557275226556,
+              "detection_rate": 0.36509774971998776
+            },
+            "30": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.3869259749516343
+            },
+            "45": {
+              "false_alarm_rate": 0.04943488443132064,
+              "detection_rate": 0.372696263109663
+            },
+            "60": {
+              "false_alarm_rate": 0.048976682618877915,
+              "detection_rate": 0.3542790958150901
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.019575399653803074,
+          "first_flag_detection_rate": 0.13809693513898788,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "cv_distance": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "10": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.010385907748701762
+            },
+            "15": {
+              "false_alarm_rate": 0.010551369514306078,
+              "detection_rate": 0.01028408512371449
+            },
+            "20": {
+              "false_alarm_rate": 0.009711332858161083,
+              "detection_rate": 0.010233173811220853
+            },
+            "30": {
+              "false_alarm_rate": 0.0100168007331229,
+              "detection_rate": 0.012116892373485389
+            },
+            "45": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.011671418389166072
+            },
+            "60": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.011811424498523572
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004123816311984523,
+          "first_flag_detection_rate": 0.00468384074941452,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03797983912025252,
+              "detection_rate": 0.03797983912025252
+            },
+            "10": {
+              "false_alarm_rate": 0.037699826901537524,
+              "detection_rate": 0.03762345993279707
+            },
+            "15": {
+              "false_alarm_rate": 0.04268913552591386,
+              "detection_rate": 0.04332552693208431
+            },
+            "20": {
+              "false_alarm_rate": 0.046978413603502696,
+              "detection_rate": 0.04720751450972406
+            },
+            "30": {
+              "false_alarm_rate": 0.04854393646268201,
+              "detection_rate": 0.04722024233784747
+            },
+            "45": {
+              "false_alarm_rate": 0.050007636696874046,
+              "detection_rate": 0.049587618368801545
+            },
+            "60": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.04710569188473679
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.01677527746665309,
+          "first_flag_detection_rate": 0.016635271357295593,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "turn": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "10": {
+              "false_alarm_rate": 0.007763975155279503,
+              "detection_rate": 0.007331228999083597
+            },
+            "15": {
+              "false_alarm_rate": 0.008744017920781997,
+              "detection_rate": 0.005014764280623155
+            },
+            "20": {
+              "false_alarm_rate": 0.008922207514509724,
+              "detection_rate": 0.0028255778433968026
+            },
+            "30": {
+              "false_alarm_rate": 0.010347724264331535,
+              "detection_rate": 0.0013618776092047652
+            },
+            "45": {
+              "false_alarm_rate": 0.011467773139191529,
+              "detection_rate": 0.0011455045311068118
+            },
+            "60": {
+              "false_alarm_rate": 0.011162305264229712,
+              "detection_rate": 0.001120048874859994
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.006160268811729966,
+          "first_flag_detection_rate": 0.0013491497810813563,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04774208329090724,
+              "detection_rate": 0.04774208329090724
+            },
+            "10": {
+              "false_alarm_rate": 0.045514713369310664,
+              "detection_rate": 0.04604928215049384
+            },
+            "15": {
+              "false_alarm_rate": 0.04593473169738316,
+              "detection_rate": 0.03711434680786071
+            },
+            "20": {
+              "false_alarm_rate": 0.04645657265044293,
+              "detection_rate": 0.022922818450259647
+            },
+            "30": {
+              "false_alarm_rate": 0.05041492719682313,
+              "detection_rate": 0.009774971998778128
+            },
+            "45": {
+              "false_alarm_rate": 0.05245137969656858,
+              "detection_rate": 0.007089400264738825
+            },
+            "60": {
+              "false_alarm_rate": 0.05215863964973017,
+              "detection_rate": 0.007483962936564505
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.030088585683738928,
+          "first_flag_detection_rate": 0.008565828327054272,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "speed": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010462274717442216,
+              "detection_rate": 0.010462274717442216
+            },
+            "10": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "15": {
+              "false_alarm_rate": 0.01106048263924244,
+              "detection_rate": 0.01106048263924244
+            },
+            "20": {
+              "false_alarm_rate": 0.0117096018735363,
+              "detection_rate": 0.0117096018735363
+            },
+            "30": {
+              "false_alarm_rate": 0.012065981060991752,
+              "detection_rate": 0.012065981060991752
+            },
+            "45": {
+              "false_alarm_rate": 0.011976886264127889,
+              "detection_rate": 0.011976886264127889
+            },
+            "60": {
+              "false_alarm_rate": 0.011900519295387435,
+              "detection_rate": 0.011900519295387435
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.0040219936869972505,
+          "first_flag_detection_rate": 0.0031437735464820283,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03903624885449547,
+              "detection_rate": 0.03903624885449547
+            },
+            "10": {
+              "false_alarm_rate": 0.05024946543121882,
+              "detection_rate": 0.05024946543121882
+            },
+            "15": {
+              "false_alarm_rate": 0.048467569493941556,
+              "detection_rate": 0.048467569493941556
+            },
+            "20": {
+              "false_alarm_rate": 0.04758934935342633,
+              "detection_rate": 0.04758934935342633
+            },
+            "30": {
+              "false_alarm_rate": 0.048862132165767236,
+              "detection_rate": 0.048862132165767236
+            },
+            "45": {
+              "false_alarm_rate": 0.049663985337542,
+              "detection_rate": 0.049663985337542
+            },
+            "60": {
+              "false_alarm_rate": 0.050618572446797676,
+              "detection_rate": 0.050618572446797676
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.017882598513389674,
+          "first_flag_detection_rate": 0.014637002341920375,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      }
+    },
+    "turn_90": {
+      "model_box": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010042256389369718,
+              "detection_rate": 0.010042256389369718
+            },
+            "10": {
+              "false_alarm_rate": 0.00962223806129722,
+              "detection_rate": 0.011684146217289481
+            },
+            "15": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.061602688117299666
+            },
+            "20": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.13060024437429996
+            },
+            "30": {
+              "false_alarm_rate": 0.010487730373689034,
+              "detection_rate": 0.16413807147948273
+            },
+            "45": {
+              "false_alarm_rate": 0.010373179920578353,
+              "detection_rate": 0.15949241421443844
+            },
+            "60": {
+              "false_alarm_rate": 0.010233173811220853,
+              "detection_rate": 0.1482791976377151
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004225638936971795,
+          "first_flag_detection_rate": 0.04724569799409429,
+          "median_delay_min": 20.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04174727624478159,
+              "detection_rate": 0.04174727624478159
+            },
+            "10": {
+              "false_alarm_rate": 0.04344007738519499,
+              "detection_rate": 0.048938499134507686
+            },
+            "15": {
+              "false_alarm_rate": 0.04668567355666429,
+              "detection_rate": 0.2899526524793809
+            },
+            "20": {
+              "false_alarm_rate": 0.048187557275226556,
+              "detection_rate": 0.40198299562162715
+            },
+            "30": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.43081152632114855
+            },
+            "45": {
+              "false_alarm_rate": 0.04943488443132064,
+              "detection_rate": 0.4180327868852459
+            },
+            "60": {
+              "false_alarm_rate": 0.048976682618877915,
+              "detection_rate": 0.3982919254658385
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.019575399653803074,
+          "first_flag_detection_rate": 0.1643417167294573,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "cv_distance": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "10": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.010322268608084717
+            },
+            "15": {
+              "false_alarm_rate": 0.010551369514306078,
+              "detection_rate": 0.010322268608084717
+            },
+            "20": {
+              "false_alarm_rate": 0.009711332858161083,
+              "detection_rate": 0.010067712045616536
+            },
+            "30": {
+              "false_alarm_rate": 0.0100168007331229,
+              "detection_rate": 0.013707870888911516
+            },
+            "45": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.014382445779452194
+            },
+            "60": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.014853375420018328
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004123816311984523,
+          "first_flag_detection_rate": 0.00585480093676815,
+          "median_delay_min": 20.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03797983912025252,
+              "detection_rate": 0.03797983912025252
+            },
+            "10": {
+              "false_alarm_rate": 0.037699826901537524,
+              "detection_rate": 0.03747072599531616
+            },
+            "15": {
+              "false_alarm_rate": 0.04268913552591386,
+              "detection_rate": 0.042841869463394765
+            },
+            "20": {
+              "false_alarm_rate": 0.046978413603502696,
+              "detection_rate": 0.04538743508807657
+            },
+            "30": {
+              "false_alarm_rate": 0.04854393646268201,
+              "detection_rate": 0.04685113532226861
+            },
+            "45": {
+              "false_alarm_rate": 0.050007636696874046,
+              "detection_rate": 0.04962580185317177
+            },
+            "60": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.04799663985337542
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.01677527746665309,
+          "first_flag_detection_rate": 0.01883718562264535,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "turn": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "10": {
+              "false_alarm_rate": 0.007763975155279503,
+              "detection_rate": 0.007509418592811323
+            },
+            "15": {
+              "false_alarm_rate": 0.008744017920781997,
+              "detection_rate": 0.004849302515018837
+            },
+            "20": {
+              "false_alarm_rate": 0.008922207514509724,
+              "detection_rate": 0.0032583239995927094
+            },
+            "30": {
+              "false_alarm_rate": 0.010347724264331535,
+              "detection_rate": 0.0016800733122899908
+            },
+            "45": {
+              "false_alarm_rate": 0.011467773139191529,
+              "detection_rate": 0.0015655228591793097
+            },
+            "60": {
+              "false_alarm_rate": 0.011162305264229712,
+              "detection_rate": 0.0017182567966602179
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.006160268811729966,
+          "first_flag_detection_rate": 0.0014382445779452194,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04774208329090724,
+              "detection_rate": 0.04774208329090724
+            },
+            "10": {
+              "false_alarm_rate": 0.045514713369310664,
+              "detection_rate": 0.046087465634864065
+            },
+            "15": {
+              "false_alarm_rate": 0.04593473169738316,
+              "detection_rate": 0.03636340494857957
+            },
+            "20": {
+              "false_alarm_rate": 0.04645657265044293,
+              "detection_rate": 0.026995723449750535
+            },
+            "30": {
+              "false_alarm_rate": 0.05041492719682313,
+              "detection_rate": 0.011862335811017208
+            },
+            "45": {
+              "false_alarm_rate": 0.05245137969656858,
+              "detection_rate": 0.009087669280114041
+            },
+            "60": {
+              "false_alarm_rate": 0.05215863964973017,
+              "detection_rate": 0.009342225842582222
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.030088585683738928,
+          "first_flag_detection_rate": 0.009673149373790857,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "speed": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010462274717442216,
+              "detection_rate": 0.010462274717442216
+            },
+            "10": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "15": {
+              "false_alarm_rate": 0.01106048263924244,
+              "detection_rate": 0.01106048263924244
+            },
+            "20": {
+              "false_alarm_rate": 0.0117096018735363,
+              "detection_rate": 0.0117096018735363
+            },
+            "30": {
+              "false_alarm_rate": 0.012065981060991752,
+              "detection_rate": 0.012065981060991752
+            },
+            "45": {
+              "false_alarm_rate": 0.011976886264127889,
+              "detection_rate": 0.011976886264127889
+            },
+            "60": {
+              "false_alarm_rate": 0.011900519295387435,
+              "detection_rate": 0.011900519295387435
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.0040219936869972505,
+          "first_flag_detection_rate": 0.0031437735464820283,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03903624885449547,
+              "detection_rate": 0.03903624885449547
+            },
+            "10": {
+              "false_alarm_rate": 0.05024946543121882,
+              "detection_rate": 0.05024946543121882
+            },
+            "15": {
+              "false_alarm_rate": 0.048467569493941556,
+              "detection_rate": 0.048467569493941556
+            },
+            "20": {
+              "false_alarm_rate": 0.04758934935342633,
+              "detection_rate": 0.04758934935342633
+            },
+            "30": {
+              "false_alarm_rate": 0.048862132165767236,
+              "detection_rate": 0.048862132165767236
+            },
+            "45": {
+              "false_alarm_rate": 0.049663985337542,
+              "detection_rate": 0.049663985337542
+            },
+            "60": {
+              "false_alarm_rate": 0.050618572446797676,
+              "detection_rate": 0.050618572446797676
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.017882598513389674,
+          "first_flag_detection_rate": 0.014637002341920375,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      }
+    },
+    "stop": {
+      "model_box": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010042256389369718,
+              "detection_rate": 0.010042256389369718
+            },
+            "10": {
+              "false_alarm_rate": 0.00962223806129722,
+              "detection_rate": 0.011047754811119031
+            },
+            "15": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.09717696772222788
+            },
+            "20": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.14062977293554627
+            },
+            "30": {
+              "false_alarm_rate": 0.010487730373689034,
+              "detection_rate": 0.13380765706139905
+            },
+            "45": {
+              "false_alarm_rate": 0.010373179920578353,
+              "detection_rate": 0.11946339476631708
+            },
+            "60": {
+              "false_alarm_rate": 0.010233173811220853,
+              "detection_rate": 0.10024437429996945
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004225638936971795,
+          "first_flag_detection_rate": 0.02495927095000509,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04174727624478159,
+              "detection_rate": 0.04174727624478159
+            },
+            "10": {
+              "false_alarm_rate": 0.04344007738519499,
+              "detection_rate": 0.050262193259342225
+            },
+            "15": {
+              "false_alarm_rate": 0.04668567355666429,
+              "detection_rate": 0.3559209856430099
+            },
+            "20": {
+              "false_alarm_rate": 0.048187557275226556,
+              "detection_rate": 0.39339171163832604
+            },
+            "30": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.4027593931371551
+            },
+            "45": {
+              "false_alarm_rate": 0.04943488443132064,
+              "detection_rate": 0.3907952347011506
+            },
+            "60": {
+              "false_alarm_rate": 0.048976682618877915,
+              "detection_rate": 0.37563639140617044
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.019575399653803074,
+          "first_flag_detection_rate": 0.1349022502800122,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "cv_distance": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "10": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.010067712045616536
+            },
+            "15": {
+              "false_alarm_rate": 0.010551369514306078,
+              "detection_rate": 0.0073694124834538235
+            },
+            "20": {
+              "false_alarm_rate": 0.009711332858161083,
+              "detection_rate": 0.005345687811831789
+            },
+            "30": {
+              "false_alarm_rate": 0.0100168007331229,
+              "detection_rate": 0.004391100702576112
+            },
+            "45": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.003067406577741574
+            },
+            "60": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.003589247530801344
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004123816311984523,
+          "first_flag_detection_rate": 0.0015018837185622645,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03797983912025252,
+              "detection_rate": 0.03797983912025252
+            },
+            "10": {
+              "false_alarm_rate": 0.037699826901537524,
+              "detection_rate": 0.03692342938600957
+            },
+            "15": {
+              "false_alarm_rate": 0.04268913552591386,
+              "detection_rate": 0.03655432237043071
+            },
+            "20": {
+              "false_alarm_rate": 0.046978413603502696,
+              "detection_rate": 0.039163527135729556
+            },
+            "30": {
+              "false_alarm_rate": 0.04854393646268201,
+              "detection_rate": 0.0399271968231341
+            },
+            "45": {
+              "false_alarm_rate": 0.050007636696874046,
+              "detection_rate": 0.04089451176051319
+            },
+            "60": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.038310762651461154
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.01677527746665309,
+          "first_flag_detection_rate": 0.007433051624070868,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "turn": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "10": {
+              "false_alarm_rate": 0.007763975155279503,
+              "detection_rate": 0.007751247327156094
+            },
+            "15": {
+              "false_alarm_rate": 0.008744017920781997,
+              "detection_rate": 0.005358415639955198
+            },
+            "20": {
+              "false_alarm_rate": 0.008922207514509724,
+              "detection_rate": 0.0022910090622136237
+            },
+            "30": {
+              "false_alarm_rate": 0.010347724264331535,
+              "detection_rate": 0.0005982079218002241
+            },
+            "45": {
+              "false_alarm_rate": 0.011467773139191529,
+              "detection_rate": 0.0002800122187149985
+            },
+            "60": {
+              "false_alarm_rate": 0.011162305264229712,
+              "detection_rate": 0.00016546176560431727
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.006160268811729966,
+          "first_flag_detection_rate": 0.0013364219529579473,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04774208329090724,
+              "detection_rate": 0.04774208329090724
+            },
+            "10": {
+              "false_alarm_rate": 0.045514713369310664,
+              "detection_rate": 0.04506923938499135
+            },
+            "15": {
+              "false_alarm_rate": 0.04593473169738316,
+              "detection_rate": 0.030890438855513694
+            },
+            "20": {
+              "false_alarm_rate": 0.04645657265044293,
+              "detection_rate": 0.015324305060584463
+            },
+            "30": {
+              "false_alarm_rate": 0.05041492719682313,
+              "detection_rate": 0.004072904999490887
+            },
+            "45": {
+              "false_alarm_rate": 0.05245137969656858,
+              "detection_rate": 0.001781895937277263
+            },
+            "60": {
+              "false_alarm_rate": 0.05215863964973017,
+              "detection_rate": 0.0012473271560940842
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.030088585683738928,
+          "first_flag_detection_rate": 0.007496690764687914,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "speed": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010462274717442216,
+              "detection_rate": 0.010462274717442216
+            },
+            "10": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010475002545565625
+            },
+            "15": {
+              "false_alarm_rate": 0.01106048263924244,
+              "detection_rate": 0.02260462274717442
+            },
+            "20": {
+              "false_alarm_rate": 0.0117096018735363,
+              "detection_rate": 0.01937175440382853
+            },
+            "30": {
+              "false_alarm_rate": 0.012065981060991752,
+              "detection_rate": 0.01704256185724468
+            },
+            "45": {
+              "false_alarm_rate": 0.011976886264127889,
+              "detection_rate": 0.01496792587312901
+            },
+            "60": {
+              "false_alarm_rate": 0.011900519295387435,
+              "detection_rate": 0.01365695957641788
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.0040219936869972505,
+          "first_flag_detection_rate": 0.0045438346400570205,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03903624885449547,
+              "detection_rate": 0.03903624885449547
+            },
+            "10": {
+              "false_alarm_rate": 0.05024946543121882,
+              "detection_rate": 0.05111495774361063
+            },
+            "15": {
+              "false_alarm_rate": 0.048467569493941556,
+              "detection_rate": 0.08889115161388861
+            },
+            "20": {
+              "false_alarm_rate": 0.04758934935342633,
+              "detection_rate": 0.06948121372568984
+            },
+            "30": {
+              "false_alarm_rate": 0.048862132165767236,
+              "detection_rate": 0.061042663679869665
+            },
+            "45": {
+              "false_alarm_rate": 0.049663985337542,
+              "detection_rate": 0.05582425414927197
+            },
+            "60": {
+              "false_alarm_rate": 0.050618572446797676,
+              "detection_rate": 0.053762345993279705
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.017882598513389674,
+          "first_flag_detection_rate": 0.01910447001323694,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      }
+    },
+    "slow_50pct": {
+      "model_box": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010042256389369718,
+              "detection_rate": 0.010042256389369718
+            },
+            "10": {
+              "false_alarm_rate": 0.00962223806129722,
+              "detection_rate": 0.015553405966805824
+            },
+            "15": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.048696670400162914
+            },
+            "20": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.05831890846146014
+            },
+            "30": {
+              "false_alarm_rate": 0.010487730373689034,
+              "detection_rate": 0.05688066388351492
+            },
+            "45": {
+              "false_alarm_rate": 0.010373179920578353,
+              "detection_rate": 0.054538743508807656
+            },
+            "60": {
+              "false_alarm_rate": 0.010233173811220853,
+              "detection_rate": 0.047551165869056104
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004225638936971795,
+          "first_flag_detection_rate": 0.017118928825985133,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04174727624478159,
+              "detection_rate": 0.04174727624478159
+            },
+            "10": {
+              "false_alarm_rate": 0.04344007738519499,
+              "detection_rate": 0.08490734141126158
+            },
+            "15": {
+              "false_alarm_rate": 0.04668567355666429,
+              "detection_rate": 0.2961129212911109
+            },
+            "20": {
+              "false_alarm_rate": 0.048187557275226556,
+              "detection_rate": 0.3059769880867529
+            },
+            "30": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.3027186640871602
+            },
+            "45": {
+              "false_alarm_rate": 0.04943488443132064,
+              "detection_rate": 0.29057631605742795
+            },
+            "60": {
+              "false_alarm_rate": 0.048976682618877915,
+              "detection_rate": 0.2725409836065574
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.019575399653803074,
+          "first_flag_detection_rate": 0.06540830872619896,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "cv_distance": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "10": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.009558598920680176
+            },
+            "15": {
+              "false_alarm_rate": 0.010551369514306078,
+              "detection_rate": 0.00780215863964973
+            },
+            "20": {
+              "false_alarm_rate": 0.009711332858161083,
+              "detection_rate": 0.006020262702372467
+            },
+            "30": {
+              "false_alarm_rate": 0.0100168007331229,
+              "detection_rate": 0.006096629671112921
+            },
+            "45": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.005511149577436107
+            },
+            "60": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.005956623561755422
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004123816311984523,
+          "first_flag_detection_rate": 0.0014637002341920376,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03797983912025252,
+              "detection_rate": 0.03797983912025252
+            },
+            "10": {
+              "false_alarm_rate": 0.037699826901537524,
+              "detection_rate": 0.036376132776702985
+            },
+            "15": {
+              "false_alarm_rate": 0.04268913552591386,
+              "detection_rate": 0.036872518073515936
+            },
+            "20": {
+              "false_alarm_rate": 0.046978413603502696,
+              "detection_rate": 0.03708889115161389
+            },
+            "30": {
+              "false_alarm_rate": 0.04854393646268201,
+              "detection_rate": 0.034301496792587316
+            },
+            "45": {
+              "false_alarm_rate": 0.050007636696874046,
+              "detection_rate": 0.03669432847978821
+            },
+            "60": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.03232868343345891
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.01677527746665309,
+          "first_flag_detection_rate": 0.009164036248854495,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "turn": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "10": {
+              "false_alarm_rate": 0.007763975155279503,
+              "detection_rate": 0.007598513389675186
+            },
+            "15": {
+              "false_alarm_rate": 0.008744017920781997,
+              "detection_rate": 0.008425822217696772
+            },
+            "20": {
+              "false_alarm_rate": 0.008922207514509724,
+              "detection_rate": 0.008756745748905406
+            },
+            "30": {
+              "false_alarm_rate": 0.010347724264331535,
+              "detection_rate": 0.010296812951837899
+            },
+            "45": {
+              "false_alarm_rate": 0.011467773139191529,
+              "detection_rate": 0.01144231748294471
+            },
+            "60": {
+              "false_alarm_rate": 0.011162305264229712,
+              "detection_rate": 0.011111393951736076
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.006160268811729966,
+          "first_flag_detection_rate": 0.0050402199368699725,
+          "median_delay_min": 20.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04774208329090724,
+              "detection_rate": 0.04774208329090724
+            },
+            "10": {
+              "false_alarm_rate": 0.045514713369310664,
+              "detection_rate": 0.04407646879136544
+            },
+            "15": {
+              "false_alarm_rate": 0.04593473169738316,
+              "detection_rate": 0.04447103146319112
+            },
+            "20": {
+              "false_alarm_rate": 0.04645657265044293,
+              "detection_rate": 0.045158334181855206
+            },
+            "30": {
+              "false_alarm_rate": 0.05041492719682313,
+              "detection_rate": 0.049663985337542
+            },
+            "45": {
+              "false_alarm_rate": 0.05245137969656858,
+              "detection_rate": 0.051967722227879036
+            },
+            "60": {
+              "false_alarm_rate": 0.05215863964973017,
+              "detection_rate": 0.051611343040423585
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.030088585683738928,
+          "first_flag_detection_rate": 0.024895631809388048,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "speed": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010462274717442216,
+              "detection_rate": 0.010462274717442216
+            },
+            "10": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.011365950514204257
+            },
+            "15": {
+              "false_alarm_rate": 0.01106048263924244,
+              "detection_rate": 0.011658690561042663
+            },
+            "20": {
+              "false_alarm_rate": 0.0117096018735363,
+              "detection_rate": 0.012371448935953568
+            },
+            "30": {
+              "false_alarm_rate": 0.012065981060991752,
+              "detection_rate": 0.012753283779655839
+            },
+            "45": {
+              "false_alarm_rate": 0.011976886264127889,
+              "detection_rate": 0.012460543732817433
+            },
+            "60": {
+              "false_alarm_rate": 0.011900519295387435,
+              "detection_rate": 0.012244170654719479
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.0040219936869972505,
+          "first_flag_detection_rate": 0.0033346909683331636,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03903624885449547,
+              "detection_rate": 0.03903624885449547
+            },
+            "10": {
+              "false_alarm_rate": 0.05024946543121882,
+              "detection_rate": 0.062468180429691475
+            },
+            "15": {
+              "false_alarm_rate": 0.048467569493941556,
+              "detection_rate": 0.05156043172792995
+            },
+            "20": {
+              "false_alarm_rate": 0.04758934935342633,
+              "detection_rate": 0.049943997556257
+            },
+            "30": {
+              "false_alarm_rate": 0.048862132165767236,
+              "detection_rate": 0.04960034619692496
+            },
+            "45": {
+              "false_alarm_rate": 0.049663985337542,
+              "detection_rate": 0.049689440993788817
+            },
+            "60": {
+              "false_alarm_rate": 0.050618572446797676,
+              "detection_rate": 0.049867630587516545
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.017882598513389674,
+          "first_flag_detection_rate": 0.01508247632623969,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      }
+    },
+    "slow_75pct": {
+      "model_box": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010042256389369718,
+              "detection_rate": 0.010042256389369718
+            },
+            "10": {
+              "false_alarm_rate": 0.00962223806129722,
+              "detection_rate": 0.011620507076672436
+            },
+            "15": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.01952448834130944
+            },
+            "20": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.024221056918847367
+            },
+            "30": {
+              "false_alarm_rate": 0.010487730373689034,
+              "detection_rate": 0.026333876387333265
+            },
+            "45": {
+              "false_alarm_rate": 0.010373179920578353,
+              "detection_rate": 0.028026677527746666
+            },
+            "60": {
+              "false_alarm_rate": 0.010233173811220853,
+              "detection_rate": 0.026333876387333265
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004225638936971795,
+          "first_flag_detection_rate": 0.010373179920578353,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04174727624478159,
+              "detection_rate": 0.04174727624478159
+            },
+            "10": {
+              "false_alarm_rate": 0.04344007738519499,
+              "detection_rate": 0.05359688422767539
+            },
+            "15": {
+              "false_alarm_rate": 0.04668567355666429,
+              "detection_rate": 0.13005294776499338
+            },
+            "20": {
+              "false_alarm_rate": 0.048187557275226556,
+              "detection_rate": 0.14932287954383464
+            },
+            "30": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.1478209958252724
+            },
+            "45": {
+              "false_alarm_rate": 0.04943488443132064,
+              "detection_rate": 0.14060431727929945
+            },
+            "60": {
+              "false_alarm_rate": 0.048976682618877915,
+              "detection_rate": 0.12819468485897567
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.019575399653803074,
+          "first_flag_detection_rate": 0.03483606557377049,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "cv_distance": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "10": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.0100168007331229
+            },
+            "15": {
+              "false_alarm_rate": 0.010551369514306078,
+              "detection_rate": 0.009176764076977904
+            },
+            "20": {
+              "false_alarm_rate": 0.009711332858161083,
+              "detection_rate": 0.007700336014662458
+            },
+            "30": {
+              "false_alarm_rate": 0.0100168007331229,
+              "detection_rate": 0.007789430811526321
+            },
+            "45": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.007331228999083597
+            },
+            "60": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.007993076061500865
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004123816311984523,
+          "first_flag_detection_rate": 0.0022910090622136237,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03797983912025252,
+              "detection_rate": 0.03797983912025252
+            },
+            "10": {
+              "false_alarm_rate": 0.037699826901537524,
+              "detection_rate": 0.03674523979228184
+            },
+            "15": {
+              "false_alarm_rate": 0.04268913552591386,
+              "detection_rate": 0.038590774870176155
+            },
+            "20": {
+              "false_alarm_rate": 0.046978413603502696,
+              "detection_rate": 0.03991446899501069
+            },
+            "30": {
+              "false_alarm_rate": 0.04854393646268201,
+              "detection_rate": 0.038947154057631606
+            },
+            "45": {
+              "false_alarm_rate": 0.050007636696874046,
+              "detection_rate": 0.04239639547907545
+            },
+            "60": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.041760004072905
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.01677527746665309,
+          "first_flag_detection_rate": 0.011747785357906528,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "turn": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "10": {
+              "false_alarm_rate": 0.007763975155279503,
+              "detection_rate": 0.007751247327156094
+            },
+            "15": {
+              "false_alarm_rate": 0.008744017920781997,
+              "detection_rate": 0.008693106608288361
+            },
+            "20": {
+              "false_alarm_rate": 0.008922207514509724,
+              "detection_rate": 0.008871296202016089
+            },
+            "30": {
+              "false_alarm_rate": 0.010347724264331535,
+              "detection_rate": 0.010347724264331535
+            },
+            "45": {
+              "false_alarm_rate": 0.011467773139191529,
+              "detection_rate": 0.011467773139191529
+            },
+            "60": {
+              "false_alarm_rate": 0.011162305264229712,
+              "detection_rate": 0.011162305264229712
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.006160268811729966,
+          "first_flag_detection_rate": 0.005078403421240199,
+          "median_delay_min": 20.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04774208329090724,
+              "detection_rate": 0.04774208329090724
+            },
+            "10": {
+              "false_alarm_rate": 0.045514713369310664,
+              "detection_rate": 0.04499287241625089
+            },
+            "15": {
+              "false_alarm_rate": 0.04593473169738316,
+              "detection_rate": 0.04523470115059566
+            },
+            "20": {
+              "false_alarm_rate": 0.04645657265044293,
+              "detection_rate": 0.045972915181753386
+            },
+            "30": {
+              "false_alarm_rate": 0.05041492719682313,
+              "detection_rate": 0.05021128194684859
+            },
+            "45": {
+              "false_alarm_rate": 0.05245137969656858,
+              "detection_rate": 0.052362284899704716
+            },
+            "60": {
+              "false_alarm_rate": 0.05215863964973017,
+              "detection_rate": 0.05199317788412585
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.030088585683738928,
+          "first_flag_detection_rate": 0.0252520109968435,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "speed": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010462274717442216,
+              "detection_rate": 0.010462274717442216
+            },
+            "10": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010551369514306078
+            },
+            "15": {
+              "false_alarm_rate": 0.01106048263924244,
+              "detection_rate": 0.011276855717340393
+            },
+            "20": {
+              "false_alarm_rate": 0.0117096018735363,
+              "detection_rate": 0.012040525404744934
+            },
+            "30": {
+              "false_alarm_rate": 0.012065981060991752,
+              "detection_rate": 0.012447815904694024
+            },
+            "45": {
+              "false_alarm_rate": 0.011976886264127889,
+              "detection_rate": 0.01223144282659607
+            },
+            "60": {
+              "false_alarm_rate": 0.011900519295387435,
+              "detection_rate": 0.012015069748498116
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.0040219936869972505,
+          "first_flag_detection_rate": 0.003194684858975664,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03903624885449547,
+              "detection_rate": 0.03903624885449547
+            },
+            "10": {
+              "false_alarm_rate": 0.05024946543121882,
+              "detection_rate": 0.05144588127481926
+            },
+            "15": {
+              "false_alarm_rate": 0.048467569493941556,
+              "detection_rate": 0.04926942266571632
+            },
+            "20": {
+              "false_alarm_rate": 0.04758934935342633,
+              "detection_rate": 0.047945728540881784
+            },
+            "30": {
+              "false_alarm_rate": 0.048862132165767236,
+              "detection_rate": 0.048365746868954285
+            },
+            "45": {
+              "false_alarm_rate": 0.049663985337542,
+              "detection_rate": 0.04874758171265655
+            },
+            "60": {
+              "false_alarm_rate": 0.050618572446797676,
+              "detection_rate": 0.049231239181346094
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.017882598513389674,
+          "first_flag_detection_rate": 0.014789736279401283,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      }
+    },
+    "fast_125pct": {
+      "model_box": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010042256389369718,
+              "detection_rate": 0.010042256389369718
+            },
+            "10": {
+              "false_alarm_rate": 0.00962223806129722,
+              "detection_rate": 0.010818653904897668
+            },
+            "15": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.018658996028917626
+            },
+            "20": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.02367376030954078
+            },
+            "30": {
+              "false_alarm_rate": 0.010487730373689034,
+              "detection_rate": 0.02521382751247327
+            },
+            "45": {
+              "false_alarm_rate": 0.010373179920578353,
+              "detection_rate": 0.02717391304347826
+            },
+            "60": {
+              "false_alarm_rate": 0.010233173811220853,
+              "detection_rate": 0.02576112412177986
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004225638936971795,
+          "first_flag_detection_rate": 0.009902250280012218,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04174727624478159,
+              "detection_rate": 0.04174727624478159
+            },
+            "10": {
+              "false_alarm_rate": 0.04344007738519499,
+              "detection_rate": 0.051471336931066085
+            },
+            "15": {
+              "false_alarm_rate": 0.04668567355666429,
+              "detection_rate": 0.14285714285714285
+            },
+            "20": {
+              "false_alarm_rate": 0.048187557275226556,
+              "detection_rate": 0.16061246308929844
+            },
+            "30": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.15516495265247937
+            },
+            "45": {
+              "false_alarm_rate": 0.04943488443132064,
+              "detection_rate": 0.1454408919661949
+            },
+            "60": {
+              "false_alarm_rate": 0.048976682618877915,
+              "detection_rate": 0.13126209143671724
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.019575399653803074,
+          "first_flag_detection_rate": 0.03408512371448936,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "cv_distance": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "10": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.010831381733021077
+            },
+            "15": {
+              "false_alarm_rate": 0.010551369514306078,
+              "detection_rate": 0.012027797576621525
+            },
+            "20": {
+              "false_alarm_rate": 0.009711332858161083,
+              "detection_rate": 0.012193259342225843
+            },
+            "30": {
+              "false_alarm_rate": 0.0100168007331229,
+              "detection_rate": 0.013936971795132879
+            },
+            "45": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.01352968129518379
+            },
+            "60": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.012536910701557887
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004123816311984523,
+          "first_flag_detection_rate": 0.006020262702372467,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03797983912025252,
+              "detection_rate": 0.03797983912025252
+            },
+            "10": {
+              "false_alarm_rate": 0.037699826901537524,
+              "detection_rate": 0.03843804093269525
+            },
+            "15": {
+              "false_alarm_rate": 0.04268913552591386,
+              "detection_rate": 0.04771662763466042
+            },
+            "20": {
+              "false_alarm_rate": 0.046978413603502696,
+              "detection_rate": 0.05548060278993992
+            },
+            "30": {
+              "false_alarm_rate": 0.04854393646268201,
+              "detection_rate": 0.060291721820588534
+            },
+            "45": {
+              "false_alarm_rate": 0.050007636696874046,
+              "detection_rate": 0.06565013746054374
+            },
+            "60": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.05705885347724264
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.01677527746665309,
+          "first_flag_detection_rate": 0.018289889013338764,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "turn": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "10": {
+              "false_alarm_rate": 0.007763975155279503,
+              "detection_rate": 0.007763975155279503
+            },
+            "15": {
+              "false_alarm_rate": 0.008744017920781997,
+              "detection_rate": 0.008782201405152224
+            },
+            "20": {
+              "false_alarm_rate": 0.008922207514509724,
+              "detection_rate": 0.008947663170756542
+            },
+            "30": {
+              "false_alarm_rate": 0.010347724264331535,
+              "detection_rate": 0.010347724264331535
+            },
+            "45": {
+              "false_alarm_rate": 0.011467773139191529,
+              "detection_rate": 0.011493228795438347
+            },
+            "60": {
+              "false_alarm_rate": 0.011162305264229712,
+              "detection_rate": 0.01118776092047653
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.006160268811729966,
+          "first_flag_detection_rate": 0.005078403421240199,
+          "median_delay_min": 20.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04774208329090724,
+              "detection_rate": 0.04774208329090724
+            },
+            "10": {
+              "false_alarm_rate": 0.045514713369310664,
+              "detection_rate": 0.045756542103655436
+            },
+            "15": {
+              "false_alarm_rate": 0.04593473169738316,
+              "detection_rate": 0.04635475002545566
+            },
+            "20": {
+              "false_alarm_rate": 0.04645657265044293,
+              "detection_rate": 0.04677476835352815
+            },
+            "30": {
+              "false_alarm_rate": 0.05041492719682313,
+              "detection_rate": 0.050580388962427454
+            },
+            "45": {
+              "false_alarm_rate": 0.05245137969656858,
+              "detection_rate": 0.052616841462172895
+            },
+            "60": {
+              "false_alarm_rate": 0.05215863964973017,
+              "detection_rate": 0.05229864575908767
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.030088585683738928,
+          "first_flag_detection_rate": 0.025379289278077588,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "speed": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010462274717442216,
+              "detection_rate": 0.010462274717442216
+            },
+            "10": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.012193259342225843
+            },
+            "15": {
+              "false_alarm_rate": 0.01106048263924244,
+              "detection_rate": 0.012804195092149476
+            },
+            "20": {
+              "false_alarm_rate": 0.0117096018735363,
+              "detection_rate": 0.0135424091233072
+            },
+            "30": {
+              "false_alarm_rate": 0.012065981060991752,
+              "detection_rate": 0.01417880052947765
+            },
+            "45": {
+              "false_alarm_rate": 0.011976886264127889,
+              "detection_rate": 0.014407901435699012
+            },
+            "60": {
+              "false_alarm_rate": 0.011900519295387435,
+              "detection_rate": 0.014764280623154465
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.0040219936869972505,
+          "first_flag_detection_rate": 0.0049383973118827,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03903624885449547,
+              "detection_rate": 0.03903624885449547
+            },
+            "10": {
+              "false_alarm_rate": 0.05024946543121882,
+              "detection_rate": 0.052578657977802666
+            },
+            "15": {
+              "false_alarm_rate": 0.048467569493941556,
+              "detection_rate": 0.05223500661847062
+            },
+            "20": {
+              "false_alarm_rate": 0.04758934935342633,
+              "detection_rate": 0.05153497607168313
+            },
+            "30": {
+              "false_alarm_rate": 0.048862132165767236,
+              "detection_rate": 0.053227777212096525
+            },
+            "45": {
+              "false_alarm_rate": 0.049663985337542,
+              "detection_rate": 0.054436920883820385
+            },
+            "60": {
+              "false_alarm_rate": 0.050618572446797676,
+              "detection_rate": 0.056537012524182875
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.017882598513389674,
+          "first_flag_detection_rate": 0.017666225435291723,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      }
+    },
+    "fast_150pct": {
+      "model_box": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010042256389369718,
+              "detection_rate": 0.010042256389369718
+            },
+            "10": {
+              "false_alarm_rate": 0.00962223806129722,
+              "detection_rate": 0.01522248243559719
+            },
+            "15": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.04988035841563995
+            },
+            "20": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.05892984421138377
+            },
+            "30": {
+              "false_alarm_rate": 0.010487730373689034,
+              "detection_rate": 0.056257000305467875
+            },
+            "45": {
+              "false_alarm_rate": 0.010373179920578353,
+              "detection_rate": 0.05385144079014357
+            },
+            "60": {
+              "false_alarm_rate": 0.010233173811220853,
+              "detection_rate": 0.047156603197230425
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004225638936971795,
+          "first_flag_detection_rate": 0.016838916607270136,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04174727624478159,
+              "detection_rate": 0.04174727624478159
+            },
+            "10": {
+              "false_alarm_rate": 0.04344007738519499,
+              "detection_rate": 0.09016393442622951
+            },
+            "15": {
+              "false_alarm_rate": 0.04668567355666429,
+              "detection_rate": 0.33345636900519293
+            },
+            "20": {
+              "false_alarm_rate": 0.048187557275226556,
+              "detection_rate": 0.34007483962936563
+            },
+            "30": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.3320053965991243
+            },
+            "45": {
+              "false_alarm_rate": 0.04943488443132064,
+              "detection_rate": 0.31370277975766214
+            },
+            "60": {
+              "false_alarm_rate": 0.048976682618877915,
+              "detection_rate": 0.2907672334792791
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.019575399653803074,
+          "first_flag_detection_rate": 0.06482282863252214,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "cv_distance": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "10": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.011238672232970166
+            },
+            "15": {
+              "false_alarm_rate": 0.010551369514306078,
+              "detection_rate": 0.014026066591996742
+            },
+            "20": {
+              "false_alarm_rate": 0.009711332858161083,
+              "detection_rate": 0.014955198045005601
+            },
+            "30": {
+              "false_alarm_rate": 0.0100168007331229,
+              "detection_rate": 0.01910447001323694
+            },
+            "45": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.020453619794318298
+            },
+            "60": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.023202830668974647
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004123816311984523,
+          "first_flag_detection_rate": 0.008565828327054272,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03797983912025252,
+              "detection_rate": 0.03797983912025252
+            },
+            "10": {
+              "false_alarm_rate": 0.037699826901537524,
+              "detection_rate": 0.039087160166989106
+            },
+            "15": {
+              "false_alarm_rate": 0.04268913552591386,
+              "detection_rate": 0.05385144079014357
+            },
+            "20": {
+              "false_alarm_rate": 0.046978413603502696,
+              "detection_rate": 0.06507738519499033
+            },
+            "30": {
+              "false_alarm_rate": 0.04854393646268201,
+              "detection_rate": 0.07242134202219733
+            },
+            "45": {
+              "false_alarm_rate": 0.050007636696874046,
+              "detection_rate": 0.08428367783321454
+            },
+            "60": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.06851389878831077
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.01677527746665309,
+          "first_flag_detection_rate": 0.025328377965583952,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "turn": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "10": {
+              "false_alarm_rate": 0.007763975155279503,
+              "detection_rate": 0.007776702983402912
+            },
+            "15": {
+              "false_alarm_rate": 0.008744017920781997,
+              "detection_rate": 0.008820384889522451
+            },
+            "20": {
+              "false_alarm_rate": 0.008922207514509724,
+              "detection_rate": 0.00898584665512677
+            },
+            "30": {
+              "false_alarm_rate": 0.010347724264331535,
+              "detection_rate": 0.010373179920578353
+            },
+            "45": {
+              "false_alarm_rate": 0.011467773139191529,
+              "detection_rate": 0.011518684451685164
+            },
+            "60": {
+              "false_alarm_rate": 0.011162305264229712,
+              "detection_rate": 0.011238672232970166
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.006160268811729966,
+          "first_flag_detection_rate": 0.005091131249363608,
+          "median_delay_min": 20.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04774208329090724,
+              "detection_rate": 0.04774208329090724
+            },
+            "10": {
+              "false_alarm_rate": 0.045514713369310664,
+              "detection_rate": 0.0459983708380002
+            },
+            "15": {
+              "false_alarm_rate": 0.04593473169738316,
+              "detection_rate": 0.046647490072294066
+            },
+            "20": {
+              "false_alarm_rate": 0.04645657265044293,
+              "detection_rate": 0.04696568577537929
+            },
+            "30": {
+              "false_alarm_rate": 0.05041492719682313,
+              "detection_rate": 0.05070766724366154
+            },
+            "45": {
+              "false_alarm_rate": 0.05245137969656858,
+              "detection_rate": 0.052642297118419716
+            },
+            "60": {
+              "false_alarm_rate": 0.05215863964973017,
+              "detection_rate": 0.05238774055595153
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.030088585683738928,
+          "first_flag_detection_rate": 0.025455656246818042,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "speed": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010462274717442216,
+              "detection_rate": 0.010462274717442216
+            },
+            "10": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.014777008451277874
+            },
+            "15": {
+              "false_alarm_rate": 0.01106048263924244,
+              "detection_rate": 0.01534976071683128
+            },
+            "20": {
+              "false_alarm_rate": 0.0117096018735363,
+              "detection_rate": 0.016227980857346502
+            },
+            "30": {
+              "false_alarm_rate": 0.012065981060991752,
+              "detection_rate": 0.01718256796660218
+            },
+            "45": {
+              "false_alarm_rate": 0.011976886264127889,
+              "detection_rate": 0.017628041950921495
+            },
+            "60": {
+              "false_alarm_rate": 0.011900519295387435,
+              "detection_rate": 0.0182007942164749
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.0040219936869972505,
+          "first_flag_detection_rate": 0.008298543936462682,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03903624885449547,
+              "detection_rate": 0.03903624885449547
+            },
+            "10": {
+              "false_alarm_rate": 0.05024946543121882,
+              "detection_rate": 0.06241726911719784
+            },
+            "15": {
+              "false_alarm_rate": 0.048467569493941556,
+              "detection_rate": 0.05923531208634559
+            },
+            "20": {
+              "false_alarm_rate": 0.04758934935342633,
+              "detection_rate": 0.057682517055289685
+            },
+            "30": {
+              "false_alarm_rate": 0.048862132165767236,
+              "detection_rate": 0.05974442521128195
+            },
+            "45": {
+              "false_alarm_rate": 0.049663985337542,
+              "detection_rate": 0.06161541594542307
+            },
+            "60": {
+              "false_alarm_rate": 0.050618572446797676,
+              "detection_rate": 0.06395733632013033
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.017882598513389674,
+          "first_flag_detection_rate": 0.021280928622339886,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      }
+    },
+    "jump_200m": {
+      "model_box": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010042256389369718,
+              "detection_rate": 0.010042256389369718
+            },
+            "10": {
+              "false_alarm_rate": 0.00962223806129722,
+              "detection_rate": 0.019040830872619895
+            },
+            "15": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.020249974544343755
+            },
+            "20": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.020899093778637613
+            },
+            "30": {
+              "false_alarm_rate": 0.010487730373689034,
+              "detection_rate": 0.020351797169331026
+            },
+            "45": {
+              "false_alarm_rate": 0.010373179920578353,
+              "detection_rate": 0.019053558700743305
+            },
+            "60": {
+              "false_alarm_rate": 0.010233173811220853,
+              "detection_rate": 0.017895326341513085
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004225638936971795,
+          "first_flag_detection_rate": 0.009202219733224723,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04174727624478159,
+              "detection_rate": 0.04174727624478159
+            },
+            "10": {
+              "false_alarm_rate": 0.04344007738519499,
+              "detection_rate": 0.10854291823643214
+            },
+            "15": {
+              "false_alarm_rate": 0.04668567355666429,
+              "detection_rate": 0.09466958558191631
+            },
+            "20": {
+              "false_alarm_rate": 0.048187557275226556,
+              "detection_rate": 0.08684197128601975
+            },
+            "30": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.08026168414621729
+            },
+            "45": {
+              "false_alarm_rate": 0.04943488443132064,
+              "detection_rate": 0.074775990225028
+            },
+            "60": {
+              "false_alarm_rate": 0.048976682618877915,
+              "detection_rate": 0.07071581305366052
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.019575399653803074,
+          "first_flag_detection_rate": 0.028013949699623255,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "cv_distance": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "10": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.010220445983097444
+            },
+            "15": {
+              "false_alarm_rate": 0.010551369514306078,
+              "detection_rate": 0.010436819061195398
+            },
+            "20": {
+              "false_alarm_rate": 0.009711332858161083,
+              "detection_rate": 0.009736788514407901
+            },
+            "30": {
+              "false_alarm_rate": 0.0100168007331229,
+              "detection_rate": 0.01002952856124631
+            },
+            "45": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "60": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.009914978108135629
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004123816311984523,
+          "first_flag_detection_rate": 0.0036910701557886162,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03797983912025252,
+              "detection_rate": 0.03797983912025252
+            },
+            "10": {
+              "false_alarm_rate": 0.037699826901537524,
+              "detection_rate": 0.03810711740148661
+            },
+            "15": {
+              "false_alarm_rate": 0.04268913552591386,
+              "detection_rate": 0.04453467060380817
+            },
+            "20": {
+              "false_alarm_rate": 0.046978413603502696,
+              "detection_rate": 0.04700386925974952
+            },
+            "30": {
+              "false_alarm_rate": 0.04854393646268201,
+              "detection_rate": 0.048582119947052235
+            },
+            "45": {
+              "false_alarm_rate": 0.050007636696874046,
+              "detection_rate": 0.05007127583749109
+            },
+            "60": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.04984217493126973
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.01677527746665309,
+          "first_flag_detection_rate": 0.014751552795031056,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "turn": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "10": {
+              "false_alarm_rate": 0.007763975155279503,
+              "detection_rate": 0.008794929233275633
+            },
+            "15": {
+              "false_alarm_rate": 0.008744017920781997,
+              "detection_rate": 0.009113124936360859
+            },
+            "20": {
+              "false_alarm_rate": 0.008922207514509724,
+              "detection_rate": 0.009189491905101314
+            },
+            "30": {
+              "false_alarm_rate": 0.010347724264331535,
+              "detection_rate": 0.010347724264331535
+            },
+            "45": {
+              "false_alarm_rate": 0.011467773139191529,
+              "detection_rate": 0.011480500967314938
+            },
+            "60": {
+              "false_alarm_rate": 0.011162305264229712,
+              "detection_rate": 0.011162305264229712
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.006160268811729966,
+          "first_flag_detection_rate": 0.005192953874350881,
+          "median_delay_min": 20.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04774208329090724,
+              "detection_rate": 0.04774208329090724
+            },
+            "10": {
+              "false_alarm_rate": 0.045514713369310664,
+              "detection_rate": 0.07644333570919458
+            },
+            "15": {
+              "false_alarm_rate": 0.04593473169738316,
+              "detection_rate": 0.05217136747785358
+            },
+            "20": {
+              "false_alarm_rate": 0.04645657265044293,
+              "detection_rate": 0.048225740759596784
+            },
+            "30": {
+              "false_alarm_rate": 0.05041492719682313,
+              "detection_rate": 0.05073312289990836
+            },
+            "45": {
+              "false_alarm_rate": 0.05245137969656858,
+              "detection_rate": 0.05255320232155585
+            },
+            "60": {
+              "false_alarm_rate": 0.05215863964973017,
+              "detection_rate": 0.05223500661847062
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.030088585683738928,
+          "first_flag_detection_rate": 0.025901130231137357,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "speed": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010462274717442216,
+              "detection_rate": 0.010462274717442216
+            },
+            "10": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.009978617248752673
+            },
+            "15": {
+              "false_alarm_rate": 0.01106048263924244,
+              "detection_rate": 0.010907748701761531
+            },
+            "20": {
+              "false_alarm_rate": 0.0117096018735363,
+              "detection_rate": 0.0115695957641788
+            },
+            "30": {
+              "false_alarm_rate": 0.012065981060991752,
+              "detection_rate": 0.012040525404744934
+            },
+            "45": {
+              "false_alarm_rate": 0.011976886264127889,
+              "detection_rate": 0.012040525404744934
+            },
+            "60": {
+              "false_alarm_rate": 0.011900519295387435,
+              "detection_rate": 0.012027797576621525
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.0040219936869972505,
+          "first_flag_detection_rate": 0.0031437735464820283,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03903624885449547,
+              "detection_rate": 0.03903624885449547
+            },
+            "10": {
+              "false_alarm_rate": 0.05024946543121882,
+              "detection_rate": 0.04887485999389064
+            },
+            "15": {
+              "false_alarm_rate": 0.048467569493941556,
+              "detection_rate": 0.049663985337542
+            },
+            "20": {
+              "false_alarm_rate": 0.04758934935342633,
+              "detection_rate": 0.04863303125954587
+            },
+            "30": {
+              "false_alarm_rate": 0.048862132165767236,
+              "detection_rate": 0.049689440993788817
+            },
+            "45": {
+              "false_alarm_rate": 0.049663985337542,
+              "detection_rate": 0.050504021993687
+            },
+            "60": {
+              "false_alarm_rate": 0.050618572446797676,
+              "detection_rate": 0.051509520415436306
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.017882598513389674,
+          "first_flag_detection_rate": 0.014484268404439466,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      }
+    },
+    "jump_500m": {
+      "model_box": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010042256389369718,
+              "detection_rate": 0.010042256389369718
+            },
+            "10": {
+              "false_alarm_rate": 0.00962223806129722,
+              "detection_rate": 0.07100855310049893
+            },
+            "15": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.050224009774971996
+            },
+            "20": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.0440255574788718
+            },
+            "30": {
+              "false_alarm_rate": 0.010487730373689034,
+              "detection_rate": 0.03878169229202729
+            },
+            "45": {
+              "false_alarm_rate": 0.010373179920578353,
+              "detection_rate": 0.035421545667447304
+            },
+            "60": {
+              "false_alarm_rate": 0.010233173811220853,
+              "detection_rate": 0.03253232868343346
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004225638936971795,
+          "first_flag_detection_rate": 0.01924447612259444,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04174727624478159,
+              "detection_rate": 0.04174727624478159
+            },
+            "10": {
+              "false_alarm_rate": 0.04344007738519499,
+              "detection_rate": 0.38417676407697793
+            },
+            "15": {
+              "false_alarm_rate": 0.04668567355666429,
+              "detection_rate": 0.34614601364423175
+            },
+            "20": {
+              "false_alarm_rate": 0.048187557275226556,
+              "detection_rate": 0.31316821097647896
+            },
+            "30": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.28129772935546277
+            },
+            "45": {
+              "false_alarm_rate": 0.04943488443132064,
+              "detection_rate": 0.24144689950106915
+            },
+            "60": {
+              "false_alarm_rate": 0.048976682618877915,
+              "detection_rate": 0.20444710314631911
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.019575399653803074,
+          "first_flag_detection_rate": 0.06371550758578556,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "cv_distance": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "10": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.010780470420527441
+            },
+            "15": {
+              "false_alarm_rate": 0.010551369514306078,
+              "detection_rate": 0.01053864168618267
+            },
+            "20": {
+              "false_alarm_rate": 0.009711332858161083,
+              "detection_rate": 0.009787699826901537
+            },
+            "30": {
+              "false_alarm_rate": 0.0100168007331229,
+              "detection_rate": 0.01014407901435699
+            },
+            "45": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009329498014458813
+            },
+            "60": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.009889522451888809
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004123816311984523,
+          "first_flag_detection_rate": 0.0037419814682822525,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03797983912025252,
+              "detection_rate": 0.03797983912025252
+            },
+            "10": {
+              "false_alarm_rate": 0.037699826901537524,
+              "detection_rate": 0.0364015884329498
+            },
+            "15": {
+              "false_alarm_rate": 0.04268913552591386,
+              "detection_rate": 0.04473831585378271
+            },
+            "20": {
+              "false_alarm_rate": 0.046978413603502696,
+              "detection_rate": 0.04708023622848997
+            },
+            "30": {
+              "false_alarm_rate": 0.04854393646268201,
+              "detection_rate": 0.04863303125954587
+            },
+            "45": {
+              "false_alarm_rate": 0.050007636696874046,
+              "detection_rate": 0.050440382853069954
+            },
+            "60": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.049943997556257
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.01677527746665309,
+          "first_flag_detection_rate": 0.014955198045005601,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "turn": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "10": {
+              "false_alarm_rate": 0.007763975155279503,
+              "detection_rate": 0.012549638529681295
+            },
+            "15": {
+              "false_alarm_rate": 0.008744017920781997,
+              "detection_rate": 0.010360452092454944
+            },
+            "20": {
+              "false_alarm_rate": 0.008922207514509724,
+              "detection_rate": 0.009545871092556765
+            },
+            "30": {
+              "false_alarm_rate": 0.010347724264331535,
+              "detection_rate": 0.010449546889318807
+            },
+            "45": {
+              "false_alarm_rate": 0.011467773139191529,
+              "detection_rate": 0.0115695957641788
+            },
+            "60": {
+              "false_alarm_rate": 0.011162305264229712,
+              "detection_rate": 0.011238672232970166
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.006160268811729966,
+          "first_flag_detection_rate": 0.005523877405559516,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04774208329090724,
+              "detection_rate": 0.04774208329090724
+            },
+            "10": {
+              "false_alarm_rate": 0.045514713369310664,
+              "detection_rate": 0.15277212096527848
+            },
+            "15": {
+              "false_alarm_rate": 0.04593473169738316,
+              "detection_rate": 0.06792841869463395
+            },
+            "20": {
+              "false_alarm_rate": 0.04645657265044293,
+              "detection_rate": 0.05284594236839426
+            },
+            "30": {
+              "false_alarm_rate": 0.05041492719682313,
+              "detection_rate": 0.05166225435291722
+            },
+            "45": {
+              "false_alarm_rate": 0.05245137969656858,
+              "detection_rate": 0.05285867019651767
+            },
+            "60": {
+              "false_alarm_rate": 0.05215863964973017,
+              "detection_rate": 0.05245137969656858
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.030088585683738928,
+          "first_flag_detection_rate": 0.028459423683942574,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "speed": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010462274717442216,
+              "detection_rate": 0.010462274717442216
+            },
+            "10": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.011658690561042663
+            },
+            "15": {
+              "false_alarm_rate": 0.01106048263924244,
+              "detection_rate": 0.012422360248447204
+            },
+            "20": {
+              "false_alarm_rate": 0.0117096018735363,
+              "detection_rate": 0.012956929029630384
+            },
+            "30": {
+              "false_alarm_rate": 0.012065981060991752,
+              "detection_rate": 0.0134024030139497
+            },
+            "45": {
+              "false_alarm_rate": 0.011976886264127889,
+              "detection_rate": 0.013364219529579472
+            },
+            "60": {
+              "false_alarm_rate": 0.011900519295387435,
+              "detection_rate": 0.013338763873332654
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.0040219936869972505,
+          "first_flag_detection_rate": 0.004212911108848386,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03903624885449547,
+              "detection_rate": 0.03903624885449547
+            },
+            "10": {
+              "false_alarm_rate": 0.05024946543121882,
+              "detection_rate": 0.19072650442928418
+            },
+            "15": {
+              "false_alarm_rate": 0.048467569493941556,
+              "detection_rate": 0.05913348946135832
+            },
+            "20": {
+              "false_alarm_rate": 0.04758934935342633,
+              "detection_rate": 0.05387689644639039
+            },
+            "30": {
+              "false_alarm_rate": 0.048862132165767236,
+              "detection_rate": 0.05372416250890948
+            },
+            "45": {
+              "false_alarm_rate": 0.049663985337542,
+              "detection_rate": 0.05409326952448834
+            },
+            "60": {
+              "false_alarm_rate": 0.050618572446797676,
+              "detection_rate": 0.054716933102535385
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.017882598513389674,
+          "first_flag_detection_rate": 0.016100702576112413,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      }
+    },
+    "jump_1000m": {
+      "model_box": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010042256389369718,
+              "detection_rate": 0.010042256389369718
+            },
+            "10": {
+              "false_alarm_rate": 0.00962223806129722,
+              "detection_rate": 0.2878143773546482
+            },
+            "15": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.22311882700336014
+            },
+            "20": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.16844007738519498
+            },
+            "30": {
+              "false_alarm_rate": 0.010487730373689034,
+              "detection_rate": 0.11939975562570003
+            },
+            "45": {
+              "false_alarm_rate": 0.010373179920578353,
+              "detection_rate": 0.07819977599022503
+            },
+            "60": {
+              "false_alarm_rate": 0.010233173811220853,
+              "detection_rate": 0.059146217289481724
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004225638936971795,
+          "first_flag_detection_rate": 0.03867986966704002,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04174727624478159,
+              "detection_rate": 0.04174727624478159
+            },
+            "10": {
+              "false_alarm_rate": 0.04344007738519499,
+              "detection_rate": 0.5931549740352307
+            },
+            "15": {
+              "false_alarm_rate": 0.04668567355666429,
+              "detection_rate": 0.5575552387740556
+            },
+            "20": {
+              "false_alarm_rate": 0.048187557275226556,
+              "detection_rate": 0.5273775582934528
+            },
+            "30": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.4971744221566032
+            },
+            "45": {
+              "false_alarm_rate": 0.04943488443132064,
+              "detection_rate": 0.46002189186437226
+            },
+            "60": {
+              "false_alarm_rate": 0.048976682618877915,
+              "detection_rate": 0.42617859688422766
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.019575399653803074,
+          "first_flag_detection_rate": 0.2468816821097648,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "cv_distance": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.010245901639344262
+            },
+            "10": {
+              "false_alarm_rate": 0.01039863557682517,
+              "detection_rate": 0.011213216576723348
+            },
+            "15": {
+              "false_alarm_rate": 0.010551369514306078,
+              "detection_rate": 0.010780470420527441
+            },
+            "20": {
+              "false_alarm_rate": 0.009711332858161083,
+              "detection_rate": 0.009965889420629264
+            },
+            "30": {
+              "false_alarm_rate": 0.0100168007331229,
+              "detection_rate": 0.010309540779961308
+            },
+            "45": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009342225842582222
+            },
+            "60": {
+              "false_alarm_rate": 0.009914978108135629,
+              "detection_rate": 0.009851338967518582
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.004123816311984523,
+          "first_flag_detection_rate": 0.003932898890133388,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03797983912025252,
+              "detection_rate": 0.03797983912025252
+            },
+            "10": {
+              "false_alarm_rate": 0.037699826901537524,
+              "detection_rate": 0.04081814479177273
+            },
+            "15": {
+              "false_alarm_rate": 0.04268913552591386,
+              "detection_rate": 0.04660930658792384
+            },
+            "20": {
+              "false_alarm_rate": 0.046978413603502696,
+              "detection_rate": 0.04786936157214133
+            },
+            "30": {
+              "false_alarm_rate": 0.04854393646268201,
+              "detection_rate": 0.04863303125954587
+            },
+            "45": {
+              "false_alarm_rate": 0.050007636696874046,
+              "detection_rate": 0.05108950208736381
+            },
+            "60": {
+              "false_alarm_rate": 0.04985490275939314,
+              "detection_rate": 0.049943997556257
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.01677527746665309,
+          "first_flag_detection_rate": 0.014980653701252419,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "turn": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.009202219733224723,
+              "detection_rate": 0.009202219733224723
+            },
+            "10": {
+              "false_alarm_rate": 0.007763975155279503,
+              "detection_rate": 0.01587160166989105
+            },
+            "15": {
+              "false_alarm_rate": 0.008744017920781997,
+              "detection_rate": 0.0115695957641788
+            },
+            "20": {
+              "false_alarm_rate": 0.008922207514509724,
+              "detection_rate": 0.010080439873739945
+            },
+            "30": {
+              "false_alarm_rate": 0.010347724264331535,
+              "detection_rate": 0.010564097342429487
+            },
+            "45": {
+              "false_alarm_rate": 0.011467773139191529,
+              "detection_rate": 0.011544140107931982
+            },
+            "60": {
+              "false_alarm_rate": 0.011162305264229712,
+              "detection_rate": 0.011225944404846757
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.006160268811729966,
+          "first_flag_detection_rate": 0.005969351389878831,
+          "median_delay_min": 10.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.04774208329090724,
+              "detection_rate": 0.04774208329090724
+            },
+            "10": {
+              "false_alarm_rate": 0.045514713369310664,
+              "detection_rate": 0.21070919458303636
+            },
+            "15": {
+              "false_alarm_rate": 0.04593473169738316,
+              "detection_rate": 0.0802871398024641
+            },
+            "20": {
+              "false_alarm_rate": 0.04645657265044293,
+              "detection_rate": 0.05654974035230628
+            },
+            "30": {
+              "false_alarm_rate": 0.05041492719682313,
+              "detection_rate": 0.052578657977802666
+            },
+            "45": {
+              "false_alarm_rate": 0.05245137969656858,
+              "detection_rate": 0.053151410243356075
+            },
+            "60": {
+              "false_alarm_rate": 0.05215863964973017,
+              "detection_rate": 0.052616841462172895
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.030088585683738928,
+          "first_flag_detection_rate": 0.03099226148050097,
+          "median_delay_min": 5.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      },
+      "speed": {
+        "0.01": {
+          "alpha": 0.01,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.010462274717442216,
+              "detection_rate": 0.010462274717442216
+            },
+            "10": {
+              "false_alarm_rate": 0.010245901639344262,
+              "detection_rate": 0.3553227777212096
+            },
+            "15": {
+              "false_alarm_rate": 0.01106048263924244,
+              "detection_rate": 0.24446339476631707
+            },
+            "20": {
+              "false_alarm_rate": 0.0117096018735363,
+              "detection_rate": 0.21441299256694837
+            },
+            "30": {
+              "false_alarm_rate": 0.012065981060991752,
+              "detection_rate": 0.19516851644435393
+            },
+            "45": {
+              "false_alarm_rate": 0.011976886264127889,
+              "detection_rate": 0.18046787496181652
+            },
+            "60": {
+              "false_alarm_rate": 0.011900519295387435,
+              "detection_rate": 0.17045107422869363
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0014285714285714286,
+          "first_flag_false_alarm_rate": 0.0040219936869972505,
+          "first_flag_detection_rate": 0.07321046736584869,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        },
+        "0.05": {
+          "alpha": 0.05,
+          "per_horizon": {
+            "5": {
+              "false_alarm_rate": 0.03903624885449547,
+              "detection_rate": 0.03903624885449547
+            },
+            "10": {
+              "false_alarm_rate": 0.05024946543121882,
+              "detection_rate": 0.8348946135831382
+            },
+            "15": {
+              "false_alarm_rate": 0.048467569493941556,
+              "detection_rate": 0.7578276142958965
+            },
+            "20": {
+              "false_alarm_rate": 0.04758934935342633,
+              "detection_rate": 0.6917574585072803
+            },
+            "30": {
+              "false_alarm_rate": 0.048862132165767236,
+              "detection_rate": 0.6418007331228999
+            },
+            "45": {
+              "false_alarm_rate": 0.049663985337542,
+              "detection_rate": 0.6061755422054781
+            },
+            "60": {
+              "false_alarm_rate": 0.050618572446797676,
+              "detection_rate": 0.5840163934426229
+            }
+          },
+          "first_flag_alpha_per_horizon": 0.0071428571428571435,
+          "first_flag_false_alarm_rate": 0.017882598513389674,
+          "first_flag_detection_rate": 0.26845535077894306,
+          "median_delay_min": 0.0,
+          "n_normal": 78568,
+          "n_deviating": 78568
+        }
+      }
+    }
+  }
+}
