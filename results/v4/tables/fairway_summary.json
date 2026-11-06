@@ -1,0 +1,145 @@
+{
+  "map_periods_utc": {
+    "west_coast": [
+      "2026-09-19 00:00:00+00:00",
+      "2026-10-07 00:00:00+00:00"
+    ],
+    "oslofjord": [
+      "2026-09-19 00:00:00+00:00",
+      "2026-10-07 00:00:00+00:00"
+    ],
+    "skagen": [
+      "2026-09-19 00:00:00+00:00",
+      "2026-10-30 00:00:00+00:00"
+    ]
+  },
+  "config": {
+    "cell_m": 300,
+    "block_radius_cells": 2,
+    "n_dir_bins": 12,
+    "dir_radius_bins": 1,
+    "min_sog_kn": 3.0,
+    "sample_s": 60,
+    "min_points": 10,
+    "ahead_min": [
+      5,
+      10,
+      20,
+      30,
+      45,
+      60
+    ]
+  },
+  "regions": {
+    "west_coast": {
+      "map_points": 2006461,
+      "map_days": 18,
+      "grid": [
+        296,
+        816,
+        12
+      ],
+      "by_split": [
+        {
+          "split": "calib",
+          "windows": 89511,
+          "with_flow": 87888,
+          "median_abs_offset_m": 89.58973614156274,
+          "median_abs_hdg_deg": 5.151215338212921
+        },
+        {
+          "split": "excluded",
+          "windows": 492,
+          "with_flow": 477,
+          "median_abs_offset_m": 114.02325954047635,
+          "median_abs_hdg_deg": 4.830403657396161
+        },
+        {
+          "split": "train",
+          "windows": 376524,
+          "with_flow": 367842,
+          "median_abs_offset_m": 87.6033288683087,
+          "median_abs_hdg_deg": 5.071965429914059
+        },
+        {
+          "split": "val",
+          "windows": 101559,
+          "with_flow": 99243,
+          "median_abs_offset_m": 86.4689328307393,
+          "median_abs_hdg_deg": 5.129959026521334
+        }
+      ]
+    },
+    "oslofjord": {
+      "map_points": 436821,
+      "map_days": 18,
+      "grid": [
+        152,
+        408,
+        12
+      ],
+      "by_split": [
+        {
+          "split": "excluded",
+          "windows": 107,
+          "with_flow": 107,
+          "median_abs_offset_m": 56.04602454726551,
+          "median_abs_hdg_deg": 4.733410346701589
+        },
+        {
+          "split": "transfer_calib",
+          "windows": 20696,
+          "with_flow": 20149,
+          "median_abs_offset_m": 80.081276012643,
+          "median_abs_hdg_deg": 6.777626492017305
+        },
+        {
+          "split": "transfer_context",
+          "windows": 81386,
+          "with_flow": 79449,
+          "median_abs_offset_m": 79.1172099580116,
+          "median_abs_hdg_deg": 6.482705624720879
+        },
+        {
+          "split": "transfer_val",
+          "windows": 21329,
+          "with_flow": 20921,
+          "median_abs_offset_m": 75.28138482685306,
+          "median_abs_hdg_deg": 6.142034343487978
+        }
+      ]
+    },
+    "skagen": {
+      "map_points": 2252941,
+      "map_days": 41,
+      "grid": [
+        318,
+        297,
+        12
+      ],
+      "by_split": [
+        {
+          "split": "excluded",
+          "windows": 699,
+          "with_flow": 696,
+          "median_abs_offset_m": 106.98970829267773,
+          "median_abs_hdg_deg": 4.42938541128953
+        },
+        {
+          "split": "transfer_context",
+          "windows": 429281,
+          "with_flow": 427049,
+          "median_abs_offset_m": 109.44707621474869,
+          "median_abs_hdg_deg": 4.954289484616169
+        },
+        {
+          "split": "transfer_val",
+          "windows": 59505,
+          "with_flow": 59204,
+          "median_abs_offset_m": 110.01935301268645,
+          "median_abs_hdg_deg": 5.421966836983614
+        }
+      ]
+    }
+  }
+}

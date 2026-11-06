@@ -1,0 +1,41 @@
+{
+  "config": {
+    "meps_max_dist_m": 5000,
+    "norkyst_max_dist_m": 2000
+  },
+  "regions": {
+    "west_coast": {
+      "windows": 567594,
+      "days": [
+        "2026-09-19",
+        "2026-10-15"
+      ],
+      "share_with_values": {
+        "meps": 1.0,
+        "norkyst": 0.985017459663069
+      }
+    },
+    "oslofjord": {
+      "windows": 123411,
+      "days": [
+        "2026-09-19",
+        "2026-10-15"
+      ],
+      "share_with_values": {
+        "meps": 1.0,
+        "norkyst": 0.8378183468248374
+      }
+    },
+    "skagen": {
+      "windows": 488786,
+      "days": [
+        "2026-09-18",
+        "2026-11-03"
+      ],
+      "share_with_values": {
+        "meps": 1.0,
+        "norkyst": 0.9997606314419808
+      }
+    }
+  }
+}

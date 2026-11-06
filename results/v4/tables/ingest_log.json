@@ -1,0 +1,759 @@
+{
+  "aisdk-2026-09-19.zip": {
+    "source": "aisdk-2026-09-19.zip",
+    "interim": "aisdk-2026-09-19.parquet",
+    "rows_in_aoi": 2633525,
+    "exact_duplicates_removed": 1194455,
+    "rows_written": 1439070,
+    "rows_written_by_region": {
+      "skagen": 1439070
+    }
+  },
+  "aisdk-2026-09-20.zip": {
+    "source": "aisdk-2026-09-20.zip",
+    "interim": "aisdk-2026-09-20.parquet",
+    "rows_in_aoi": 2597628,
+    "exact_duplicates_removed": 1154813,
+    "rows_written": 1442815,
+    "rows_written_by_region": {
+      "skagen": 1442815
+    }
+  },
+  "aisdk-2026-09-21.zip": {
+    "source": "aisdk-2026-09-21.zip",
+    "interim": "aisdk-2026-09-21.parquet",
+    "rows_in_aoi": 3202052,
+    "exact_duplicates_removed": 1769182,
+    "rows_written": 1432870,
+    "rows_written_by_region": {
+      "skagen": 1432870
+    }
+  },
+  "aisdk-2026-09-22.zip": {
+    "source": "aisdk-2026-09-22.zip",
+    "interim": "aisdk-2026-09-22.parquet",
+    "rows_in_aoi": 2630346,
+    "exact_duplicates_removed": 1395329,
+    "rows_written": 1235017,
+    "rows_written_by_region": {
+      "skagen": 1235017
+    }
+  },
+  "aisdk-2026-09-23.zip": {
+    "source": "aisdk-2026-09-23.zip",
+    "interim": "aisdk-2026-09-23.parquet",
+    "rows_in_aoi": 2348787,
+    "exact_duplicates_removed": 1046175,
+    "rows_written": 1302612,
+    "rows_written_by_region": {
+      "skagen": 1302612
+    }
+  },
+  "aisdk-2026-09-24.zip": {
+    "source": "aisdk-2026-09-24.zip",
+    "interim": "aisdk-2026-09-24.parquet",
+    "rows_in_aoi": 2345628,
+    "exact_duplicates_removed": 1038932,
+    "rows_written": 1306696,
+    "rows_written_by_region": {
+      "skagen": 1306696
+    }
+  },
+  "aisdk-2026-09-25.zip": {
+    "source": "aisdk-2026-09-25.zip",
+    "interim": "aisdk-2026-09-25.parquet",
+    "rows_in_aoi": 2455557,
+    "exact_duplicates_removed": 1091262,
+    "rows_written": 1364295,
+    "rows_written_by_region": {
+      "skagen": 1364295
+    }
+  },
+  "aisdk-2026-09-26.zip": {
+    "source": "aisdk-2026-09-26.zip",
+    "interim": "aisdk-2026-09-26.parquet",
+    "rows_in_aoi": 2618082,
+    "exact_duplicates_removed": 1155981,
+    "rows_written": 1462101,
+    "rows_written_by_region": {
+      "skagen": 1462101
+    }
+  },
+  "aisdk-2026-09-27.zip": {
+    "source": "aisdk-2026-09-27.zip",
+    "interim": "aisdk-2026-09-27.parquet",
+    "rows_in_aoi": 2560818,
+    "exact_duplicates_removed": 1131588,
+    "rows_written": 1429230,
+    "rows_written_by_region": {
+      "skagen": 1429230
+    }
+  },
+  "aisdk-2026-09-28.zip": {
+    "source": "aisdk-2026-09-28.zip",
+    "interim": "aisdk-2026-09-28.parquet",
+    "rows_in_aoi": 2760511,
+    "exact_duplicates_removed": 1334936,
+    "rows_written": 1425575,
+    "rows_written_by_region": {
+      "skagen": 1425575
+    }
+  },
+  "aisdk-2026-09-29.zip": {
+    "source": "aisdk-2026-09-29.zip",
+    "interim": "aisdk-2026-09-29.parquet",
+    "rows_in_aoi": 3162876,
+    "exact_duplicates_removed": 1799059,
+    "rows_written": 1363817,
+    "rows_written_by_region": {
+      "skagen": 1363817
+    }
+  },
+  "aisdk-2026-09-30.zip": {
+    "source": "aisdk-2026-09-30.zip",
+    "interim": "aisdk-2026-09-30.parquet",
+    "rows_in_aoi": 2515962,
+    "exact_duplicates_removed": 1155310,
+    "rows_written": 1360652,
+    "rows_written_by_region": {
+      "skagen": 1360652
+    }
+  },
+  "aisdk-2026-10-01.zip": {
+    "source": "aisdk-2026-10-01.zip",
+    "interim": "aisdk-2026-10-01.parquet",
+    "rows_in_aoi": 2564349,
+    "exact_duplicates_removed": 1151335,
+    "rows_written": 1413014,
+    "rows_written_by_region": {
+      "skagen": 1413014
+    }
+  },
+  "aisdk-2026-10-02.zip": {
+    "source": "aisdk-2026-10-02.zip",
+    "interim": "aisdk-2026-10-02.parquet",
+    "rows_in_aoi": 2552690,
+    "exact_duplicates_removed": 1187066,
+    "rows_written": 1365624,
+    "rows_written_by_region": {
+      "skagen": 1365624
+    }
+  },
+  "aisdk-2026-10-03.zip": {
+    "source": "aisdk-2026-10-03.zip",
+    "interim": "aisdk-2026-10-03.parquet",
+    "rows_in_aoi": 2501079,
+    "exact_duplicates_removed": 1186228,
+    "rows_written": 1314851,
+    "rows_written_by_region": {
+      "skagen": 1314851
+    }
+  },
+  "aisdk-2026-10-04.zip": {
+    "source": "aisdk-2026-10-04.zip",
+    "interim": "aisdk-2026-10-04.parquet",
+    "rows_in_aoi": 2372560,
+    "exact_duplicates_removed": 1076843,
+    "rows_written": 1295717,
+    "rows_written_by_region": {
+      "skagen": 1295717
+    }
+  },
+  "aisdk-2026-10-05.zip": {
+    "source": "aisdk-2026-10-05.zip",
+    "interim": "aisdk-2026-10-05.parquet",
+    "rows_in_aoi": 2520519,
+    "exact_duplicates_removed": 1137855,
+    "rows_written": 1382664,
+    "rows_written_by_region": {
+      "skagen": 1382664
+    }
+  },
+  "aisdk-2026-10-06.zip": {
+    "source": "aisdk-2026-10-06.zip",
+    "interim": "aisdk-2026-10-06.parquet",
+    "rows_in_aoi": 2647162,
+    "exact_duplicates_removed": 1195405,
+    "rows_written": 1451757,
+    "rows_written_by_region": {
+      "skagen": 1451757
+    }
+  },
+  "aisdk-2026-10-07.zip": {
+    "source": "aisdk-2026-10-07.zip",
+    "interim": "aisdk-2026-10-07.parquet",
+    "rows_in_aoi": 2330363,
+    "exact_duplicates_removed": 1050088,
+    "rows_written": 1280275,
+    "rows_written_by_region": {
+      "skagen": 1280275
+    }
+  },
+  "aisdk-2026-10-08.zip": {
+    "source": "aisdk-2026-10-08.zip",
+    "interim": "aisdk-2026-10-08.parquet",
+    "rows_in_aoi": 2354585,
+    "exact_duplicates_removed": 958844,
+    "rows_written": 1395741,
+    "rows_written_by_region": {
+      "skagen": 1395741
+    }
+  },
+  "aisdk-2026-10-09.zip": {
+    "source": "aisdk-2026-10-09.zip",
+    "interim": "aisdk-2026-10-09.parquet",
+    "rows_in_aoi": 2399294,
+    "exact_duplicates_removed": 1038966,
+    "rows_written": 1360328,
+    "rows_written_by_region": {
+      "skagen": 1360328
+    }
+  },
+  "aisdk-2026-10-10.zip": {
+    "source": "aisdk-2026-10-10.zip",
+    "interim": "aisdk-2026-10-10.parquet",
+    "rows_in_aoi": 2395497,
+    "exact_duplicates_removed": 1064708,
+    "rows_written": 1330789,
+    "rows_written_by_region": {
+      "skagen": 1330789
+    }
+  },
+  "aisdk-2026-10-11.zip": {
+    "source": "aisdk-2026-10-11.zip",
+    "interim": "aisdk-2026-10-11.parquet",
+    "rows_in_aoi": 2191790,
+    "exact_duplicates_removed": 921861,
+    "rows_written": 1269929,
+    "rows_written_by_region": {
+      "skagen": 1269929
+    }
+  },
+  "aisdk-2026-10-12.zip": {
+    "source": "aisdk-2026-10-12.zip",
+    "interim": "aisdk-2026-10-12.parquet",
+    "rows_in_aoi": 2169376,
+    "exact_duplicates_removed": 893909,
+    "rows_written": 1275467,
+    "rows_written_by_region": {
+      "skagen": 1275467
+    }
+  },
+  "aisdk-2026-10-13.zip": {
+    "source": "aisdk-2026-10-13.zip",
+    "interim": "aisdk-2026-10-13.parquet",
+    "rows_in_aoi": 2474495,
+    "exact_duplicates_removed": 1086198,
+    "rows_written": 1388297,
+    "rows_written_by_region": {
+      "skagen": 1388297
+    }
+  },
+  "aisdk-2026-10-14.zip": {
+    "source": "aisdk-2026-10-14.zip",
+    "interim": "aisdk-2026-10-14.parquet",
+    "rows_in_aoi": 2465343,
+    "exact_duplicates_removed": 1074792,
+    "rows_written": 1390551,
+    "rows_written_by_region": {
+      "skagen": 1390551
+    }
+  },
+  "aisdk-2026-10-15.zip": {
+    "source": "aisdk-2026-10-15.zip",
+    "interim": "aisdk-2026-10-15.parquet",
+    "rows_in_aoi": 2425050,
+    "exact_duplicates_removed": 1069540,
+    "rows_written": 1355510,
+    "rows_written_by_region": {
+      "skagen": 1355510
+    }
+  },
+  "aisdk-2026-10-16.zip": {
+    "source": "aisdk-2026-10-16.zip",
+    "interim": "aisdk-2026-10-16.parquet",
+    "rows_in_aoi": 2455581,
+    "exact_duplicates_removed": 1088131,
+    "rows_written": 1367450,
+    "rows_written_by_region": {
+      "skagen": 1367450
+    }
+  },
+  "aisdk-2026-10-17.zip": {
+    "source": "aisdk-2026-10-17.zip",
+    "interim": "aisdk-2026-10-17.parquet",
+    "rows_in_aoi": 2266632,
+    "exact_duplicates_removed": 933323,
+    "rows_written": 1333309,
+    "rows_written_by_region": {
+      "skagen": 1333309
+    }
+  },
+  "aisdk-2026-10-18.zip": {
+    "source": "aisdk-2026-10-18.zip",
+    "interim": "aisdk-2026-10-18.parquet",
+    "rows_in_aoi": 2181010,
+    "exact_duplicates_removed": 946958,
+    "rows_written": 1234052,
+    "rows_written_by_region": {
+      "skagen": 1234052
+    }
+  },
+  "aisdk-2026-10-19.zip": {
+    "source": "aisdk-2026-10-19.zip",
+    "interim": "aisdk-2026-10-19.parquet",
+    "rows_in_aoi": 2212703,
+    "exact_duplicates_removed": 957854,
+    "rows_written": 1254849,
+    "rows_written_by_region": {
+      "skagen": 1254849
+    }
+  },
+  "aisdk-2026-10-20.zip": {
+    "source": "aisdk-2026-10-20.zip",
+    "interim": "aisdk-2026-10-20.parquet",
+    "rows_in_aoi": 2411114,
+    "exact_duplicates_removed": 1047368,
+    "rows_written": 1363746,
+    "rows_written_by_region": {
+      "skagen": 1363746
+    }
+  },
+  "aisdk-2026-10-21.zip": {
+    "source": "aisdk-2026-10-21.zip",
+    "interim": "aisdk-2026-10-21.parquet",
+    "rows_in_aoi": 2396598,
+    "exact_duplicates_removed": 1045845,
+    "rows_written": 1350753,
+    "rows_written_by_region": {
+      "skagen": 1350753
+    }
+  },
+  "aisdk-2026-10-22.zip": {
+    "source": "aisdk-2026-10-22.zip",
+    "interim": "aisdk-2026-10-22.parquet",
+    "rows_in_aoi": 2501744,
+    "exact_duplicates_removed": 1106018,
+    "rows_written": 1395726,
+    "rows_written_by_region": {
+      "skagen": 1395726
+    }
+  },
+  "aisdk-2026-10-23.zip": {
+    "source": "aisdk-2026-10-23.zip",
+    "interim": "aisdk-2026-10-23.parquet",
+    "rows_in_aoi": 2441642,
+    "exact_duplicates_removed": 1111246,
+    "rows_written": 1330396,
+    "rows_written_by_region": {
+      "skagen": 1330396
+    }
+  },
+  "aisdk-2026-10-24.zip": {
+    "source": "aisdk-2026-10-24.zip",
+    "interim": "aisdk-2026-10-24.parquet",
+    "rows_in_aoi": 2427835,
+    "exact_duplicates_removed": 1094153,
+    "rows_written": 1333682,
+    "rows_written_by_region": {
+      "skagen": 1333682
+    }
+  },
+  "aisdk-2026-10-25.zip": {
+    "source": "aisdk-2026-10-25.zip",
+    "interim": "aisdk-2026-10-25.parquet",
+    "rows_in_aoi": 2798289,
+    "exact_duplicates_removed": 1295453,
+    "rows_written": 1502836,
+    "rows_written_by_region": {
+      "skagen": 1502836
+    }
+  },
+  "aisdk-2026-10-26.zip": {
+    "source": "aisdk-2026-10-26.zip",
+    "interim": "aisdk-2026-10-26.parquet",
+    "rows_in_aoi": 2781463,
+    "exact_duplicates_removed": 1229872,
+    "rows_written": 1551591,
+    "rows_written_by_region": {
+      "skagen": 1551591
+    }
+  },
+  "aisdk-2026-10-27.zip": {
+    "source": "aisdk-2026-10-27.zip",
+    "interim": "aisdk-2026-10-27.parquet",
+    "rows_in_aoi": 2703424,
+    "exact_duplicates_removed": 1225184,
+    "rows_written": 1478240,
+    "rows_written_by_region": {
+      "skagen": 1478240
+    }
+  },
+  "aisdk-2026-10-28.zip": {
+    "source": "aisdk-2026-10-28.zip",
+    "interim": "aisdk-2026-10-28.parquet",
+    "rows_in_aoi": 2587510,
+    "exact_duplicates_removed": 1179991,
+    "rows_written": 1407519,
+    "rows_written_by_region": {
+      "skagen": 1407519
+    }
+  },
+  "aisdk-2026-10-29.zip": {
+    "source": "aisdk-2026-10-29.zip",
+    "interim": "aisdk-2026-10-29.parquet",
+    "rows_in_aoi": 2573951,
+    "exact_duplicates_removed": 1159479,
+    "rows_written": 1414472,
+    "rows_written_by_region": {
+      "skagen": 1414472
+    }
+  },
+  "aisdk-2026-10-30.zip": {
+    "source": "aisdk-2026-10-30.zip",
+    "interim": "aisdk-2026-10-30.parquet",
+    "rows_in_aoi": 2347993,
+    "exact_duplicates_removed": 1037524,
+    "rows_written": 1310469,
+    "rows_written_by_region": {
+      "skagen": 1310469
+    }
+  },
+  "aisdk-2026-10-31.zip": {
+    "source": "aisdk-2026-10-31.zip",
+    "interim": "aisdk-2026-10-31.parquet",
+    "rows_in_aoi": 2432291,
+    "exact_duplicates_removed": 1093769,
+    "rows_written": 1338522,
+    "rows_written_by_region": {
+      "skagen": 1338522
+    }
+  },
+  "aisdk-2026-11-01.zip": {
+    "source": "aisdk-2026-11-01.zip",
+    "interim": "aisdk-2026-11-01.parquet",
+    "rows_in_aoi": 2434473,
+    "exact_duplicates_removed": 1096737,
+    "rows_written": 1337736,
+    "rows_written_by_region": {
+      "skagen": 1337736
+    }
+  },
+  "aisdk-2026-11-02.zip": {
+    "source": "aisdk-2026-11-02.zip",
+    "interim": "aisdk-2026-11-02.parquet",
+    "rows_in_aoi": 2426460,
+    "exact_duplicates_removed": 1007188,
+    "rows_written": 1419272,
+    "rows_written_by_region": {
+      "skagen": 1419272
+    }
+  },
+  "aisdk-2026-11-03.zip": {
+    "source": "aisdk-2026-11-03.zip",
+    "interim": "aisdk-2026-11-03.parquet",
+    "rows_in_aoi": 2260714,
+    "exact_duplicates_removed": 1036953,
+    "rows_written": 1223761,
+    "rows_written_by_region": {
+      "skagen": 1223761
+    }
+  },
+  "hais_2026-09-19.snappy.parquet": {
+    "source": "hais_2026-09-19.snappy.parquet",
+    "interim": "hais_2026-09-19.parquet",
+    "rows_in_aoi": 3517974,
+    "exact_duplicates_removed": 23950,
+    "rows_written": 3494024,
+    "rows_written_by_region": {
+      "oslofjord": 621793,
+      "west_coast": 2872231
+    }
+  },
+  "hais_2026-09-20.snappy.parquet": {
+    "source": "hais_2026-09-20.snappy.parquet",
+    "interim": "hais_2026-09-20.parquet",
+    "rows_in_aoi": 3522345,
+    "exact_duplicates_removed": 25727,
+    "rows_written": 3496618,
+    "rows_written_by_region": {
+      "oslofjord": 640243,
+      "west_coast": 2856375
+    }
+  },
+  "hais_2026-09-21.snappy.parquet": {
+    "source": "hais_2026-09-21.snappy.parquet",
+    "interim": "hais_2026-09-21.parquet",
+    "rows_in_aoi": 3664143,
+    "exact_duplicates_removed": 20001,
+    "rows_written": 3644142,
+    "rows_written_by_region": {
+      "oslofjord": 717918,
+      "west_coast": 2926224
+    }
+  },
+  "hais_2026-09-22.snappy.parquet": {
+    "source": "hais_2026-09-22.snappy.parquet",
+    "interim": "hais_2026-09-22.parquet",
+    "rows_in_aoi": 3665103,
+    "exact_duplicates_removed": 19214,
+    "rows_written": 3645889,
+    "rows_written_by_region": {
+      "oslofjord": 697148,
+      "west_coast": 2948741
+    }
+  },
+  "hais_2026-09-23.snappy.parquet": {
+    "source": "hais_2026-09-23.snappy.parquet",
+    "interim": "hais_2026-09-23.parquet",
+    "rows_in_aoi": 3612828,
+    "exact_duplicates_removed": 18304,
+    "rows_written": 3594524,
+    "rows_written_by_region": {
+      "oslofjord": 726615,
+      "west_coast": 2867909
+    }
+  },
+  "hais_2026-09-24.snappy.parquet": {
+    "source": "hais_2026-09-24.snappy.parquet",
+    "interim": "hais_2026-09-24.parquet",
+    "rows_in_aoi": 3712666,
+    "exact_duplicates_removed": 21120,
+    "rows_written": 3691546,
+    "rows_written_by_region": {
+      "oslofjord": 713940,
+      "west_coast": 2977606
+    }
+  },
+  "hais_2026-09-25.snappy.parquet": {
+    "source": "hais_2026-09-25.snappy.parquet",
+    "interim": "hais_2026-09-25.parquet",
+    "rows_in_aoi": 3751272,
+    "exact_duplicates_removed": 20120,
+    "rows_written": 3731152,
+    "rows_written_by_region": {
+      "oslofjord": 657046,
+      "west_coast": 3074106
+    }
+  },
+  "hais_2026-09-26.snappy.parquet": {
+    "source": "hais_2026-09-26.snappy.parquet",
+    "interim": "hais_2026-09-26.parquet",
+    "rows_in_aoi": 3459701,
+    "exact_duplicates_removed": 18707,
+    "rows_written": 3440994,
+    "rows_written_by_region": {
+      "oslofjord": 642239,
+      "west_coast": 2798755
+    }
+  },
+  "hais_2026-09-27.snappy.parquet": {
+    "source": "hais_2026-09-27.snappy.parquet",
+    "interim": "hais_2026-09-27.parquet",
+    "rows_in_aoi": 3396172,
+    "exact_duplicates_removed": 20855,
+    "rows_written": 3375317,
+    "rows_written_by_region": {
+      "oslofjord": 640286,
+      "west_coast": 2735031
+    }
+  },
+  "hais_2026-09-28.snappy.parquet": {
+    "source": "hais_2026-09-28.snappy.parquet",
+    "interim": "hais_2026-09-28.parquet",
+    "rows_in_aoi": 3595102,
+    "exact_duplicates_removed": 25586,
+    "rows_written": 3569516,
+    "rows_written_by_region": {
+      "oslofjord": 679378,
+      "west_coast": 2890138
+    }
+  },
+  "hais_2026-09-29.snappy.parquet": {
+    "source": "hais_2026-09-29.snappy.parquet",
+    "interim": "hais_2026-09-29.parquet",
+    "rows_in_aoi": 3587124,
+    "exact_duplicates_removed": 29488,
+    "rows_written": 3557636,
+    "rows_written_by_region": {
+      "oslofjord": 678332,
+      "west_coast": 2879304
+    }
+  },
+  "hais_2026-09-30.snappy.parquet": {
+    "source": "hais_2026-09-30.snappy.parquet",
+    "interim": "hais_2026-09-30.parquet",
+    "rows_in_aoi": 3772159,
+    "exact_duplicates_removed": 29895,
+    "rows_written": 3742264,
+    "rows_written_by_region": {
+      "oslofjord": 682254,
+      "west_coast": 3060010
+    }
+  },
+  "hais_2026-10-01.snappy.parquet": {
+    "source": "hais_2026-10-01.snappy.parquet",
+    "interim": "hais_2026-10-01.parquet",
+    "rows_in_aoi": 3631464,
+    "exact_duplicates_removed": 30918,
+    "rows_written": 3600546,
+    "rows_written_by_region": {
+      "oslofjord": 678051,
+      "west_coast": 2922495
+    }
+  },
+  "hais_2026-10-02.snappy.parquet": {
+    "source": "hais_2026-10-02.snappy.parquet",
+    "interim": "hais_2026-10-02.parquet",
+    "rows_in_aoi": 3590401,
+    "exact_duplicates_removed": 28866,
+    "rows_written": 3561535,
+    "rows_written_by_region": {
+      "oslofjord": 668592,
+      "west_coast": 2892943
+    }
+  },
+  "hais_2026-10-03.snappy.parquet": {
+    "source": "hais_2026-10-03.snappy.parquet",
+    "interim": "hais_2026-10-03.parquet",
+    "rows_in_aoi": 3409154,
+    "exact_duplicates_removed": 27182,
+    "rows_written": 3381972,
+    "rows_written_by_region": {
+      "oslofjord": 647614,
+      "west_coast": 2734358
+    }
+  },
+  "hais_2026-10-04.snappy.parquet": {
+    "source": "hais_2026-10-04.snappy.parquet",
+    "interim": "hais_2026-10-04.parquet",
+    "rows_in_aoi": 3355017,
+    "exact_duplicates_removed": 22951,
+    "rows_written": 3332066,
+    "rows_written_by_region": {
+      "oslofjord": 634806,
+      "west_coast": 2697260
+    }
+  },
+  "hais_2026-10-05.snappy.parquet": {
+    "source": "hais_2026-10-05.snappy.parquet",
+    "interim": "hais_2026-10-05.parquet",
+    "rows_in_aoi": 3651098,
+    "exact_duplicates_removed": 25312,
+    "rows_written": 3625786,
+    "rows_written_by_region": {
+      "oslofjord": 718397,
+      "west_coast": 2907389
+    }
+  },
+  "hais_2026-10-06.snappy.parquet": {
+    "source": "hais_2026-10-06.snappy.parquet",
+    "interim": "hais_2026-10-06.parquet",
+    "rows_in_aoi": 3655212,
+    "exact_duplicates_removed": 25506,
+    "rows_written": 3629706,
+    "rows_written_by_region": {
+      "oslofjord": 702261,
+      "west_coast": 2927445
+    }
+  },
+  "hais_2026-10-07.snappy.parquet": {
+    "source": "hais_2026-10-07.snappy.parquet",
+    "interim": "hais_2026-10-07.parquet",
+    "rows_in_aoi": 3572460,
+    "exact_duplicates_removed": 23195,
+    "rows_written": 3549265,
+    "rows_written_by_region": {
+      "oslofjord": 693127,
+      "west_coast": 2856138
+    }
+  },
+  "hais_2026-10-08.snappy.parquet": {
+    "source": "hais_2026-10-08.snappy.parquet",
+    "interim": "hais_2026-10-08.parquet",
+    "rows_in_aoi": 3660063,
+    "exact_duplicates_removed": 26005,
+    "rows_written": 3634058,
+    "rows_written_by_region": {
+      "oslofjord": 668482,
+      "west_coast": 2965576
+    }
+  },
+  "hais_2026-10-09.snappy.parquet": {
+    "source": "hais_2026-10-09.snappy.parquet",
+    "interim": "hais_2026-10-09.parquet",
+    "rows_in_aoi": 3667936,
+    "exact_duplicates_removed": 25008,
+    "rows_written": 3642928,
+    "rows_written_by_region": {
+      "oslofjord": 688620,
+      "west_coast": 2954308
+    }
+  },
+  "hais_2026-10-10.snappy.parquet": {
+    "source": "hais_2026-10-10.snappy.parquet",
+    "interim": "hais_2026-10-10.parquet",
+    "rows_in_aoi": 3224049,
+    "exact_duplicates_removed": 21284,
+    "rows_written": 3202765,
+    "rows_written_by_region": {
+      "oslofjord": 604302,
+      "west_coast": 2598463
+    }
+  },
+  "hais_2026-10-11.snappy.parquet": {
+    "source": "hais_2026-10-11.snappy.parquet",
+    "interim": "hais_2026-10-11.parquet",
+    "rows_in_aoi": 3342519,
+    "exact_duplicates_removed": 22287,
+    "rows_written": 3320232,
+    "rows_written_by_region": {
+      "oslofjord": 631370,
+      "west_coast": 2688862
+    }
+  },
+  "hais_2026-10-12.snappy.parquet": {
+    "source": "hais_2026-10-12.snappy.parquet",
+    "interim": "hais_2026-10-12.parquet",
+    "rows_in_aoi": 3709480,
+    "exact_duplicates_removed": 22543,
+    "rows_written": 3686937,
+    "rows_written_by_region": {
+      "oslofjord": 730318,
+      "west_coast": 2956619
+    }
+  },
+  "hais_2026-10-13.snappy.parquet": {
+    "source": "hais_2026-10-13.snappy.parquet",
+    "interim": "hais_2026-10-13.parquet",
+    "rows_in_aoi": 3679005,
+    "exact_duplicates_removed": 27840,
+    "rows_written": 3651165,
+    "rows_written_by_region": {
+      "oslofjord": 694509,
+      "west_coast": 2956656
+    }
+  },
+  "hais_2026-10-14.snappy.parquet": {
+    "source": "hais_2026-10-14.snappy.parquet",
+    "interim": "hais_2026-10-14.parquet",
+    "rows_in_aoi": 3709790,
+    "exact_duplicates_removed": 23869,
+    "rows_written": 3685921,
+    "rows_written_by_region": {
+      "oslofjord": 725436,
+      "west_coast": 2960485
+    }
+  },
+  "hais_2026-10-15.snappy.parquet": {
+    "source": "hais_2026-10-15.snappy.parquet",
+    "interim": "hais_2026-10-15.parquet",
+    "rows_in_aoi": 3630516,
+    "exact_duplicates_removed": 25524,
+    "rows_written": 3604992,
+    "rows_written_by_region": {
+      "oslofjord": 679253,
+      "west_coast": 2925739
+    }
+  }
+}

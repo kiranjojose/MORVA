@@ -1,0 +1,108 @@
+{
+  "boundaries_utc": {
+    "west_coast": {
+      "train_start": "2026-09-19 00:00:00+00:00",
+      "train_end": "2026-10-07 00:00:00+00:00",
+      "val_end": "2026-10-12 00:00:00+00:00",
+      "calib_end": "2026-10-16 00:00:00+00:00",
+      "test_end": "2026-10-30 00:00:00+00:00"
+    },
+    "oslofjord": {
+      "train_start": "2026-09-19 00:00:00+00:00",
+      "train_end": "2026-10-07 00:00:00+00:00",
+      "val_end": "2026-10-12 00:00:00+00:00",
+      "calib_end": "2026-10-16 00:00:00+00:00",
+      "test_end": "2026-10-30 00:00:00+00:00"
+    },
+    "skagen": {
+      "train_start": "2026-09-19 00:00:00+00:00",
+      "train_end": "2026-10-30 00:00:00+00:00",
+      "val_end": "2026-11-04 00:00:00+00:00",
+      "calib_end": "2026-11-08 00:00:00+00:00",
+      "test_end": "2026-11-22 00:00:00+00:00"
+    }
+  },
+  "counts": {
+    "calib": {
+      "windows": 89511,
+      "vessels": 604
+    },
+    "excluded": {
+      "windows": 1298,
+      "vessels": 111
+    },
+    "train": {
+      "windows": 376524,
+      "vessels": 1069
+    },
+    "transfer_calib": {
+      "windows": 20696,
+      "vessels": 139
+    },
+    "transfer_context": {
+      "windows": 510667,
+      "vessels": 2812
+    },
+    "transfer_val": {
+      "windows": 80834,
+      "vessels": 874
+    },
+    "val": {
+      "windows": 101559,
+      "vessels": 655
+    }
+  },
+  "vessel_overlap_with_train": {
+    "calib": 513,
+    "transfer_calib": 14,
+    "transfer_val": 90,
+    "val": 580
+  },
+  "counts_by_region": {
+    "calib/west_coast": {
+      "windows": 89511,
+      "vessels": 604
+    },
+    "excluded/oslofjord": {
+      "windows": 107,
+      "vessels": 11
+    },
+    "excluded/skagen": {
+      "windows": 699,
+      "vessels": 59
+    },
+    "excluded/west_coast": {
+      "windows": 492,
+      "vessels": 41
+    },
+    "train/west_coast": {
+      "windows": 376524,
+      "vessels": 1069
+    },
+    "transfer_calib/oslofjord": {
+      "windows": 20696,
+      "vessels": 139
+    },
+    "transfer_context/oslofjord": {
+      "windows": 81386,
+      "vessels": 269
+    },
+    "transfer_context/skagen": {
+      "windows": 429281,
+      "vessels": 2660
+    },
+    "transfer_val/oslofjord": {
+      "windows": 21329,
+      "vessels": 140
+    },
+    "transfer_val/skagen": {
+      "windows": 59505,
+      "vessels": 748
+    },
+    "val/west_coast": {
+      "windows": 101559,
+      "vessels": 655
+    }
+  },
+  "boundaries_source": "calendars"
+}
