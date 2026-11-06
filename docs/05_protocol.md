@@ -364,9 +364,10 @@ at the forecast origin. Decided on seed 0; confidence intervals paired and vesse
 - **V4-H5 (wind and current add no point accuracy):** at home, H's error at 60 minutes is within ±150 m of E's.
   *Decision rule:* the 95% CI of H − E at 60 minutes lies inside −150 to +150 m (an equivalence test).
   *Validation:* +4 m at home, −1 m in the Oslofjord, +13 m at Skagen (point estimates; CIs not yet computed).
-  *Author decision needed:* keep this as an equivalence hypothesis (and confirm the ±150 m margin, about 3.4% of
-  E's FDE@60 at home), or report wind and current descriptively only. The margin is chosen after seeing validation,
-  which must be stated if kept.
+  *Kept as an equivalence hypothesis (author's decision, 6 Nov).* The ±150 m margin (about 3.4% of E's FDE@60 at
+  home) was chosen **after** the validation results were seen; it is stated here so the test is read accordingly. A
+  supported V4-H5 means wind and current at the forecast origin, as represented here, add no point accuracy beyond
+  ±150 m at home; it does not show that environmental information is useless in other forms.
 
 **Prespecified descriptive analyses (draft)**
 
