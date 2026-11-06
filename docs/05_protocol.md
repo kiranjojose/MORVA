@@ -388,4 +388,5 @@ at the forecast origin. Decided on seed 0; confidence intervals paired and vesse
    detection gap, model minus each rule, at every horizon.
 2. Skagen calibration days (4–7 Nov 2026): download, ingest, rebuild Skagen windows and features, and validate V4-H3
    at Skagen.
-3. A decision script (as `scripts/v3_decide.py`) written before test access.
+3. Done 6 Nov: `scripts/v4_decide.py` applies these rules (tests in `tests/test_v4_decide.py`); on validation H1, H2, H4
+   and H5 are supported and H3 is undecided until Skagen is calibrated (`results/v4/tables/v4_decision_val.md`).

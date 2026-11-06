@@ -1,0 +1,281 @@
+{
+  "split": "val",
+  "runs": {
+    "gbm_oslofjord": "20261106T115415Z_gbm_transfer_val_oslofjord",
+    "gbm_skagen": "20261106T120458Z_gbm_transfer_val_skagen",
+    "intervals_home": "20261106T100300Z_intervals_E_fairway_val",
+    "intervals_oslofjord": "20261106T100300Z_intervals_E_fairway_transfer_val_oslofjord_localcal",
+    "intervals_skagen": null,
+    "deviation_home": "20261106T121243Z_deviation_E_fairway_val",
+    "gbm_home": "20261106T114329Z_gbm_val"
+  },
+  "hypotheses": {
+    "V4-H1": {
+      "outcome": "supported",
+      "checks": [
+        {
+          "check": "oslofjord: E_fairway - A_motion at 20 min, 95% CI upper < 0",
+          "mean": -315.20557764486574,
+          "ci95_lo": -399.81094528944493,
+          "ci95_hi": -226.41920186091124,
+          "pass": true
+        },
+        {
+          "check": "oslofjord: E_fairway - A_motion at 60 min, 95% CI upper < 0",
+          "mean": -990.2699793922221,
+          "ci95_lo": -1284.8630148339207,
+          "ci95_hi": -746.3435759425003,
+          "pass": true
+        },
+        {
+          "check": "skagen: E_fairway - A_motion at 20 min, 95% CI upper < 0",
+          "mean": -107.09192250784258,
+          "ci95_lo": -132.2493932993414,
+          "ci95_hi": -85.74518841262116,
+          "pass": true
+        },
+        {
+          "check": "skagen: E_fairway - A_motion at 60 min, 95% CI upper < 0",
+          "mean": -714.3215832427301,
+          "ci95_lo": -829.9043531747923,
+          "ci95_hi": -605.1611428331549,
+          "pass": true
+        }
+      ]
+    },
+    "V4-H2": {
+      "outcome": "supported",
+      "checks": [
+        {
+          "check": "oslofjord: C_location - A_motion at 20 min, 95% CI lower > 0",
+          "mean": 646.2879180236346,
+          "ci95_lo": 511.00235895611115,
+          "ci95_hi": 827.94266159626,
+          "pass": true
+        },
+        {
+          "check": "oslofjord: C_location - A_motion at 60 min, 95% CI lower > 0",
+          "mean": 1214.7977723038566,
+          "ci95_lo": 827.5004964236774,
+          "ci95_hi": 1717.960583201359,
+          "pass": true
+        },
+        {
+          "check": "skagen: C_location - A_motion at 20 min, 95% CI lower > 0",
+          "mean": 1701.6807649747707,
+          "ci95_lo": 1503.0317667436932,
+          "ci95_hi": 1933.7568656142423,
+          "pass": true
+        },
+        {
+          "check": "skagen: C_location - A_motion at 60 min, 95% CI lower > 0",
+          "mean": 5281.324646522077,
+          "ci95_lo": 4668.018680345593,
+          "ci95_hi": 6007.271093967137,
+          "pass": true
+        }
+      ]
+    },
+    "V4-H3": {
+      "outcome": "undecided (missing runs: intervals_E_fairway_transfer_val_skagen_localcal)",
+      "checks": [
+        {
+          "check": "home: 80% box at 20 min within \u00b13 points",
+          "coverage": 0.818233736054904,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "home: 80% box at 60 min within \u00b13 points",
+          "coverage": 0.8129067832491458,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "home: 90% box at 20 min within \u00b13 points",
+          "coverage": 0.9084768459713073,
+          "nominal": 0.9,
+          "pass": true
+        },
+        {
+          "check": "home: 90% box at 60 min within \u00b13 points",
+          "coverage": 0.9058970647603856,
+          "nominal": 0.9,
+          "pass": true
+        },
+        {
+          "check": "oslofjord: 80% box at 20 min within \u00b13 points",
+          "coverage": 0.8064606873271133,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "oslofjord: 80% box at 60 min within \u00b13 points",
+          "coverage": 0.805757419475831,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "oslofjord: 90% box at 20 min within \u00b13 points",
+          "coverage": 0.9045431103192836,
+          "nominal": 0.9,
+          "pass": true
+        },
+        {
+          "check": "oslofjord: 90% box at 60 min within \u00b13 points",
+          "coverage": 0.900276618688171,
+          "nominal": 0.9,
+          "pass": true
+        }
+      ]
+    },
+    "V4-H4": {
+      "outcome": "supported",
+      "checks": [
+        {
+          "check": "turn_30: model \u2212 cv_distance detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.21745494348844313,
+          "ci95_lo": 0.185552507723928,
+          "ci95_hi": 0.24973271538483258,
+          "pass": true
+        },
+        {
+          "check": "turn_30: model \u2212 turn detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.23764127889216985,
+          "ci95_lo": 0.2105276086055634,
+          "ci95_hi": 0.2665004287163671,
+          "pass": true
+        },
+        {
+          "check": "turn_30: model \u2212 speed detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.21632216678545974,
+          "ci95_lo": 0.17863921130957922,
+          "ci95_hi": 0.25493628832657,
+          "pass": true
+        },
+        {
+          "check": "turn_60: model \u2212 cv_distance detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.32375776397515527,
+          "ci95_lo": 0.2859232822772679,
+          "ci95_hi": 0.3608200015180335,
+          "pass": true
+        },
+        {
+          "check": "turn_60: model \u2212 turn detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.3480424600346197,
+          "ci95_lo": 0.315501741297632,
+          "ci95_hi": 0.3806837209011733,
+          "pass": true
+        },
+        {
+          "check": "turn_60: model \u2212 speed detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.323375929131453,
+          "ci95_lo": 0.28176247926536246,
+          "ci95_hi": 0.36547499251597615,
+          "pass": true
+        },
+        {
+          "check": "turn_90: model \u2212 cv_distance detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.3621448935953569,
+          "ci95_lo": 0.32267131696921114,
+          "ci95_hi": 0.4013504201476114,
+          "pass": true
+        },
+        {
+          "check": "turn_90: model \u2212 turn detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.38053660523368293,
+          "ci95_lo": 0.3458601745949723,
+          "ci95_hi": 0.4149010770597349,
+          "pass": true
+        },
+        {
+          "check": "turn_90: model \u2212 speed detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.35994297933000713,
+          "ci95_lo": 0.3164499127261077,
+          "ci95_hi": 0.402952087419694,
+          "pass": true
+        },
+        {
+          "check": "stop: model \u2212 cv_distance detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.35814835556460645,
+          "ci95_lo": 0.3199731324966905,
+          "ci95_hi": 0.3935647659726658,
+          "pass": true
+        },
+        {
+          "check": "stop: model \u2212 turn detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.38198757763975155,
+          "ci95_lo": 0.35225115850669597,
+          "ci95_hi": 0.41235903391863066,
+          "pass": true
+        },
+        {
+          "check": "stop: model \u2212 speed detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.3278306689746462,
+          "ci95_lo": 0.28412431985647446,
+          "ci95_hi": 0.3701243818398635,
+          "pass": true
+        },
+        {
+          "check": "slow_50pct: model \u2212 cv_distance detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.2722991548722126,
+          "ci95_lo": 0.24265493847052794,
+          "ci95_hi": 0.3021457026202596,
+          "pass": true
+        },
+        {
+          "check": "slow_50pct: model \u2212 turn detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.2642297118419713,
+          "ci95_lo": 0.23747418874350823,
+          "ci95_hi": 0.2934310277931371,
+          "pass": true
+        },
+        {
+          "check": "slow_50pct: model \u2212 speed detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.2594440484675695,
+          "ci95_lo": 0.2241470329914798,
+          "ci95_hi": 0.29397935007116055,
+          "pass": true
+        },
+        {
+          "check": "fast_150pct: model \u2212 cv_distance detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.27811577232461054,
+          "ci95_lo": 0.24482671657589813,
+          "ci95_hi": 0.3115943769219135,
+          "pass": true
+        },
+        {
+          "check": "fast_150pct: model \u2212 turn detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.2962274717442216,
+          "ci95_lo": 0.2682796289997134,
+          "ci95_hi": 0.32663700898582865,
+          "pass": true
+        },
+        {
+          "check": "fast_150pct: model \u2212 speed detection at 20 min, 95% CI lower > 0",
+          "rate_gap": 0.2855106404643112,
+          "ci95_lo": 0.24813817427221166,
+          "ci95_hi": 0.32343802816625233,
+          "pass": true
+        },
+        {
+          "check": "control: model false alarms at 20 min within 4%\u20136%",
+          "rate": 0.0476784441502902,
+          "pass": true
+        }
+      ]
+    },
+    "V4-H5": {
+      "outcome": "supported",
+      "checks": [
+        {
+          "check": "home: H_wind_current \u2212 E_fairway at 60 min, 95% CI inside \u00b1150 m",
+          "mean": 3.316575519238201,
+          "ci95_lo": -19.435800531467557,
+          "ci95_hi": 23.186340785027127,
+          "pass": true
+        }
+      ]
+    }
+  }
+}

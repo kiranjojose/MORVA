@@ -347,3 +347,7 @@ All with `--confirm-test`. Run folders `results/v2/runs/20261021T2*`; tables in 
 - H − E at 60 min: home +3 m (−19 to +23), Oslofjord −1 (−24 to +25), Skagen +12 (+4 to +21). G − E: +18 (+2 to +32), −44 (−74 to −14), +13 (+8 to +18).
 - Detection gap at 20 min, model minus each rule, home: all 18 lower bounds above 0 for the six V4-H4 scenarios (closest rule +21.6 to +36.0 points); control gaps span 0; the speed rule beats the model only for 1,000 m jumps (−16.0, −20.1 to −11.5).
 - Draft V4-H4 now requires the model to beat each rule (18 checks) rather than the best rule chosen afterwards.
+
+## 2026-11-06 (Fri), V4 decision script
+- Added `scripts/v4_decide.py` (tests: `tests/test_v4_decide.py`), written before the V4 freeze and before any V4 test data exist. It reads run summaries only and applies the draft rules: H1 and H2 4 CI checks each, H3 12 coverage checks, H4 18 detection-gap checks plus the control band, H5 one equivalence check. For the test split it refuses more than one run per command and refuses `--latest`.
+- On validation (`--latest`, `results/v4/tables/v4_decision_val.md`): H1, H2, H4 and H5 supported; H3 undecided because Skagen's local calibration needs its 4–7 Nov days. If the rules change at the freeze, the script changes in the same commit.
