@@ -324,3 +324,64 @@ documented and only if no result from that command was produced or inspected.
 **FROZEN on 2026-10-26 before downloading or inspecting any V3 test-period data.** The test and `transfer_test` splits
 are now available only for the single pass above. All later analyses are post-freeze and must be labelled exploratory.
 
+
+## V4 hypotheses (DRAFT 2026-11-06, not frozen)
+
+> **Status:** draft for the author's review, written after the V4 validation runs (research log, 6 Nov). These are
+> **validation-informed**. Nothing here is frozen; wording, horizons and margins may change until the freeze. No V4
+> test file (Norway 16–29 Oct 2026, Skagen 8–21 Nov 2026) has been ordered or downloaded.
+
+**Setting and models.** As fixed in `configs/v4/`: models trained on the Norwegian west coast, 19 Sep–6 Oct 2026;
+flow maps from each region's own traffic history; Oslofjord (Norway) and Skagen (Denmark) are never used for
+training. A = motion only, C = motion + raw location, E = motion + fairway, H = E + MEPS wind + NorKyst surface current
+at the forecast origin. Decided on seed 0; confidence intervals paired and vessel-grouped (1,000 resamples).
+
+**Primary hypotheses (draft)**
+
+- **V4-H1 (fairway context transfers from a Norwegian training area):** in the Oslofjord and at Skagen, E improves on
+  A at 20 and 60 minutes.
+  *Decision rule:* upper bound of the 95% CI of E − A below 0 at both horizons in both regions (4 checks).
+  *Validation:* Oslofjord −315 m at 20 min (−400 to −226), −990 m at 60 min (−1,285 to −746); Skagen −107 m
+  (−132 to −86) and −714 m (−830 to −605).
+- **V4-H2 (raw coordinates do not transfer):** in the Oslofjord and at Skagen, C is worse than A at 20 and 60 minutes.
+  *Decision rule:* lower bound of the 95% CI of C − A above 0 at both horizons in both regions (4 checks).
+  *Validation:* Oslofjord +646 m (+511 to +828) and +1,215 m (+828 to +1,718); Skagen +1,702 m (+1,503 to +1,934)
+  and +5,281 m (+4,668 to +6,007).
+- **V4-H3 (calibrated boxes):** E's conformal 80% and 90% boxes have marginal coverage within 3 percentage points of
+  nominal at 20 and 60 minutes (a) at home with home calibration and (b) in the Oslofjord and at Skagen with local
+  calibration on each region's own calibration days (12 checks).
+  *Decision rule:* all 12 point estimates within ±3 points.
+  *Validation:* home 81.8, 81.3, 90.8, 90.6%; Oslofjord local 80.6, 80.6, 90.5, 90.0%; Skagen local **not yet
+  validated** (its calibration days, 4–7 Nov, are not yet published).
+- **V4-H4 (deviation screening at home):** at the home area, flagging at p ≤ 0.05 at 20 minutes, the E box score
+  detects more injected deviations than the best of the three rules (distance from constant velocity, turn, speed
+  change) for turns of 30°, 60° and 90°, a stop, speed ×0.5 and speed ×1.5 (6 checks), while the unchanged control
+  is flagged at 5% ± 1 point.
+  *Decision rule:* for each of the 6 scenarios, the lower bound of the 95% vessel-bootstrap CI of (model − best rule)
+  detection rate is above 0; control false-alarm rate within 4–6%.
+  *Validation (model vs best rule):* turn 30° 26.4 vs 4.8%; 60° 37.1 vs 4.8%; 90° 40.8 vs 4.8%; stop 39.7 vs 6.9%;
+  ×0.5 30.9 vs 5.0%; ×1.5 34.3 vs 6.5%; control 4.8%. CIs not yet computed (see engineering below).
+- **V4-H5 (wind and current add no point accuracy):** at home, H's error at 60 minutes is within ±150 m of E's.
+  *Decision rule:* the 95% CI of H − E at 60 minutes lies inside −150 to +150 m (an equivalence test).
+  *Validation:* +4 m at home, −1 m in the Oslofjord, +13 m at Skagen (point estimates; CIs not yet computed).
+  *Author decision needed:* keep this as an equivalence hypothesis (and confirm the ±150 m margin, about 3.4% of
+  E's FDE@60 at home), or report wind and current descriptively only. The margin is chosen after seeing validation,
+  which must be stated if kept.
+
+**Prespecified descriptive analyses (draft)**
+
+- Deviation screening in the Oslofjord and at Skagen with local calibration, all 13 scenarios (validation, Oslofjord:
+  model 9–16% for the 500 m and larger scenarios, speed rule better on stops and jumps).
+- Position jumps of 200, 500 and 1,000 m at home (the speed rule detects 1,000 m jumps better than the model: 69 vs
+  53% on validation), and detection against deviation size for every ladder.
+- First-flag detection (p ≤ 0.05 / 7) and median delay for every scenario and detector.
+- Home-calibrated box coverage in the Oslofjord and at Skagen; box half-widths of A, E and H.
+- G (E + wind only) alongside H; E vs C at home.
+
+**Engineering needed before the freeze**
+
+1. `gbm`: paired H − E and G − E comparisons with CIs (currently only against CV and A).
+2. `deviation`: vessel-bootstrap CI of the detection-rate difference between the model and each rule.
+3. Skagen calibration days (4–7 Nov 2026): download, ingest, rebuild Skagen windows and features, and validate V4-H3
+   at Skagen.
+4. A decision script (as `scripts/v3_decide.py`) written before test access.
