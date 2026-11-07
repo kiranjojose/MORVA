@@ -351,3 +351,6 @@ All with `--confirm-test`. Run folders `results/v2/runs/20261021T2*`; tables in 
 ## 2026-11-06 (Fri), V4 decision script
 - Added `scripts/v4_decide.py` (tests: `tests/test_v4_decide.py`), written before the V4 freeze and before any V4 test data exist. It reads run summaries only and applies the draft rules: H1 and H2 4 CI checks each, H3 12 coverage checks, H4 18 detection-gap checks plus the control band, H5 one equivalence check. For the test split it refuses more than one run per command and refuses `--latest`.
 - On validation (`--latest`, `results/v4/tables/v4_decision_val.md`): H1, H2, H4 and H5 supported; H3 undecided because Skagen's local calibration needs its 4–7 Nov days. If the rules change at the freeze, the script changes in the same commit.
+
+## 2026-11-07 (Sat), author's rewording of the V4 draft hypotheses
+- The author rewrote the status note, the statements and decision rules of V4-H1 to V4-H5 in their own words, and added a closing paragraph on how the five hypotheses relate. The decision rules are unchanged in substance and still match `scripts/v4_decide.py` (checked: regions, horizons, the ±3-point coverage band, the 18 model − rule checks at 20 min and p <= 0.05 with the 4–6% control band, and the ±150 m equivalence margin). The hypotheses remain a draft until the freeze.

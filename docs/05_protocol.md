@@ -327,9 +327,10 @@ are now available only for the single pass above. All later analyses are post-fr
 
 ## V4 hypotheses (DRAFT 2026-11-06, not frozen)
 
-> **Status:** draft for the author's review, written after the V4 validation runs (research log, 6 Nov). These are
-> **validation-informed**. Nothing here is frozen; wording, horizons and margins may change until the freeze. No V4
-> test file (Norway 16–29 Oct 2026, Skagen 8–21 Nov 2026) has been ordered or downloaded.
+> **Status:** these draft hypotheses were developed from the V4 validation results and are therefore
+> **validation-informed**. They will be frozen before any V4 test-period data are ordered, downloaded or inspected.
+> After the freeze, the models, thresholds, decision rules and primary seed cannot be changed. The locked test will
+> be run once. No V4 test file (Norway 16–29 Oct 2026, Skagen 8–21 Nov 2026) has yet been ordered or downloaded.
 
 **Setting and models.** As fixed in `configs/v4/`: models trained on the Norwegian west coast, 19 Sep–6 Oct 2026;
 flow maps from each region's own traffic history; Oslofjord (Norway) and Skagen (Denmark) are never used for
@@ -338,39 +339,56 @@ at the forecast origin. Decided on seed 0; confidence intervals paired and vesse
 
 **Primary hypotheses (draft)**
 
-- **V4-H1 (fairway context transfers from a Norwegian training area):** in the Oslofjord and at Skagen, E improves on
-  A at 20 and 60 minutes.
-  *Decision rule:* upper bound of the 95% CI of E − A below 0 at both horizons in both regions (4 checks).
+- **V4-H1 (fairway context transfers beyond the training area):** a model trained on the Norwegian west coast predicts
+  more accurately when fairway-relative context is added to recent motion, both in the Oslofjord and at Skagen, at
+  20- and 60-minute horizons.
+  *Decision rule:* V4-H1 is supported only if the upper bound of the paired vessel-bootstrap 95% CI of E − A is below
+  0 at both horizons in both regions. All 4 checks must pass.
   *Validation:* Oslofjord −315 m at 20 min (−400 to −226), −990 m at 60 min (−1,285 to −746); Skagen −107 m
   (−132 to −86) and −714 m (−830 to −605).
-- **V4-H2 (raw coordinates do not transfer):** in the Oslofjord and at Skagen, C is worse than A at 20 and 60 minutes.
-  *Decision rule:* lower bound of the 95% CI of C − A above 0 at both horizons in both regions (4 checks).
+- **V4-H2 (absolute coordinates do not generalise to new waterways):** raw latitude and longitude may help inside the
+  training area by encoding local route patterns, but those geographically attached corrections make C less accurate
+  than motion-only A in the Oslofjord and at Skagen.
+  *Decision rule:* V4-H2 is supported only if the lower bound of the paired vessel-bootstrap 95% CI of C − A is above
+  0 at both horizons in both regions. All 4 checks must pass.
   *Validation:* Oslofjord +646 m (+511 to +828) and +1,215 m (+828 to +1,718); Skagen +1,702 m (+1,503 to +1,934)
   and +5,281 m (+4,668 to +6,007).
-- **V4-H3 (calibrated boxes):** E's conformal 80% and 90% boxes have marginal coverage within 3 percentage points of
-  nominal at 20 and 60 minutes (a) at home with home calibration and (b) in the Oslofjord and at Skagen with local
-  calibration on each region's own calibration days (12 checks).
-  *Decision rule:* all 12 point estimates within ±3 points.
+- **V4-H3 (local calibration restores reliable prediction-box coverage):** E's conformal prediction boxes achieve
+  approximately their stated marginal coverage when calibrated in the region where they are evaluated: home
+  calibration for the Norwegian west-coast home area and local calibration for the Oslofjord and Skagen.
+  *Decision rule:* the observed marginal coverage of E's 80% and 90% boxes must be within 3 percentage points of
+  nominal at 20 and 60 minutes in all 3 regions. All 12 point-estimate checks must pass.
   *Validation:* home 81.8, 81.3, 90.8, 90.6%; Oslofjord local 80.6, 80.6, 90.5, 90.0%; Skagen local **not yet
   validated** (its calibration days, 4–7 Nov, are not yet published).
-- **V4-H4 (deviation screening at home):** at the home area, flagging at p ≤ 0.05 at 20 minutes, the E box score
-  detects more injected deviations than each of the three rules (distance from constant velocity, turn, speed
-  change) for turns of 30°, 60° and 90°, a stop, speed ×0.5 and speed ×1.5, while the unchanged control is flagged at
-  5% ± 1 point.
-  *Decision rule:* for each of the 6 scenarios and each of the 3 rules (18 checks), the lower bound of the 95%
-  vessel-bootstrap CI of the paired detection gap (model − rule, same windows) is above 0; control false-alarm rate
-  of the model within 4–6%.
+- **V4-H4 (context-aware prediction residuals detect injected behavioural deviations better than simple rules):** at
+  the Norwegian home area, E's calibrated box score detects the selected injected turns and speed changes more often
+  than rules based only on distance from constant velocity, course change or speed change, while retaining the
+  intended false-alarm rate on unchanged trajectories.
+  *Decision rule:* at the 20-minute horizon and p ≤ 0.05, the lower bound of the paired vessel-bootstrap 95% CI of the
+  detection-rate difference (model − rule on the same windows) must be above 0 for every combination of the 6
+  scenarios (turns of 30°, 60° and 90°, stop, speed ×0.5 and speed ×1.5) and the 3 rule detectors. All 18 comparisons
+  must pass. The model must also flag between 4% and 6% of the unchanged control windows.
   *Validation (gap to the closest rule, percentage points):* turn 30° +21.6 (+17.9 to +25.5); 60° +32.3 (+28.2 to
   +36.5); 90° +36.0 (+31.6 to +40.3); stop +32.8 (+28.4 to +37.0); ×0.5 +25.9 (+22.4 to +29.4); ×1.5 +27.8 (+24.5 to
   +31.2); control 4.8% (gap +0.0 to +0.1, CIs across 0). All 18 lower bounds above 0.
-- **V4-H5 (wind and current add no point accuracy):** at home, H's error at 60 minutes is within ±150 m of E's.
-  *Decision rule:* the 95% CI of H − E at 60 minutes lies inside −150 to +150 m (an equivalence test).
+- **V4-H5 (origin-point wind and current do not materially change home-area 60-minute accuracy):** adding the selected
+  wind and surface-current features at the forecast origin does not change H's mean 60-minute error by more than
+  ±150 m relative to E at the Norwegian home area.
+  *Decision rule:* V4-H5 is supported only if the entire paired vessel-bootstrap 95% CI of H − E at 60 minutes lies
+  inside −150 to +150 m (an equivalence test).
   *Validation:* H − E at 60 min +3 m (−19 to +23) at home; descriptive elsewhere: −1 m (−24 to +25) in the
   Oslofjord and +12 m (+4 to +21) at Skagen.
   *Kept as an equivalence hypothesis (author's decision, 6 Nov).* The ±150 m margin (about 3.4% of E's FDE@60 at
   home) was chosen **after** the validation results were seen; it is stated here so the test is read accordingly. A
-  supported V4-H5 means wind and current at the forecast origin, as represented here, add no point accuracy beyond
-  ±150 m at home; it does not show that environmental information is useless in other forms.
+  supported V4-H5 means only that the selected origin-point environmental features are equivalent to E within the
+  stated margin for this home area, model family and 60-minute metric. It does not show that wind or current are
+  physically unimportant or that other environmental representations cannot improve prediction.
+
+These hypotheses address different parts of the same question. H1 and H2 test whether the representation of geography
+determines transfer. H3 asks whether uncertainty estimates remain reliable after regional calibration. H4 tests
+whether calibrated forecast residuals are more informative than simple movement rules for selected synthetic
+deviations. H5 asks whether the particular wind and current representation adds a practically meaningful accuracy
+gain. Each hypothesis is reported separately; support for one does not imply support for the others.
 
 **Prespecified descriptive analyses (draft)**
 
