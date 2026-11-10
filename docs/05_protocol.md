@@ -325,7 +325,7 @@ documented and only if no result from that command was produced or inspected.
 are now available only for the single pass above. All later analyses are post-freeze and must be labelled exploratory.
 
 
-## V4 hypotheses (DRAFT 2026-11-06, not frozen)
+## V4 hypotheses (FROZEN 2026-11-10)
 
 > **Status:** these draft hypotheses were developed from the V4 validation results and are therefore
 > **validation-informed**. They will be frozen before any V4 test-period data are ordered, downloaded or inspected.
@@ -337,7 +337,7 @@ flow maps from each region's own traffic history; Oslofjord (Norway) and Skagen 
 training. A = motion only, C = motion + raw location, E = motion + fairway, H = E + MEPS wind + NorKyst surface current
 at the forecast origin. Decided on seed 0; confidence intervals paired and vessel-grouped (1,000 resamples).
 
-**Primary hypotheses (draft)**
+**Primary hypotheses**
 
 - **V4-H1 (fairway context transfers beyond the training area):** a model trained on the Norwegian west coast predicts
   more accurately when fairway-relative context is added to recent motion, both in the Oslofjord and at Skagen, at
@@ -351,15 +351,15 @@ at the forecast origin. Decided on seed 0; confidence intervals paired and vesse
   than motion-only A in the Oslofjord and at Skagen.
   *Decision rule:* V4-H2 is supported only if the lower bound of the paired vessel-bootstrap 95% CI of C − A is above
   0 at both horizons in both regions. All 4 checks must pass.
-  *Validation:* Oslofjord +646 m (+511 to +828) and +1,215 m (+828 to +1,718); Skagen +1,702 m (+1,503 to +1,934)
-  and +5,281 m (+4,668 to +6,007).
+  *Validation:* Oslofjord +646 m (+511 to +828) and +1,215 m (+828 to +1,718); Skagen +1,701 m (+1,503 to +1,934)
+  and +5,281 m (+4,667 to +6,006).
 - **V4-H3 (local calibration restores reliable prediction-box coverage):** E's conformal prediction boxes achieve
   approximately their stated marginal coverage when calibrated in the region where they are evaluated: home
   calibration for the Norwegian west-coast home area and local calibration for the Oslofjord and Skagen.
   *Decision rule:* the observed marginal coverage of E's 80% and 90% boxes must be within 3 percentage points of
   nominal at 20 and 60 minutes in all 3 regions. All 12 point-estimate checks must pass.
-  *Validation:* home 81.8, 81.3, 90.8, 90.6%; Oslofjord local 80.6, 80.6, 90.5, 90.0%; Skagen local **not yet
-  validated** (its calibration days, 4–7 Nov, are not yet published).
+  *Validation:* home 81.8, 81.3, 90.8, 90.6%; Oslofjord local 80.6, 80.6, 90.5, 90.0%; Skagen local 80.1, 79.8,
+  90.3, 90.0% (80% box at 20 and 60 min, then 90% box at 20 and 60 min).
 - **V4-H4 (context-aware prediction residuals detect injected behavioural deviations better than simple rules):** at
   the Norwegian home area, E's calibrated box score detects the selected injected turns and speed changes more often
   than rules based only on distance from constant velocity, course change or speed change, while retaining the
@@ -390,7 +390,7 @@ whether calibrated forecast residuals are more informative than simple movement 
 deviations. H5 asks whether the particular wind and current representation adds a practically meaningful accuracy
 gain. Each hypothesis is reported separately; support for one does not imply support for the others.
 
-**Prespecified descriptive analyses (draft)**
+**Prespecified descriptive analyses**
 
 - Deviation screening in the Oslofjord and at Skagen with local calibration, all 13 scenarios (validation, Oslofjord:
   model 9–16% for the 500 m and larger scenarios, speed rule better on stops and jumps).
@@ -408,3 +408,72 @@ gain. Each hypothesis is reported separately; support for one does not imply sup
    local calibration at Skagen gives 79.8–80.1% (80% box) and 90.0–90.3% (90% box) at 20 and 60 min.
 3. Done 6 Nov: `scripts/v4_decide.py` applies these rules (tests in `tests/test_v4_decide.py`). On validation
    (10 Nov, `results/v4/tables/v4_decision_val.md`) all five hypotheses are supported.
+
+## V4 frozen implementation and test pass
+
+**Pinned code and configuration:** code, configurations and decision implementation are pinned at `ebed8c6`. The only
+subsequent change before test-data access is the protocol freeze commit (this section, the hypothesis status, the
+Skagen validation rerun of 10 Nov and its log entry); no model code, configuration, feature, threshold or
+decision-rule change is permitted.
+
+**Data preparation (run once, before the test pass).** Test data are obtained only after the freeze commit is pushed.
+
+1. Norway, 16–29 Oct 2026: the author orders `west_coast` and Oslofjord from Kystverket HAIS (same areas as the main
+   order). The zip is stored as `data/raw/no/orders/<order date>_test_west_coast_oslofjord_1016-1029.zip` and its
+   14 daily files are extracted to `data/raw/no/hais_YYYY-MM-DD.snappy.parquet`. Every day must span 00:00–23:59 UTC
+   with both areas present and no day outside 16–29 Oct.
+2. Skagen, 8–21 Nov 2026: the 14 DMA daily files `aisdk-2026-11-08.zip` to `aisdk-2026-11-21.zip` are downloaded to
+   `data/raw/` once all are published (expected about 24 Nov 2026), each checked against the server's byte size and
+   with `unzip -t`.
+3. Then, with the V4 configurations and in this order:
+
+```bash
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml manifest --source kystverket data/raw/no/hais_2026-10-{16..29}.snappy.parquet --notes "V4 test, Norway"
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml manifest --source dma data/raw/aisdk-2026-11-{08..21}.zip --notes "V4 test, Skagen"
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml ingest
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml clean
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml windows
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml fairway
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml environment
+```
+
+This rebuilds all splits from the same code and configuration. Training windows, flow maps (fixed map periods) and
+model settings are unchanged; windows at the 15/16 Oct (Norway) and 7/8 Nov (Skagen) boundaries may change slightly
+because tracks no longer end at the data boundary. Train, validation and calibration window counts are recorded
+before and after, and any difference is reported. The test pass starts only when all 28 test files are present.
+
+**Test pass.** The following 13 commands form the single V4 test pass. They are run once, in this order, from the
+repository root at the freeze commit, with no change to code or configuration. Every `morva` command on the `test` or
+`transfer_test` split requires `--confirm-test` (the CLI refuses these splits without it). Each start and end time,
+exit status and output run directory is recorded in `docs/08_research_log.md`.
+
+```bash
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml baselines --split test --confirm-test
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml baselines --split transfer_test --region oslofjord --confirm-test
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml baselines --split transfer_test --region skagen --confirm-test
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml gbm --split test --confirm-test
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml gbm --split transfer_test --region oslofjord --confirm-test
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml gbm --split transfer_test --region skagen --confirm-test
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml intervals --split test --feature-set E_fairway --sweep --confirm-test
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml intervals --split test --feature-set A_motion --sweep --confirm-test
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml intervals --split test --feature-set H_wind_current --sweep --confirm-test
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml deviation --split test --confirm-test
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml deviation --split transfer_test --region oslofjord --confirm-test
+uv run morva --data-config configs/v4/data.yaml --exp-config configs/v4/experiment.yaml deviation --split transfer_test --region skagen --confirm-test
+uv run python scripts/v4_decide.py results/v4 --split test --write results/v4/tables/v4_decision_test.md
+```
+
+Commands 5 and 6 decide V4-H1 and V4-H2; command 4 decides V4-H5; command 7 decides V4-H3 (home calibration at
+home, local calibration in the Oslofjord and at Skagen); command 10 decides V4-H4. Commands 1–3, 8, 9, 11 and 12 are
+reference baselines and the prespecified descriptive analyses. Command 13 applies the decision rules above to the
+saved summaries and writes `results/v4/tables/v4_decision_test.md` and `.json`.
+
+**Rules for the test pass.** Seed 0 is the only confirmatory seed. The test decision is made without `--latest`:
+`scripts/v4_decide.py` refuses `--latest` for the test split and refuses to decide if any required test run exists
+more than once, so no run can be selected after seeing its result. No test-time tuning, rerun after a successful
+command, model selection or threshold adjustment is permitted. A failed command may be rerun only after its cause is
+documented and only if no result from that command was produced or inspected. All later analyses on V4 test data
+are post-freeze and labelled exploratory.
+
+**FROZEN on 2026-11-10 before ordering, downloading or inspecting any V4 test-period data.** The `test` and
+`transfer_test` splits are now available only for the single pass above.

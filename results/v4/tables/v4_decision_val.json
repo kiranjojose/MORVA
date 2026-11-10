@@ -2,7 +2,7 @@
   "split": "val",
   "runs": {
     "gbm_oslofjord": "20261106T115415Z_gbm_transfer_val_oslofjord",
-    "gbm_skagen": "20261106T120458Z_gbm_transfer_val_skagen",
+    "gbm_skagen": "20261110T082726Z_gbm_transfer_val_skagen",
     "intervals_home": "20261110T073136Z_intervals_E_fairway_val",
     "intervals_oslofjord": "20261110T073136Z_intervals_E_fairway_transfer_val_oslofjord_localcal",
     "intervals_skagen": "20261110T073136Z_intervals_E_fairway_transfer_val_skagen_localcal",
@@ -29,16 +29,16 @@
         },
         {
           "check": "skagen: E_fairway - A_motion at 20 min, 95% CI upper < 0",
-          "mean": -107.09192250784258,
-          "ci95_lo": -132.2493932993414,
-          "ci95_hi": -85.74518841262116,
+          "mean": -107.1537782081262,
+          "ci95_lo": -132.37198923539836,
+          "ci95_hi": -85.8162922519181,
           "pass": true
         },
         {
           "check": "skagen: E_fairway - A_motion at 60 min, 95% CI upper < 0",
-          "mean": -714.3215832427301,
-          "ci95_lo": -829.9043531747923,
-          "ci95_hi": -605.1611428331549,
+          "mean": -714.2425674114328,
+          "ci95_lo": -829.8155903055554,
+          "ci95_hi": -604.9919694239597,
           "pass": true
         }
       ]
@@ -62,16 +62,16 @@
         },
         {
           "check": "skagen: C_location - A_motion at 20 min, 95% CI lower > 0",
-          "mean": 1701.6807649747707,
-          "ci95_lo": 1503.0317667436932,
-          "ci95_hi": 1933.7568656142423,
+          "mean": 1701.4526732897236,
+          "ci95_lo": 1502.8243616618236,
+          "ci95_hi": 1933.5431105698865,
           "pass": true
         },
         {
           "check": "skagen: C_location - A_motion at 60 min, 95% CI lower > 0",
-          "mean": 5281.324646522077,
-          "ci95_lo": 4668.018680345593,
-          "ci95_hi": 6007.271093967137,
+          "mean": 5280.813710578808,
+          "ci95_lo": 4667.43009179289,
+          "ci95_hi": 6006.483982818779,
           "pass": true
         }
       ]

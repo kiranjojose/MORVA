@@ -1,6 +1,6 @@
 # V4 decision (val)
 
-Runs: `20261106T115415Z_gbm_transfer_val_oslofjord`, `20261106T120458Z_gbm_transfer_val_skagen`, `20261110T073136Z_intervals_E_fairway_val`, `20261110T073136Z_intervals_E_fairway_transfer_val_oslofjord_localcal`, `20261110T073136Z_intervals_E_fairway_transfer_val_skagen_localcal`, `20261106T121243Z_deviation_E_fairway_val`, `20261106T114329Z_gbm_val`
+Runs: `20261106T115415Z_gbm_transfer_val_oslofjord`, `20261110T082726Z_gbm_transfer_val_skagen`, `20261110T073136Z_intervals_E_fairway_val`, `20261110T073136Z_intervals_E_fairway_transfer_val_oslofjord_localcal`, `20261110T073136Z_intervals_E_fairway_transfer_val_skagen_localcal`, `20261106T121243Z_deviation_E_fairway_val`, `20261106T114329Z_gbm_val`
 
 | Hypothesis | Outcome |
 |---|---|
@@ -25,8 +25,8 @@ Runs: `20261106T115415Z_gbm_transfer_val_oslofjord`, `20261106T120458Z_gbm_trans
 |---|---|---|
 | oslofjord: C_location - A_motion at 20 min, 95% CI lower > 0 | +646 m (+511 to +828) | yes |
 | oslofjord: C_location - A_motion at 60 min, 95% CI lower > 0 | +1,215 m (+828 to +1,718) | yes |
-| skagen: C_location - A_motion at 20 min, 95% CI lower > 0 | +1,702 m (+1,503 to +1,934) | yes |
-| skagen: C_location - A_motion at 60 min, 95% CI lower > 0 | +5,281 m (+4,668 to +6,007) | yes |
+| skagen: C_location - A_motion at 20 min, 95% CI lower > 0 | +1,701 m (+1,503 to +1,934) | yes |
+| skagen: C_location - A_motion at 60 min, 95% CI lower > 0 | +5,281 m (+4,667 to +6,006) | yes |
 
 ## V4-H3
 
