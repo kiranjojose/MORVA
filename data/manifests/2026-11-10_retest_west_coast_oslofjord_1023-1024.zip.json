@@ -1,0 +1,10 @@
+{
+  "file": "2026-11-10_retest_west_coast_oslofjord_1023-1024.zip",
+  "provider": "Kystverket Historisk AIS (HAIS), NLOD 2.0",
+  "source_url": "https://hais.kystverket.no/",
+  "size_bytes": 103144210,
+  "sha256": "d3c07ef01df143d3b325e7556df1993baf60e7c6d3c31618a26e6169f9471872",
+  "recorded_utc": "2026-11-10T13:56:50+00:00",
+  "license_note": "Check provider terms before redistribution. Raw data is not committed.",
+  "notes": "Re-order of 23-24 Oct 2026 (placed by the author 10 Nov 2026, same areas, all ship types, Parquet), to check the ground-station gap in the V4 test order. Row-for-row identical to the first delivery (non-geometry columns); the daily files in data/raw/no/ are kept from the first delivery."
+}
