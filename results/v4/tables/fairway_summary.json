@@ -120,10 +120,17 @@
       "by_split": [
         {
           "split": "excluded",
-          "windows": 699,
-          "with_flow": 696,
-          "median_abs_offset_m": 106.98970829267773,
-          "median_abs_hdg_deg": 4.42938541128953
+          "windows": 1189,
+          "with_flow": 1185,
+          "median_abs_offset_m": 108.8954581066621,
+          "median_abs_hdg_deg": 4.94402391608844
+        },
+        {
+          "split": "transfer_calib",
+          "windows": 48496,
+          "with_flow": 47988,
+          "median_abs_offset_m": 111.20265632988051,
+          "median_abs_hdg_deg": 5.679846090243288
         },
         {
           "split": "transfer_context",
@@ -134,10 +141,10 @@
         },
         {
           "split": "transfer_val",
-          "windows": 59505,
-          "with_flow": 59204,
-          "median_abs_offset_m": 110.01935301268645,
-          "median_abs_hdg_deg": 5.421966836983614
+          "windows": 59514,
+          "with_flow": 59213,
+          "median_abs_offset_m": 110.02020579900508,
+          "median_abs_hdg_deg": 5.422205689135396
         }
       ]
     }

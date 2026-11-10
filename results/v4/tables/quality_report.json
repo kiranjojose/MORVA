@@ -83,32 +83,32 @@
       }
     },
     "skagen": {
-      "rows": 62783645,
-      "vessels": 2989,
+      "rows": 67880069,
+      "vessels": 3148,
       "t_min_utc": "2026-09-19 00:00:00+00:00",
-      "t_max_utc": "2026-11-03 23:59:58+00:00",
+      "t_max_utc": "2026-11-07 23:59:58+00:00",
       "null_fraction_after_sentinels": {
-        "sog": 0.0049,
-        "cog": 0.0709,
-        "heading": 0.1574,
+        "sog": 0.0048,
+        "cog": 0.0708,
+        "heading": 0.1562,
         "ship_type": 0.0,
-        "length": 0.0461,
-        "width": 0.0462,
-        "draught": 0.3255
+        "length": 0.0469,
+        "width": 0.047,
+        "draught": 0.325
       },
       "sentinel_counts_raw": {
-        "sog_102.3": 12363,
+        "sog_102.3": 12364,
         "heading_511": 7,
         "cog_360": 0
       },
       "flags": {
         "flag_invalid_pos": 0,
-        "flag_bad_mmsi": 55131,
-        "flag_duplicate": 206750,
-        "flag_sog_high": 13992,
-        "flag_speed_spike": 1234
+        "flag_bad_mmsi": 84009,
+        "flag_duplicate": 217434,
+        "flag_sog_high": 14322,
+        "flag_speed_spike": 1246
       },
-      "rows_passing_hard_flags": 62520699,
+      "rows_passing_hard_flags": 67577583,
       "report_interval_s_quantiles": {
         "p10": 4.0,
         "p50": 10.0,
@@ -119,9 +119,9 @@
         "gap_s": 1200,
         "min_points": 20,
         "min_duration_s": 1800,
-        "segments": 8211,
-        "vessels_with_segments": 2942,
-        "rows_in_segments": 62487874
+        "segments": 9028,
+        "vessels_with_segments": 3096,
+        "rows_in_segments": 67541113
       }
     }
   }

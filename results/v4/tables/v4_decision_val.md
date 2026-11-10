@@ -1,12 +1,12 @@
 # V4 decision (val)
 
-Runs: `20261106T115415Z_gbm_transfer_val_oslofjord`, `20261106T120458Z_gbm_transfer_val_skagen`, `20261106T100300Z_intervals_E_fairway_val`, `20261106T100300Z_intervals_E_fairway_transfer_val_oslofjord_localcal`, `20261106T121243Z_deviation_E_fairway_val`, `20261106T114329Z_gbm_val`
+Runs: `20261106T115415Z_gbm_transfer_val_oslofjord`, `20261106T120458Z_gbm_transfer_val_skagen`, `20261110T073136Z_intervals_E_fairway_val`, `20261110T073136Z_intervals_E_fairway_transfer_val_oslofjord_localcal`, `20261110T073136Z_intervals_E_fairway_transfer_val_skagen_localcal`, `20261106T121243Z_deviation_E_fairway_val`, `20261106T114329Z_gbm_val`
 
 | Hypothesis | Outcome |
 |---|---|
 | V4-H1 | **supported** |
 | V4-H2 | **supported** |
-| V4-H3 | **undecided (missing runs: intervals_E_fairway_transfer_val_skagen_localcal)** |
+| V4-H3 | **supported** |
 | V4-H4 | **supported** |
 | V4-H5 | **supported** |
 
@@ -40,6 +40,10 @@ Runs: `20261106T115415Z_gbm_transfer_val_oslofjord`, `20261106T120458Z_gbm_trans
 | oslofjord: 80% box at 60 min within ±3 points | 80.6% (nominal 80%) | yes |
 | oslofjord: 90% box at 20 min within ±3 points | 90.5% (nominal 90%) | yes |
 | oslofjord: 90% box at 60 min within ±3 points | 90.0% (nominal 90%) | yes |
+| skagen: 80% box at 20 min within ±3 points | 80.1% (nominal 80%) | yes |
+| skagen: 80% box at 60 min within ±3 points | 79.8% (nominal 80%) | yes |
+| skagen: 90% box at 20 min within ±3 points | 90.3% (nominal 90%) | yes |
+| skagen: 90% box at 60 min within ±3 points | 90.0% (nominal 90%) | yes |
 
 ## V4-H4
 

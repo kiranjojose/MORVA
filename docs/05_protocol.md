@@ -404,7 +404,7 @@ gain. Each hypothesis is reported separately; support for one does not imply sup
 
 1. Done 6 Nov: `gbm` reports paired G − E and H − E; `deviation` reports the vessel-bootstrap CI of the paired
    detection gap, model minus each rule, at every horizon.
-2. Skagen calibration days (4–7 Nov 2026): download, ingest, rebuild Skagen windows and features, and validate V4-H3
-   at Skagen.
-3. Done 6 Nov: `scripts/v4_decide.py` applies these rules (tests in `tests/test_v4_decide.py`); on validation H1, H2, H4
-   and H5 are supported and H3 is undecided until Skagen is calibrated (`results/v4/tables/v4_decision_val.md`).
+2. Done 10 Nov: Skagen calibration days (4–7 Nov 2026) downloaded, ingested, Skagen windows and features rebuilt;
+   local calibration at Skagen gives 79.8–80.1% (80% box) and 90.0–90.3% (90% box) at 20 and 60 min.
+3. Done 6 Nov: `scripts/v4_decide.py` applies these rules (tests in `tests/test_v4_decide.py`). On validation
+   (10 Nov, `results/v4/tables/v4_decision_val.md`) all five hypotheses are supported.

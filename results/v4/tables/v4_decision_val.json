@@ -3,9 +3,9 @@
   "runs": {
     "gbm_oslofjord": "20261106T115415Z_gbm_transfer_val_oslofjord",
     "gbm_skagen": "20261106T120458Z_gbm_transfer_val_skagen",
-    "intervals_home": "20261106T100300Z_intervals_E_fairway_val",
-    "intervals_oslofjord": "20261106T100300Z_intervals_E_fairway_transfer_val_oslofjord_localcal",
-    "intervals_skagen": null,
+    "intervals_home": "20261110T073136Z_intervals_E_fairway_val",
+    "intervals_oslofjord": "20261110T073136Z_intervals_E_fairway_transfer_val_oslofjord_localcal",
+    "intervals_skagen": "20261110T073136Z_intervals_E_fairway_transfer_val_skagen_localcal",
     "deviation_home": "20261106T121243Z_deviation_E_fairway_val",
     "gbm_home": "20261106T114329Z_gbm_val"
   },
@@ -77,7 +77,7 @@
       ]
     },
     "V4-H3": {
-      "outcome": "undecided (missing runs: intervals_E_fairway_transfer_val_skagen_localcal)",
+      "outcome": "supported",
       "checks": [
         {
           "check": "home: 80% box at 20 min within \u00b13 points",
@@ -124,6 +124,30 @@
         {
           "check": "oslofjord: 90% box at 60 min within \u00b13 points",
           "coverage": 0.900276618688171,
+          "nominal": 0.9,
+          "pass": true
+        },
+        {
+          "check": "skagen: 80% box at 20 min within \u00b13 points",
+          "coverage": 0.8013072554356958,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "skagen: 80% box at 60 min within \u00b13 points",
+          "coverage": 0.797879490540041,
+          "nominal": 0.8,
+          "pass": true
+        },
+        {
+          "check": "skagen: 90% box at 20 min within \u00b13 points",
+          "coverage": 0.9029136001613066,
+          "nominal": 0.9,
+          "pass": true
+        },
+        {
+          "check": "skagen: 90% box at 60 min within \u00b13 points",
+          "coverage": 0.8998554961857714,
           "nominal": 0.9,
           "pass": true
         }

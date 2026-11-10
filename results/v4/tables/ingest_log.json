@@ -459,6 +459,46 @@
       "skagen": 1223761
     }
   },
+  "aisdk-2026-11-04.zip": {
+    "source": "aisdk-2026-11-04.zip",
+    "interim": "aisdk-2026-11-04.parquet",
+    "rows_in_aoi": 3641200,
+    "exact_duplicates_removed": 2378532,
+    "rows_written": 1262668,
+    "rows_written_by_region": {
+      "skagen": 1262668
+    }
+  },
+  "aisdk-2026-11-05.zip": {
+    "source": "aisdk-2026-11-05.zip",
+    "interim": "aisdk-2026-11-05.parquet",
+    "rows_in_aoi": 2745374,
+    "exact_duplicates_removed": 1461707,
+    "rows_written": 1283667,
+    "rows_written_by_region": {
+      "skagen": 1283667
+    }
+  },
+  "aisdk-2026-11-06.zip": {
+    "source": "aisdk-2026-11-06.zip",
+    "interim": "aisdk-2026-11-06.parquet",
+    "rows_in_aoi": 2389020,
+    "exact_duplicates_removed": 1120756,
+    "rows_written": 1268264,
+    "rows_written_by_region": {
+      "skagen": 1268264
+    }
+  },
+  "aisdk-2026-11-07.zip": {
+    "source": "aisdk-2026-11-07.zip",
+    "interim": "aisdk-2026-11-07.parquet",
+    "rows_in_aoi": 2294982,
+    "exact_duplicates_removed": 1013157,
+    "rows_written": 1281825,
+    "rows_written_by_region": {
+      "skagen": 1281825
+    }
+  },
   "hais_2026-09-19.snappy.parquet": {
     "source": "hais_2026-09-19.snappy.parquet",
     "interim": "hais_2026-09-19.parquet",

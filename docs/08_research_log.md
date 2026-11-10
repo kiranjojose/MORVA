@@ -354,3 +354,9 @@ All with `--confirm-test`. Run folders `results/v2/runs/20261021T2*`; tables in 
 
 ## 2026-11-07 (Sat), author's rewording of the V4 draft hypotheses
 - The author rewrote the status note, the statements and decision rules of V4-H1 to V4-H5 in their own words, and added a closing paragraph on how the five hypotheses relate. The decision rules are unchanged in substance and still match `scripts/v4_decide.py` (checked: regions, horizons, the ±3-point coverage band, the 18 model − rule checks at 20 min and p <= 0.05 with the 4–6% control band, and the ±150 m equivalence margin). The hypotheses remain a draft until the freeze.
+
+## 2026-11-10 (Tue), Skagen calibration days and V4-H3 on validation
+- DMA files for Skagen calibration (4–7 Nov 2026, 2.72 GB) downloaded on 10 Nov from aisdata.ais.dk with the author's approval; sizes match the server listing, `unzip -t` passes, manifests written. No Skagen test day (8–21 Nov) is on disk.
+- `ingest` (4 new files, 1 min), `clean` (9 min), `windows` (3 min), `fairway` (1 min), `environment` (2 min, new days only). Skagen: 9,028 segments from 3,096 vessels; transfer_calib 48,496 windows; transfer_val 59,514 (was 59,505: nine windows near the 3/4 Nov boundary now come from segments that continue into the calibration days). Other regions unchanged. Current coverage at Skagen 99.98%.
+- `intervals --sweep` for E, A and H (22 min). E at Skagen with local calibration: 80.1 / 79.8% (80% box, 20 / 60 min) and 90.3 / 90.0% (90% box); A and H also within 1 point of nominal. With home calibration Skagen stays at 82.0 / 76.6% and 90.0 / 86.4%. Home and Oslofjord coverage match the 6 Nov runs.
+- Decision script on validation (`--latest`): V4-H1 to V4-H5 all supported. The gbm and deviation runs it reads for Skagen are from 6 Nov (59,505 windows); the nine-window difference does not affect any decision. The hypotheses are ready for the author's final review and the freeze.

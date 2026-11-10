@@ -28,23 +28,23 @@
       "vessels": 604
     },
     "excluded": {
-      "windows": 1298,
-      "vessels": 111
+      "windows": 1788,
+      "vessels": 152
     },
     "train": {
       "windows": 376524,
       "vessels": 1069
     },
     "transfer_calib": {
-      "windows": 20696,
-      "vessels": 139
+      "windows": 69192,
+      "vessels": 739
     },
     "transfer_context": {
       "windows": 510667,
       "vessels": 2812
     },
     "transfer_val": {
-      "windows": 80834,
+      "windows": 80843,
       "vessels": 874
     },
     "val": {
@@ -54,7 +54,7 @@
   },
   "vessel_overlap_with_train": {
     "calib": 513,
-    "transfer_calib": 14,
+    "transfer_calib": 66,
     "transfer_val": 90,
     "val": 580
   },
@@ -68,8 +68,8 @@
       "vessels": 11
     },
     "excluded/skagen": {
-      "windows": 699,
-      "vessels": 59
+      "windows": 1189,
+      "vessels": 100
     },
     "excluded/west_coast": {
       "windows": 492,
@@ -82,6 +82,10 @@
     "transfer_calib/oslofjord": {
       "windows": 20696,
       "vessels": 139
+    },
+    "transfer_calib/skagen": {
+      "windows": 48496,
+      "vessels": 607
     },
     "transfer_context/oslofjord": {
       "windows": 81386,
@@ -96,7 +100,7 @@
       "vessels": 140
     },
     "transfer_val/skagen": {
-      "windows": 59505,
+      "windows": 59514,
       "vessels": 748
     },
     "val/west_coast": {
